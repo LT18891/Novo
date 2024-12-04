@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Jogo de Alienígenas</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+        canvas {
+            border: 2px solid #fff;
+            background-color: #111;
+        }
+        #fimDeJogoTela {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 800px;
+            height: 600px;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            visibility: hidden;
+            z-index: 2;
+        }
+        #legendaAutor {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            color: blue;
+            font-size: 16px;
+            animation: piscar 1s infinite;
+            z-index: 1;
+        }
+        @keyframes piscar {
+            0% { opacity: 1; }
+            50% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="jogoCanvas" width="800" height="600"></canvas>
+    <div id="fimDeJogoTela">
+        <div>Fim de Jogo! Você foi alcançado pelos alienígenas.</div>
+        <div id="pontuacaoFinal">Pontuação: 0</div>
+    </div>
+    <div id="legendaAutor">Desenvolvido por Luiz Tiago Wilcke</div>
+
+    <script>
+        const canvas = document.getElementById('jogoCanvas');
+        const contexto = canvas.getContext('2d');
+        const fimDeJogoTela = document.getElementById('fimDeJogoTela');
+        const pontuacaoFinal = document.getElementById('pontuacaoFinal');
+        const legendaAutor = document.getElementById('legendaAutor');
+
+        let jogoAtivo = true;
+        let jogador = {
+            x: canvas.width / 2,
+            y: canvas.height / 2,
+            tamanho: 30,
+            velocidade: 5,
+            cor: 'lime',
+            tiroCor: 'yellow',
+            tiros: []
+        };
+        let inimigos = [];
+        const inimigoTamanho = 30;
+        const inimigoVelocidade = 2;
+        let ultimoSpawn = 0;
+        const intervaloSpawn = 2000;
+        let teclasPressionadas = {};
+        let pontuacao = 0;
+        let podeAtirar = true;
+        const cooldownTiro = 300;
+        let mouseX = jogador.x;
+        let mouseY = jogador.y;
+
+        class Inimigo {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.tamanho = inimigoTamanho;
+                this.cor = 'red';
+                const direcao = Math.atan2(jogador.y - this.y, jogador.x - this.x);
+                this.velocidadeX = inimigoVelocidade * Math.cos(direcao);
+                this.velocidadeY = inimigoVelocidade * Math.sin(direcao);
+            }
+            atualizar() {
+                this.x += this.velocidadeX;
+                this.y += this.velocidadeY;
+            }
+            desenhar() {
+                contexto.fillStyle = this.cor;
+                contexto.beginPath();
+                contexto.arc(this.x, this.y, this.tamanho / 2, 0, Math.PI * 2);
+                contexto.fill();
+                contexto.closePath();
+                contexto.fillStyle = 'white';
+                contexto.beginPath();
+                contexto.arc(this.x - this.tamanho / 8, this.y - this.tamanho / 8, this.tamanho / 10, 0, Math.PI * 2);
+                contexto.arc(this.x + this.tamanho / 8, this.y - this.tamanho / 8, this.tamanho / 10, 0, Math.PI * 2);
+                contexto.fill();
+                contexto.closePath();
+                contexto.strokeStyle = 'black';
+                contexto.lineWidth = 2;
+                contexto.beginPath();
+                contexto.arc(this.x, this.y + this.tamanho / 8, this.tamanho / 10, 0, Math.PI, false);
+                contexto.stroke();
+                contexto.closePath();
+            }
+        }
+
+        class Tiro {
+            constructor(x, y, direcao) {
+                this.x = x;
+                this.y = y;
+                this.raio = 5;
+                this.cor = jogador.tiroCor;
+                this.velocidade = 10;
+                this.direcao = direcao;
+                this.velocidadeX = this.velocidade * Math.cos(direcao);
+                this.velocidadeY = this.velocidade * Math.sin(direcao);
+            }
+            atualizar() {
+                this.x += this.velocidadeX;
+                this.y += this.velocidadeY;
+            }
+            desenhar() {
+                contexto.beginPath();
+                contexto.arc(this.x, this.y, this.raio, 0, Math.PI * 2);
+                contexto.fillStyle = this.cor;
+                contexto.fill();
+                contexto.closePath();
+            }
+        }
+
+        function inicializarInimigos() {
+            const posicao = obterPosicaoAleatoriaBorda();
+            inimigos.push(new Inimigo(posicao.x, posicao.y));
+        }
+
+        function obterPosicaoAleatoriaBorda() {
+            const lado = Math.floor(Math.random() * 4);
+            let x, y;
+            switch (lado) {
+                case 0:
+                    x = Math.random() * canvas.width;
+                    y = 0;
+                    break;
+                case 1:
+                    x = canvas.width;
+                    y = Math.random() * canvas.height;
+                    break;
+                case 2:
+                    x = Math.random() * canvas.width;
+                    y = canvas.height;
+                    break;
+                case 3:
+                    x = 0;
+                    y = Math.random() * canvas.height;
+                    break;
+            }
+            return {x, y};
+        }
+
+        document.addEventListener('keydown', (evento) => {
+            teclasPressionadas[evento.code] = true;
+            if (evento.code === 'Space') {
+                evento.preventDefault();
+                atirar();
+            }
+        });
+
+        document.addEventListener('keyup', (evento) => {
+            teclasPressionadas[evento.code] = false;
+        });
+
+        canvas.addEventListener('mousemove', (evento) => {
+            const rect = canvas.getBoundingClientRect();
+            mouseX = evento.clientX - rect.left;
+            mouseY = evento.clientY - rect.top;
+        });
+
+        function atirar() {
+            if (podeAtirar && jogoAtivo) {
+                const direcao = Math.atan2(mouseY - jogador.y, mouseX - jogador.x);
+                jogador.tiros.push(new Tiro(jogador.x, jogador.y, direcao));
+                podeAtirar = false;
+                setTimeout(() => {
+                    podeAtirar = true;
+                }, cooldownTiro);
+            }
+        }
+
+        function atualizarJogador() {
+            if (teclasPressionadas['ArrowUp'] || teclasPressionadas['KeyW']) {
+                jogador.y -= jogador.velocidade;
+                if (jogador.y < jogador.tamanho / 2) jogador.y = jogador.tamanho / 2;
+            }
+            if (teclasPressionadas['ArrowDown'] || teclasPressionadas['KeyS']) {
+                jogador.y += jogador.velocidade;
+                if (jogador.y > canvas.height - jogador.tamanho / 2) jogador.y = canvas.height - jogador.tamanho / 2;
+            }
+            if (teclasPressionadas['ArrowLeft'] || teclasPressionadas['KeyA']) {
+                jogador.x -= jogador.velocidade;
+                if (jogador.x < jogador.tamanho / 2) jogador.x = jogador.tamanho / 2;
+            }
+            if (teclasPressionadas['ArrowRight'] || teclasPressionadas['KeyD']) {
+                jogador.x += jogador.velocidade;
+                if (jogador.x > canvas.width - jogador.tamanho / 2) jogador.x = canvas.width - jogador.tamanho / 2;
+            }
+        }
+
+        function atualizarTiros() {
+            jogador.tiros.forEach((tiro, index) => {
+                tiro.atualizar();
+                if (tiro.x < 0 || tiro.x > canvas.width || tiro.y < 0 || tiro.y > canvas.height) {
+                    jogador.tiros.splice(index, 1);
+                }
+            });
+        }
+
+        function atualizarInimigos(deltaTempo) {
+            inimigos.forEach((inimigo, index) => {
+                inimigo.atualizar();
+                const distancia = Math.hypot(jogador.x - inimigo.x, jogador.y - inimigo.y);
+                if (distancia < jogador.tamanho / 2 + inimigo.tamanho / 2) {
+                    fimDeJogo();
+                }
+            });
+            if (Date.now() - ultimoSpawn > intervaloSpawn) {
+                inicializarInimigos();
+                ultimoSpawn = Date.now();
+            }
+        }
+
+        function detectarColisoes() {
+            jogador.tiros.forEach((tiro, tiroIndex) => {
+                inimigos.forEach((inimigo, inimigoIndex) => {
+                    const distancia = Math.hypot(tiro.x - inimigo.x, tiro.y - inimigo.y);
+                    if (distancia < tiro.raio + inimigo.tamanho / 2) {
+                        inimigos.splice(inimigoIndex, 1);
+                        jogador.tiros.splice(tiroIndex, 1);
+                        pontuacao += 10;
+                        inicializarInimigos();
+                    }
+                });
+            });
+        }
+
+        function desenharJogador() {
+            contexto.fillStyle = jogador.cor;
+            contexto.beginPath();
+            contexto.arc(jogador.x, jogador.y, jogador.tamanho / 2, 0, Math.PI * 2);
+            contexto.fill();
+            contexto.closePath();
+            contexto.fillStyle = 'white';
+            contexto.beginPath();
+            contexto.arc(jogador.x - jogador.tamanho / 8, jogador.y - jogador.tamanho / 8, jogador.tamanho / 10, 0, Math.PI * 2);
+            contexto.arc(jogador.x + jogador.tamanho / 8, jogador.y - jogador.tamanho / 8, jogador.tamanho / 10, 0, Math.PI * 2);
+            contexto.fill();
+            contexto.closePath();
+            contexto.strokeStyle = 'black';
+            contexto.lineWidth = 2;
+            contexto.beginPath();
+            contexto.arc(jogador.x, jogador.y + jogador.tamanho / 8, jogador.tamanho / 10, 0, Math.PI, false);
+            contexto.stroke();
+            contexto.closePath();
+        }
+
+        function desenharTiros() {
+            jogador.tiros.forEach(tiro => {
+                tiro.desenhar();
+            });
+        }
+
+        function desenharInimigos() {
+            inimigos.forEach(inimigo => {
+                inimigo.desenhar();
+            });
+        }
+
+        function desenharPontuacao() {
+            contexto.fillStyle = 'white';
+            contexto.font = '20px Arial';
+            contexto.fillText(`Pontuação: ${pontuacao}`, 10, 30);
+        }
+
+        function fimDeJogo() {
+            jogoAtivo = false;
+            fimDeJogoTela.style.visibility = 'visible';
+            pontuacaoFinal.innerText = `Pontuação: ${pontuacao}`;
+            setTimeout(reiniciarJogo, 3000);
+        }
+
+        function reiniciarJogo() {
+            jogador.x = canvas.width / 2;
+            jogador.y = canvas.height / 2;
+            jogador.tiros = [];
+            inimigos = [];
+            pontuacao = 0;
+            podeAtirar = true;
+            teclasPressionadas = {};
+            fimDeJogoTela.style.visibility = 'hidden';
+            ultimoTempo = Date.now();
+            jogoAtivo = true;
+            atualizar();
+        }
+
+        function atualizar() {
+            if (!jogoAtivo) return;
+            const agora = Date.now();
+            const deltaTempo = agora - ultimoTempo;
+            ultimoTempo = agora;
+            contexto.clearRect(0, 0, canvas.width, canvas.height);
+            atualizarJogador();
+            atualizarTiros();
+            atualizarInimigos(deltaTempo);
+            detectarColisoes();
+            desenharJogador();
+            desenharTiros();
+            desenharInimigos();
+            desenharPontuacao();
+            requestAnimationFrame(atualizar);
+        }
+
+        let ultimoTempo = Date.now();
+
+        function iniciarJogo() {
+            jogador.x = canvas.width / 2;
+            jogador.y = canvas.height / 2;
+            jogador.tiros = [];
+            inimigos = [];
+            pontuacao = 0;
+            podeAtirar = true;
+            for (let i = 0; i < 5; i++) {
+                inicializarInimigos();
+            }
+            ultimoSpawn = Date.now();
+            jogoAtivo = true;
+            fimDeJogoTela.style.visibility = 'hidden';
+            ultimoTempo = Date.now();
+            atualizar();
+        }
+
+        iniciarJogo();
+    </script>
+</body>
+</html>

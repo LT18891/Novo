@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Galáxia e Equação de Drake</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async
+            src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+        body {
+            background-color: #0d0d0d;
+            color: #e0e0e0;
+            font-family: 'Orbitron', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            text-align: center;
+            padding: 20px;
+            background-color: #1a1a1a;
+            box-shadow: 0 0 20px #00ff00;
+        }
+        h1 {
+            margin: 0;
+            font-size: 2.5em;
+            color: #00ff00;
+        }
+        .article {
+            padding: 20px;
+            background-color: #1a1a1a;
+            margin: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px #00ff00;
+            line-height: 1.6;
+        }
+        .article h2 {
+            color: #00ff00;
+            margin-bottom: 10px;
+        }
+        .article p {
+            margin-bottom: 15px;
+        }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 20px;
+        }
+        .inputs, .galaxy {
+            flex: 1 1 400px;
+            margin: 10px;
+        }
+        .inputs {
+            background-color: #1a1a1a;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px #00ff00;
+        }
+        .inputs label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        .inputs input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: none;
+            border-radius: 5px;
+            background-color: #333;
+            color: #e0e0e0;
+            font-size: 1em;
+        }
+        .inputs button {
+            width: 100%;
+            padding: 10px;
+            background-color: #00ff00;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .inputs button:hover {
+            background-color: #00cc00;
+        }
+        .formula {
+            background-color: #1a1a1a;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px #00ff00;
+            font-size: 1.2em;
+        }
+        .results {
+            background-color: #1a1a1a;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px #00ff00;
+            font-size: 1.2em;
+        }
+        canvas {
+            width: 100%;
+            height: 600px;
+            background-color: #000;
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+        }
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #1a1a1a;
+            color: #00ff00;
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+        }
+        .star-label {
+            position: absolute;
+            background-color: rgba(0, 255, 0, 0.8);
+            color: #000;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-size: 0.8em;
+            pointer-events: none;
+        }
+        .galaxy-container {
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Galáxia e Equação de Drake</h1>
+    </header>
+    <div class="article">
+        <h2>Entendendo a Equação de Drake</h2>
+        <p>A Equação de Drake é uma ferramenta formulada pelo astrônomo Frank Drake em 1961, com o objetivo de estimar o número de civilizações comunicativas na nossa galáxia, a Via Láctea. Embora a equação não forneça uma resposta definitiva, ela serve como um quadro para discutir e refinar as variáveis que influenciam a probabilidade de vida inteligente existir em outros sistemas estelares.</p>
+        <p>A equação é representada da seguinte forma:</p>
+        <div>
+            $$N = R^* \times f_p \times n_e \times f_l \times f_i \times f_c \times L$$
+        </div>
+        <p>Cada termo da equação representa um fator específico:</p>
+        <ul>
+            <li><strong>R*</strong>: Taxa de formação de estrelas adequadas para o desenvolvimento de vida na galáxia.</li>
+            <li><strong>f<sub>p</sub></strong>: Fração dessas estrelas que possuem sistemas planetários.</li>
+            <li><strong>n<sub>e</sub></strong>: Número médio de planetas que podem suportar vida por sistema planetário.</li>
+            <li><strong>f<sub>l</sub></strong>: Fração desses planetas onde a vida realmente surge.</li>
+            <li><strong>f<sub>i</sub></strong>: Fração dos planetas onde a vida evolui para formas inteligentes.</li>
+            <li><strong>f<sub>c</sub></strong>: Fração das civilizações inteligentes que desenvolvem tecnologia detectável.</li>
+            <li><strong>L</strong>: Duração de tempo em que essas civilizações são detectáveis.</li>
+        </ul>
+        <p>Ao inserir valores estimados para cada um desses fatores, a equação fornece uma estimativa do número de civilizações com as quais poderíamos potencialmente nos comunicar atualmente. Este modelo continua a ser uma base importante para a astrobiologia e a busca por vida extraterrestre.</p>
+    </div>
+    <div class="container">
+        <div class="inputs">
+            <label>Taxa de formação estelar por ano (R*):
+                <input type="number" id="Rstar" placeholder="Ex: 7">
+            </label>
+            <label>Fração de estrelas com sistemas planetários (fp):
+                <input type="number" step="0.01" id="fp" placeholder="Ex: 0.5">
+            </label>
+            <label>Número de planetas adequados por sistema (ne):
+                <input type="number" id="ne" placeholder="Ex: 2">
+            </label>
+            <label>Fração de planetas onde a vida surge (fl):
+                <input type="number" step="0.01" id="fl" placeholder="Ex: 0.33">
+            </label>
+            <label>Fração de vida que se torna inteligente (fi):
+                <input type="number" step="0.01" id="fi" placeholder="Ex: 0.01">
+            </label>
+            <label>Fração de civilizações detectáveis (fc):
+                <input type="number" step="0.01" id="fc" placeholder="Ex: 0.1">
+            </label>
+            <label>Duração de detectabilidade (L) em anos:
+                <input type="number" id="L" placeholder="Ex: 1000">
+            </label>
+            <button onclick="calcularDrake()">Calcular e Renderizar</button>
+            <div class="formula">
+                $$N = R^* \times f_p \times n_e \times f_l \times f_i \times f_c \times L$$
+            </div>
+            <div class="results" id="results">
+                Número de civilizações detectáveis (N): <span id="NValue">---</span>
+            </div>
+        </div>
+        <div class="galaxy">
+            <div class="galaxy-container">
+                <canvas id="galaxyCanvas"></canvas>
+                <div id="labels"></div>
+            </div>
+        </div>
+    </div>
+    <footer>
+        Autor: Luiz Tiago Wilcke
+    </footer>
+    <script>
+        const starNames = ["Alpha", "Beta", "Gamma", "Delta", "Epsilon", "Zeta", "Eta", "Theta", "Iota", "Kappa",
+                           "Lambda", "Mu", "Nu", "Xi", "Omicron", "Pi", "Rho", "Sigma", "Tau", "Upsilon",
+                           "Phi", "Chi", "Psi", "Omega"];
+        function calcularDrake(){
+            const Rstar = parseFloat(document.getElementById('Rstar').value) || 7;
+            const fp = parseFloat(document.getElementById('fp').value) || 0.5;
+            const ne = parseFloat(document.getElementById('ne').value) || 2;
+            const fl = parseFloat(document.getElementById('fl').value) || 0.33;
+            const fi = parseFloat(document.getElementById('fi').value) || 0.01;
+            const fc = parseFloat(document.getElementById('fc').value) || 0.1;
+            const L = parseFloat(document.getElementById('L').value) || 1000;
+            const N = Rstar * fp * ne * fl * fi * fc * L;
+            document.getElementById('NValue').innerText = N.toFixed(2);
+            renderGalaxy(N);
+        }
+        function renderGalaxy(N){
+            const canvas = document.getElementById('galaxyCanvas');
+            const ctx = canvas.getContext('2d');
+            const labelsDiv = document.getElementById('labels');
+            canvas.width = canvas.clientWidth;
+            canvas.height = canvas.clientHeight;
+            labelsDiv.innerHTML = "";
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const stars = 800;
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const maxRadius = Math.min(centerX, centerY) - 20;
+            for(let i=0;i<stars;i++){
+                const angle = Math.random() * 2 * Math.PI;
+                const radius = Math.sqrt(Math.random()) * maxRadius;
+                const x = centerX + radius * Math.cos(angle);
+                const y = centerY + radius * Math.sin(angle);
+                const size = Math.random() * 1.5 + 0.5;
+                const lifePotential = Math.random();
+                let hasLife = false;
+                if(lifePotential < N / 1000){
+                    ctx.fillStyle = '#00ff00';
+                    hasLife = true;
+                } else {
+                    ctx.fillStyle = '#ffffff';
+                }
+                ctx.beginPath();
+                ctx.arc(x, y, size, 0, Math.PI * 2);
+                ctx.fill();
+                if(hasLife){
+                    const name = starNames[Math.floor(Math.random() * starNames.length)] + ' ' + (i+1);
+                    const label = document.createElement('div');
+                    label.className = 'star-label';
+                    label.style.left = (x + 5) + 'px';
+                    label.style.top = (y + 5) + 'px';
+                    label.innerText = name;
+                    labelsDiv.appendChild(label);
+                }
+            }
+            MathJax.typeset();
+        }
+        window.onload = function(){
+            calcularDrake();
+        }
+    </script>
+</body>
+</html>
+

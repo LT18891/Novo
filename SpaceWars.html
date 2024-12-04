@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Space Wars</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: black;
+            color: white;
+        }
+        h1 {
+            text-align: center;
+            font-size: 48px;
+            margin-top: 20px;
+        }
+        canvas {
+            background: black;
+            display: block;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Autor: Luiz Tiago Wilcke</h1>
+    <canvas id="tela" width="800" height="600"></canvas>
+    <script>
+        // Seleciona o canvas e define o contexto
+        var tela = document.getElementById("tela");
+        var contexto = tela.getContext("2d");
+
+        // Variáveis do jogador
+        var nave = {
+            x: tela.width / 2 - 15,
+            y: tela.height - 60,
+            largura: 30,
+            altura: 30,
+            velocidade: 5,
+            tiros: [],
+            podeAtirar: true
+        };
+
+        // Variáveis dos inimigos
+        var inimigos = [];
+        var velocidadeInimigo = 2;
+        var frequenciaInimigo = 60; // Frames para gerar um novo inimigo
+
+        // Variáveis de controle
+        var teclas = {};
+        var pontuacao = 0;
+        var jogoAtivo = true;
+        var contadorFrames = 0;
+
+        // Eventos de teclado
+        document.addEventListener("keydown", function(evento) {
+            teclas[evento.keyCode] = true;
+        });
+
+        document.addEventListener("keyup", function(evento) {
+            teclas[evento.keyCode] = false;
+        });
+
+        // Função principal do jogo
+        function atualizar() {
+            if (!jogoAtivo) return;
+
+            contexto.clearRect(0, 0, tela.width, tela.height);
+
+            moverNave();
+            controlarTiros();
+            gerarInimigos();
+            moverInimigos();
+            detectarColisoes();
+            desenharNave();
+            desenharTiros();
+            desenharInimigos();
+            exibirPontuacao();
+
+            requestAnimationFrame(atualizar);
+        }
+
+        // Funções auxiliares
+        function moverNave() {
+            if (teclas[37] && nave.x > 0) {
+                nave.x -= nave.velocidade;
+            }
+            if (teclas[39] && nave.x + nave.largura < tela.width) {
+                nave.x += nave.velocidade;
+            }
+            if (teclas[32] && nave.podeAtirar) {
+                nave.tiros.push({ x: nave.x + nave.largura / 2 - 2.5, y: nave.y, largura: 5, altura: 10 });
+                nave.podeAtirar = false;
+            }
+            if (!teclas[32]) {
+                nave.podeAtirar = true;
+            }
+        }
+
+        function controlarTiros() {
+            for (var i = 0; i < nave.tiros.length; i++) {
+                var tiro = nave.tiros[i];
+                tiro.y -= 7;
+                if (tiro.y + tiro.altura < 0) {
+                    nave.tiros.splice(i, 1);
+                    i--;
+                }
+            }
+        }
+
+        function gerarInimigos() {
+            contadorFrames++;
+            if (contadorFrames >= frequenciaInimigo) {
+                inimigos.push({
+                    x: Math.random() * (tela.width - 30),
+                    y: -30,
+                    largura: 30,
+                    altura: 30
+                });
+                contadorFrames = 0;
+            }
+        }
+
+        function moverInimigos() {
+            for (var i = 0; i < inimigos.length; i++) {
+                var inimigo = inimigos[i];
+                inimigo.y += velocidadeInimigo;
+                if (inimigo.y > tela.height) {
+                    inimigos.splice(i, 1);
+                    i--;
+                }
+            }
+        }
+
+        function detectarColisoes() {
+            // Colisão entre tiros e inimigos
+            for (var i = 0; i < nave.tiros.length; i++) {
+                var tiro = nave.tiros[i];
+                for (var j = 0; j < inimigos.length; j++) {
+                    var inimigo = inimigos[j];
+                    if (tiro.x < inimigo.x + inimigo.largura &&
+                        tiro.x + tiro.largura > inimigo.x &&
+                        tiro.y < inimigo.y + inimigo.altura &&
+                        tiro.y + tiro.altura > inimigo.y) {
+                        nave.tiros.splice(i, 1);
+                        inimigos.splice(j, 1);
+                        pontuacao += 10;
+                        i--;
+                        break;
+                    }
+                }
+            }
+
+            // Colisão entre inimigos e jogador
+            for (var i = 0; i < inimigos.length; i++) {
+                var inimigo = inimigos[i];
+                if (nave.x < inimigo.x + inimigo.largura &&
+                    nave.x + nave.largura > inimigo.x &&
+                    nave.y < inimigo.y + inimigo.altura &&
+                    nave.y + nave.altura > inimigo.y) {
+                    jogoAtivo = false;
+                    alert("Game Over! Pontuação: " + pontuacao);
+                    document.location.reload();
+                    break;
+                }
+            }
+        }
+
+        function desenharNave() {
+            contexto.fillStyle = "white";
+            contexto.beginPath();
+            contexto.moveTo(nave.x + nave.largura / 2, nave.y);
+            contexto.lineTo(nave.x, nave.y + nave.altura);
+            contexto.lineTo(nave.x + nave.largura, nave.y + nave.altura);
+            contexto.closePath();
+            contexto.fill();
+        }
+
+        function desenharTiros() {
+            contexto.fillStyle = "red";
+            for (var i = 0; i < nave.tiros.length; i++) {
+                var tiro = nave.tiros[i];
+                contexto.fillRect(tiro.x, tiro.y, tiro.largura, tiro.altura);
+            }
+        }
+
+        function desenharInimigos() {
+            contexto.fillStyle = "green";
+            for (var i = 0; i < inimigos.length; i++) {
+                var inimigo = inimigos[i];
+                contexto.fillRect(inimigo.x, inimigo.y, inimigo.largura, inimigo.altura);
+            }
+        }
+
+        function exibirPontuacao() {
+            contexto.fillStyle = "white";
+            contexto.font = "20px Arial";
+            contexto.fillText("Pontuação: " + pontuacao, 10, 30);
+        }
+
+        // Inicia o jogo
+        atualizar();
+    </script>
+</body>
+</html>

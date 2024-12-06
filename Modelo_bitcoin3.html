@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Previsão do Bitcoin com EDE Avançada</title>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+            font-family: 'Orbitron', sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background-color: #2e2e2e;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px #00ff00;
+        }
+        h1, h2, h3 {
+            color: #00ff00;
+            text-align: center;
+        }
+        p, ul {
+            color: #cccccc;
+            text-align: justify;
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: inline-block;
+            width: 250px;
+            font-weight: bold;
+            color: #00ff00;
+        }
+        input {
+            width: 200px;
+            padding: 5px;
+            background-color: #1a1a1a;
+            border: 1px solid #00ff00;
+            color: #e0e0e0;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #00ff00;
+            color: #1a1a1a;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #00cc00;
+        }
+        #result {
+            margin-top: 30px;
+        }
+        footer {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 14px;
+            color: #555;
+        }
+        canvas {
+            background-color: #1a1a1a;
+            border: 1px solid #00ff00;
+            border-radius: 10px;
+        }
+        .article {
+            margin-top: 40px;
+            padding: 20px;
+            background-color: #1e1e1e;
+            border-radius: 10px;
+            box-shadow: 0 0 10px #00ff00;
+        }
+        .article h3 {
+            text-align: left;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+    <h1>Previsão do Preço do Bitcoin com EDE Avançada</h1>
+    <p>Autor: <strong>Luiz Tiago Wilcke</strong></p>
+
+    <h2>Modelo Matemático</h2>
+    <p>
+        \[
+        dS_t = \mu S_t dt + \sigma S_t dW_t + S_t (J - 1) dN_t
+        \]
+    </p>
+    <p>Onde:</p>
+    <ul>
+        <li>\( S_t \): Preço do Bitcoin no tempo \( t \)</li>
+        <li>\( \mu \): Taxa de retorno esperada</li>
+        <li>\( \sigma \): Volatilidade do ativo</li>
+        <li>\( W_t \): Processo de Wiener</li>
+        <li>\( N_t \): Processo de Poisson com taxa \( \lambda \) (frequência dos saltos)</li>
+        <li>\( J \): Tamanho do salto, seguindo uma distribuição log-normal</li>
+    </ul>
+
+    <h2>Parâmetros do Modelo</h2>
+    <div class="input-group">
+        <label for="precoInicial">Preço Inicial do Bitcoin (\( S_0 \)):</label>
+        <input type="number" id="precoInicial" value="30000" step="any">
+    </div>
+    <div class="input-group">
+        <label for="taxaRetorno">Taxa de Retorno Esperada (\( \mu \)):</label>
+        <input type="number" id="taxaRetorno" value="0.10" step="any">
+    </div>
+    <div class="input-group">
+        <label for="volatilidade">Volatilidade (\( \sigma \)):</label>
+        <input type="number" id="volatilidade" value="0.80" step="any">
+    </div>
+    <div class="input-group">
+        <label for="taxaSaltos">Taxa de Saltos (\( \lambda \)):</label>
+        <input type="number" id="taxaSaltos" value="0.75" step="any">
+    </div>
+    <div class="input-group">
+        <label for="mediaSaltos">Média dos Saltos (\( \mu_J \)):</label>
+        <input type="number" id="mediaSaltos" value="0.1" step="any">
+    </div>
+    <div class="input-group">
+        <label for="desvioPadraoSaltos">Desvio Padrão dos Saltos (\( \sigma_J \)):</label>
+        <input type="number" id="desvioPadraoSaltos" value="0.3" step="any">
+    </div>
+    <div class="input-group">
+        <label for="tempoTotal">Tempo Total (anos) (\( T \)):</label>
+        <input type="number" id="tempoTotal" value="1" step="any">
+    </div>
+    <div class="input-group">
+        <label for="passoTempo">Passo de Tempo (\( \Delta t \ )):</label>
+        <input type="text" id="passoTempo" value="1/252" step="any">
+    </div>
+    <button onclick="simular()">Calcular</button>
+
+    <div id="result">
+        <h2>Resultado da Simulação</h2>
+        <canvas id="graficoPreco" width="800" height="400"></canvas>
+    </div>
+
+    <div class="article">
+        <h3>Artigo: Modelagem Avançada do Preço do Bitcoin Utilizando Equações Diferenciais Estocásticas com Saltos</h3>
+        <p>
+            O mercado de criptomoedas, e em particular o Bitcoin, tem atraído a atenção de investidores e pesquisadores devido à sua alta volatilidade e potencial de retorno significativo. Para compreender e prever o comportamento do preço do Bitcoin, é essencial utilizar modelos matemáticos robustos que capturam tanto as tendências de longo prazo quanto as flutuações imprevisíveis de curto prazo.
+        </p>
+        <p>
+            Neste estudo, empregamos Equações Diferenciais Estocásticas (EDE) para modelar o preço do Bitcoin, incorporando tanto o Movimento Browniano Geométrico (GBM) quanto um processo de saltos de Poisson. O modelo adotado é conhecido como Modelo de Merton para Difusão com Saltos, que se mostra eficaz em capturar eventos bruscos que afetam o preço das criptomoedas, como notícias de mercado, regulações governamentais ou eventos macroeconômicos.
+        </p>
+        <p>
+            A equação diferencial estocástica utilizada é dada por:
+        </p>
+        <p>
+            \[
+            dS_t = \mu S_t dt + \sigma S_t dW_t + S_t (J - 1) dN_t
+            \]
+        </p>
+        <p>
+            Onde:
+        </p>
+        <ul>
+            <li>\( S_t \) representa o preço do Bitcoin no tempo \( t \).</li>
+            <li>\( \mu \) é a taxa de retorno esperada, refletindo a tendência de crescimento ou decrescimento do preço.</li>
+            <li>\( \sigma \) denota a volatilidade do ativo, capturando a intensidade das flutuações do preço.</li>
+            <li>\( W_t \) é um processo de Wiener que modela a componente contínua e aleatória das variações de preço.</li>
+            <li>\( N_t \) é um processo de Poisson com taxa \( \lambda \), que modela a ocorrência de saltos no preço.</li>
+            <li>\( J \) representa o tamanho do salto, assumido seguir uma distribuição log-normal para refletir a natureza multiplicativa dos eventos de salto.</li>
+        </ul>
+        <p>
+            A inclusão do termo \( S_t (J - 1) dN_t \) permite que o modelo capture saltos abruptos no preço, o que é uma característica frequentemente observada no mercado de criptomoedas. Esses saltos podem ser positivos ou negativos, dependendo da natureza do evento que os provoca.
+        </p>
+        <p>
+            Para implementar este modelo, utilizamos o método de Euler-Maruyama para a simulação numérica, permitindo a geração de trajetórias do preço do Bitcoin ao longo do tempo. A simulação considera parâmetros como a taxa de retorno esperada, volatilidade, taxa de ocorrência de saltos, média e desvio padrão dos saltos, além do tempo total de simulação e o passo de tempo.
+        </p>
+        <p>
+            Os resultados da simulação são visualizados através de gráficos interativos, que permitem aos usuários observar as possíveis trajetórias do preço do Bitcoin sob diferentes configurações de parâmetros. A precisão de 8 dígitos assegura uma representação detalhada das variações de preço.
+        </p>
+        <p>
+            Em conclusão, a utilização de Equações Diferenciais Estocásticas com processos de saltos oferece uma abordagem mais abrangente para a modelagem do preço do Bitcoin, capturando tanto as tendências gerais quanto os eventos inesperados que podem influenciar significativamente o mercado. Este modelo pode servir como uma ferramenta valiosa para investidores e analistas na tomada de decisões informadas.
+        </p>
+    </div>
+</div>
+
+<footer>
+    &copy; 2024 Luiz Tiago Wilcke
+</footer>
+
+<script>
+function randn_bm() {
+    let u = 0, v = 0;
+    while(u === 0) u = Math.random();
+    while(v === 0) v = Math.random();
+    return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+}
+
+function gerarSalto(mediaSalto, desvioPadraoSalto) {
+    let normal = randn_bm();
+    return Math.exp(mediaSalto + desvioPadraoSalto * normal);
+}
+
+function simular() {
+    let precoInicial = parseFloat(document.getElementById('precoInicial').value);
+    let taxaRetorno = parseFloat(document.getElementById('taxaRetorno').value);
+    let volatilidade = parseFloat(document.getElementById('volatilidade').value);
+    let taxaSaltos = parseFloat(document.getElementById('taxaSaltos').value);
+    let mediaSaltos = parseFloat(document.getElementById('mediaSaltos').value);
+    let desvioPadraoSaltos = parseFloat(document.getElementById('desvioPadraoSaltos').value);
+    let tempoTotal = parseFloat(document.getElementById('tempoTotal').value);
+    let passoTempoInput = document.getElementById('passoTempo').value;
+
+    let passoTempo;
+    if (passoTempoInput.includes('/')) {
+        let partes = passoTempoInput.split('/');
+        passoTempo = parseFloat(partes[0]) / parseFloat(partes[1]);
+    } else {
+        passoTempo = parseFloat(passoTempoInput);
+    }
+
+    let N = Math.floor(tempoTotal / passoTempo);
+    let t = [];
+    let S = [];
+    S.push(precoInicial);
+    t.push(0);
+
+    for(let i=1; i<=N; i++) {
+        t.push(i * passoTempo);
+        let S_prev = S[i-1];
+
+        let dW = randn_bm() * Math.sqrt(passoTempo);
+        let difusao = taxaRetorno * S_prev * passoTempo + volatilidade * S_prev * dW;
+
+        let dN = (Math.random() < taxaSaltos * passoTempo) ? 1 : 0;
+        let salto = 0;
+        if(dN === 1){
+            salto = S_prev * (gerarSalto(mediaSaltos, desvioPadraoSaltos) - 1);
+        }
+
+        let S_new = S_prev + difusao + salto;
+        S_new = S_new < 0 ? 0 : S_new;
+        S.push(parseFloat(S_new.toFixed(8)));
+    }
+
+    const ctx = document.getElementById('graficoPreco').getContext('2d');
+    if(window.graficoPrecoInstance){
+        window.graficoPrecoInstance.destroy();
+    }
+    window.graficoPrecoInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: t,
+            datasets: [{
+                label: 'Preço do Bitcoin',
+                data: S,
+                borderColor: 'rgba(0, 255, 0, 1)',
+                borderWidth: 2,
+                fill: false,
+                pointRadius: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                x: {
+                    type: 'linear',
+                    title: {
+                        display: true,
+                        text: 'Tempo (anos)',
+                        color: '#00ff00'
+                    },
+                    ticks: {
+                        color: '#e0e0e0'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Preço do Bitcoin (USD)',
+                        color: '#00ff00'
+                    },
+                    ticks: {
+                        color: '#e0e0e0'
+                    },
+                    beginAtZero: false
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return 'Preço: ' + context.parsed.y.toFixed(8);
+                        }
+                    },
+                    backgroundColor: '#00ff00',
+                    titleColor: '#1a1a1a',
+                    bodyColor: '#1a1a1a'
+                },
+                legend: {
+                    labels: {
+                        color: '#00ff00'
+                    }
+                }
+            }
+        }
+    });
+}
+</script>
+</body>
+</html>

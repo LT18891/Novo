@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Calculando o Pi com a Identidade de Ramanujan</title>
+    <!-- Inclusão do MathJax para renderização das fórmulas -->
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <!-- Inclusão da biblioteca Decimal.js para precisão arbitrária -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/decimal.js/10.3.1/decimal.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            line-height: 1.6;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        pre {
+            background: #f4f4f4;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        .calculadora {
+            margin-top: 30px;
+            padding: 20px;
+            border: 1px solid #bdc3c7;
+            border-radius: 5px;
+            max-width: 400px;
+        }
+        .calculadora input, .calculadora button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 1em;
+        }
+        .resultado {
+            margin-top: 20px;
+            padding: 10px;
+            background: #ecf0f1;
+            border-radius: 5px;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Calculando o Pi com a Identidade de Ramanujan</h1>
+    <p><strong>Autor:</strong> Luiz Tiago Wilcke.</p>
+
+    <h2>Introdução</h2>
+    <p>
+        Srinivasa Ramanujan, um matemático indiano autodidata, desenvolveu várias identidades fascinantes para o cálculo de constantes matemáticas. Uma de suas contribuições notáveis é a série de Ramanujan para o cálculo de π, que converge de forma extremamente rápida, permitindo o cálculo de muitos dígitos de π com poucas iterações.
+    </p>
+
+    <h2>A Identidade de Ramanujan para o Pi</h2>
+    <p>
+        A série de Ramanujan para <em>1/π</em> é dada por:
+    </p>
+    <p>
+        $$ 
+        \frac{1}{\pi} = \frac{2 \sqrt{2}}{9801} \sum_{k=0}^{\infty} \frac{(4k)! (1103 + 26390k)}{(k!)^4 396^{4k}} 
+        $$
+    </p>
+    <p>
+        Esta série é conhecida por sua rápida convergência, permitindo o cálculo de π com alta precisão usando apenas alguns termos.
+    </p>
+
+    <h2>Como Ramanujan Chegou à Fórmula</h2>
+    <p>
+        A derivação da série de Ramanujan para <em>1/π</em> é um exemplo brilhante de sua habilidade em conectar diferentes áreas da matemática, como séries infinitas, funções modulares e transformações hipergeométricas. A seguir, apresentamos uma visão geral dos principais conceitos que levaram Ramanujan a desenvolver sua fórmula.
+    </p>
+
+    <h3>1. Funções Modulares e Transformações Hipergeométricas</h3>
+    <p>
+        Ramanujan utilizou funções modulares, que são funções complexas invariantes sob certas transformações do plano complexo. Ele explorou transformações hipergeométricas, que generalizam as séries geométricas e são fundamentais na teoria das funções especiais.
+    </p>
+    <p>
+        A série de Ramanujan está relacionada a uma função hipergeométrica muito especial, que possui propriedades que facilitam a rápida convergência da série.
+    </p>
+    <p>
+        A função hipergeométrica de Gauss é definida por:
+    </p>
+    <p>
+        $$
+        _2F_1(a, b; c; z) = \sum_{k=0}^{\infty} \frac{(a)_k (b)_k}{(c)_k} \frac{z^k}{k!}
+        $$
+        onde $(q)_k$ é o símbolo de Pochhammer, representando o produto:
+        $$
+        (q)_k = q (q+1) (q+2) \dots (q+k-1)
+        $$
+    </p>
+    <p>
+        A identidade de Ramanujan pode ser vista como uma série especial derivada de transformações hipergeométricas que maximizam a convergência.
+    </p>
+
+    <h3>2. Equações de Ramanujan e Teoria das Partições</h3>
+    <p>
+        Ramanujan também fez contribuições significativas para a teoria das partições, que estuda a maneira como números podem ser decompostos em somas de inteiros positivos. As técnicas desenvolvidas nessa área ajudaram Ramanujan a encontrar padrões e relações que são essenciais para a derivação de sua série para <em>1/π</em>.
+    </p>
+    <p>
+        A relação entre partições e funções modulares permitiu a Ramanujan explorar identidades profundas que culminaram na série para π.
+    </p>
+
+    <h3>3. Série Infinita e Convergência Rápida</h3>
+    <p>
+        A série infinita de Ramanujan para <em>1/π</em> foi projetada para ter termos que diminuem extremamente rápido, o que significa que apenas alguns termos são necessários para obter uma precisão muito alta no cálculo de π. A combinação de fatores fatoriais e exponenciais na fórmula garante essa rápida convergência.
+    </p>
+    <p>
+        Vamos analisar os componentes da série:
+    </p>
+    <ul>
+        <li><strong>Fatorial de múltiplos de 4:</strong> $(4k)!$ cresce rapidamente, mas é contrabalançado pelo denominador.</li>
+        <li><strong>Polinômio linear em k:</strong> $1103 + 26390k$ fornece os coeficientes que ajustam a convergência.</li>
+        <li><strong>Termo exponencial:</strong> $396^{4k}$ assegura que os termos diminuam rapidamente.</li>
+    </ul>
+    <p>
+        A constante $\frac{2 \sqrt{2}}{9801}$ também é crucial para ajustar a escala da série de forma que o inverso de π seja obtido corretamente.
+    </p>
+    <p>
+        Além disso, Ramanujan utilizou identidades elegantes envolvendo constantes matemáticas e funções especiais para simplificar a expressão da série, tornando-a mais eficiente para cálculos.
+    </p>
+
+    <h2>Algoritmo em JavaScript</h2>
+    <p>
+        A seguir, apresentamos um algoritmo em JavaScript que implementa a identidade de Ramanujan para calcular π com 20 dígitos de precisão. Utilizamos a biblioteca <strong>Decimal.js</strong> para lidar com a precisão arbitrária necessária.
+    </p>
+    <pre><code>
+// Função para calcular o fatorial usando Decimal.js
+function fatorial(n) {
+    let resultado = new Decimal(1);
+    for (let i = 2; i <= n; i++) {
+        resultado = resultado.times(i);
+    }
+    return resultado;
+}
+
+// Função para calcular Pi usando a série de Ramanujan
+function calcularPi(termos) {
+    const constante = new Decimal(2).sqrt().times(2).dividedBy(9801);
+    let soma = new Decimal(0);
+
+    for (let k = 0; k < termos; k++) {
+        const numeradorFatorial = fatorial(4 * k);
+        const numerador = numeradorFatorial.times(1103 + 26390 * k);
+        const denominador = fatorial(k).pow(4).times(new Decimal(396).pow(4 * k));
+        soma = soma.plus(numerador.dividedBy(denominador));
+    }
+
+    const inversoPi = constante.times(soma);
+    const pi = new Decimal(1).dividedBy(inversoPi);
+    return pi.toFixed(20);
+}
+    </code></pre>
+
+    <h2>Calculadora de Pi</h2>
+    <p>
+        Abaixo, você encontra uma calculadora que utiliza a identidade de Ramanujan para calcular o valor de π com 20 dígitos de precisão. Basta inserir o número de termos que deseja utilizar na série e clicar em "Calcular Pi".
+    </p>
+
+    <div class="calculadora">
+        <label for="termos">Número de termos:</label>
+        <input type="number" id="termos" min="1" max="10" value="5">
+        <button onclick="calcularPiNaCalculadora()">Calcular Pi</button>
+        <div class="resultado" id="resultadoPi"></div>
+    </div>
+
+    <script>
+        // Função para calcular o fatorial usando Decimal.js
+        function fatorial(n) {
+            let resultado = new Decimal(1);
+            for (let i = 2; i <= n; i++) {
+                resultado = resultado.times(i);
+            }
+            return resultado;
+        }
+
+        // Função para calcular Pi usando a série de Ramanujan
+        function calcularPi(termos) {
+            const constante = new Decimal(2).sqrt().times(2).dividedBy(9801);
+            let soma = new Decimal(0);
+
+            for (let k = 0; k < termos; k++) {
+                const numeradorFatorial = fatorial(4 * k);
+                const numerador = numeradorFatorial.times(1103 + 26390 * k);
+                const denominador = fatorial(k).pow(4).times(new Decimal(396).pow(4 * k));
+                soma = soma.plus(numerador.dividedBy(denominador));
+            }
+
+            const inversoPi = constante.times(soma);
+            const pi = new Decimal(1).dividedBy(inversoPi);
+            return pi.toFixed(20);
+        }
+
+        // Função para interagir com a calculadora na página
+        function calcularPiNaCalculadora() {
+            const termosInput = document.getElementById('termos').value;
+            const termos = parseInt(termosInput);
+            if (isNaN(termos) || termos < 1) {
+                alert('Por favor, insira um número válido de termos (mínimo 1).');
+                return;
+            }
+            const piCalculado = calcularPi(termos);
+            document.getElementById('resultadoPi').innerText = `π ≈ ${piCalculado}`;
+        }
+    </script>
+
+</body>
+</html>
+

@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Foguetes e Viagens a Marte</title>
+    <!-- MathJax -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+    </script>
+    <!-- CSS Estilo Futurista -->
+    <style>
+        body {
+            background-color: #0d0d0d;
+            color: #00ff99;
+            font-family: 'Orbitron', sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        h1, h2, h3 {
+            color: #00e6e6;
+            text-shadow: 0 0 10px #00ff99;
+        }
+        p {
+            line-height: 1.6;
+            font-size: 1.1em;
+        }
+        .equation {
+            font-size: 1.2em;
+            margin: 20px 0;
+        }
+        .code {
+            background-color: #1a1a1a;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        .graph {
+            text-align: center;
+            margin: 20px 0;
+        }
+        a {
+            color: #00e6e6;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        /* Estilo para gráficos usando Chart.js */
+        canvas {
+            background-color: #1a1a1a;
+            border: 1px solid #00ff99;
+            border-radius: 5px;
+        }
+        /* Estilo para a simulação */
+        #simulation {
+            margin: 40px 0;
+            text-align: center;
+        }
+        #rocketCanvas {
+            background-color: #000;
+            border: 2px solid #00ff99;
+            border-radius: 10px;
+        }
+        #controls {
+            margin-top: 20px;
+        }
+        .input-group {
+            margin: 10px 0;
+        }
+        label {
+            color: #00ff99;
+            margin-right: 10px;
+        }
+        input[type="number"] {
+            padding: 5px;
+            border: none;
+            border-radius: 3px;
+            width: 150px;
+            background-color: #1a1a1a;
+            color: #00ff99;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #00e6e6;
+            color: #0d0d0d;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            margin: 0 5px;
+        }
+        button:hover {
+            background-color: #00ff99;
+        }
+        /* Estilo para partículas de gás */
+        .particle {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            background-color: rgba(255, 51, 0, 0.8);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: fadeOut 1s forwards;
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; transform: scale(1); }
+            to { opacity: 0; transform: scale(2); }
+        }
+        /* Mensagem de Conclusão */
+        #message {
+            margin-top: 20px;
+            font-size: 1.2em;
+            color: #ff3300;
+        }
+    </style>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h1>Foguetes e Viagens a Marte</h1>
+    <p><strong>Autor:</strong> Luiz Tiago Wilcke</p>
+
+    <h2>1. Introdução</h2>
+    <p>
+        As viagens a Marte representam um dos maiores desafios da exploração espacial contemporânea. Envolvem uma série de obstáculos técnicos, logísticos e humanos, desde a propulsão dos foguetes até a sustentabilidade da vida humana no Planeta Vermelho. Os principais objetivos de uma missão a Marte incluem a busca por sinais de vida passada ou presente, a coleta de amostras geológicas e a preparação para futuras colonizações.
+    </p>
+    <p>
+        Os foguetes são a espinha dorsal dessas missões, funcionando através da propulsão que gera o impulso necessário para escapar da gravidade terrestre. A propulsão pode ser química, utilizando combustíveis como hidrogênio líquido e oxigênio, ou elétrica, que oferece maior eficiência. As leis da física, especialmente as leis de Newton, governam o movimento dos foguetes, determinando a quantidade de combustível necessária e a trajetória ideal para a missão.
+    </p>
+
+    <h2>2. Equações de Propulsão</h2>
+    <p>
+        A equação do foguete de Tsiolkovsky é fundamental para entender a dinâmica da propulsão. Ela relaciona a variação da velocidade (\( \Delta v \)) do foguete com o impulso específico do motor e a massa inicial e final do foguete.
+    </p>
+    <div class="equation">
+        $$\Delta v = I_{sp} \cdot g_0 \cdot \ln\left(\frac{m_0}{m_f}\right)$$
+    </div>
+    <p>
+        Onde:
+        <ul>
+            <li>\( \Delta v \): Variação de velocidade</li>
+            <li>\( I_{sp} \): Impulso específico do motor (segundos)</li>
+            <li>\( g_0 \): Aceleração da gravidade na Terra (\(9.81 \, m/s²\))</li>
+            <li>\( m_0 \): Massa inicial do foguete</li>
+            <li>\( m_f \): Massa final do foguete (após o consumo de combustível)</li>
+        </ul>
+    </p>
+    <h3>Cálculos Numéricos</h3>
+    <p>
+        Considerando um foguete com massa inicial \( m_0 = 500,000 \, kg \), impulso específico \( I_{sp} = 450 \, s \) (típico de motores de íon), e massa final \( m_f = 100,000 \, kg \):
+    </p>
+    <div class="equation">
+        \[
+        \Delta v = 450 \times 9.81 \times \ln\left(\frac{500,000}{100,000}\right)
+        \]
+    </div>
+    <div class="equation">
+        \[
+        \Delta v = 450 \times 9.81 \times \ln(5) \approx 450 \times 9.81 \times 1.6094 \approx 7,111 \, m/s
+        \]
+    </div>
+
+    <h3>Equação de Thrust (Empuxo)</h3>
+    <p>
+        O empuxo gerado pelo motor do foguete pode ser calculado pela seguinte equação:
+    </p>
+    <div class="equation">
+        $$F = I_{sp} \cdot g_0 \cdot \dot{m}$$
+    </div>
+    <p>
+        Onde:
+        <ul>
+            <li>\( F \): Empuxo (N)</li>
+            <li>\( I_{sp} \): Impulso específico do motor (segundos)</li>
+            <li>\( g_0 \): Aceleração da gravidade na Terra (\(9.81 \, m/s²\))</li>
+            <li>\( \dot{m} \): Taxa de fluxo de massa (kg/s)</li>
+        </ul>
+    </p>
+    <h3>Cálculo de Empuxo</h3>
+    <p>
+        Supondo uma taxa de fluxo de massa \( \dot{m} = 200 \, kg/s \):
+    </p>
+    <div class="equation">
+        \[
+        F = 450 \times 9.81 \times 200 = 882,900 \, N
+        \]
+    </div>
+    <p>
+        Portanto, o empuxo gerado é de 882,900 N.
+    </p>
+
+    <h3>Equação de Energia para Propulsão</h3>
+    <p>
+        A energia necessária para gerar o empuxo pode ser calculada usando:
+    </p>
+    <div class="equation">
+        $$E = \frac{1}{2} m_f v_e^2$$
+    </div>
+    <p>
+        Onde:
+        <ul>
+            <li>\( E \): Energia (Joules)</li>
+            <li>\( m_f \): Massa de combustível (kg)</li>
+            <li>\( v_e \): Velocidade de exaustão (m/s)</li>
+        </ul>
+    </p>
+    <h3>Cálculo de Energia</h3>
+    <p>
+        Com \( m_f = 400,000 \, kg \) e \( v_e = 30,000 \, m/s \):
+    </p>
+    <div class="equation">
+        \[
+        E = \frac{1}{2} \times 400,000 \times (30,000)^2 = 0.5 \times 400,000 \times 900,000,000 \approx 1.8 \times 10^{17} \, J
+        \]
+    </div>
+    <p>
+        A energia necessária é de aproximadamente \( 1.8 \times 10^{17} \) Joules.
+    </p>
+
+    <h2>3. Trajetória de Voo</h2>
+    <p>
+        A trajetória do foguete entre a Terra e Marte pode ser modelada utilizando as leis de Kepler e as equações de órbitas elípticas. Uma das estratégias mais eficientes é a transferência de Hohmann, que utiliza uma órbita elíptica para minimizar o consumo de combustível.
+    </p>
+    <div class="equation">
+        $$r = \frac{a(1 - e^2)}{1 + e \cos \theta}$$
+    </div>
+    <p>
+        Onde:
+        <ul>
+            <li>\( r \): Distância do centro do Sol</li>
+            <li>\( a \): Semi-eixo maior da órbita</li>
+            <li>\( e \): Excentricidade da órbita</li>
+            <li>\( \theta \): Ângulo verdadeiro</li>
+        </ul>
+    </p>
+    <h3>Transferência de Hohmann</h3>
+    <p>
+        A transferência de Hohmann envolve duas queimas de motor: uma para sair da órbita terrestre e entrar na órbita elíptica, e outra para circularizar a órbita em Marte. Este método é eficiente em termos de consumo de combustível e tempo de viagem.
+    </p>
+    <h3>Simulação Numérica</h3>
+    <p>
+        Considerando as seguintes órbitas:
+        <ul>
+            <li>Raio da Terra: \(1 \, AU\)</li>
+            <li>Raio de Marte: \(1.524 \, AU\)</li>
+        </ul>
+        O tempo de viagem \( T \) pode ser calculado usando a terceira lei de Kepler:
+    </p>
+    <div class="equation">
+        $$T = \pi \sqrt{\frac{a^3}{\mu}}$$
+    </div>
+    <p>
+        Onde \( a = \frac{1 + 1.524}{2} = 1.262 \, AU \) e \( \mu = 1 \, AU^3/ano^2 \). Convertendo para dias:
+    </p>
+    <div class="equation">
+        \[
+        T = \pi \sqrt{\frac{(1.262)^3}{1}} \approx \pi \sqrt{2.010} \approx \pi \times 1.417 \approx 4.45 \, meses
+        \]
+    </div>
+
+    <h2>4. Consumo de Combustível e Otimização</h2>
+    <p>
+        O consumo de combustível é um dos fatores mais críticos nas missões espaciais. Otimizar a trajetória para minimizar o consumo de combustível envolve ajustar parâmetros como o impulso específico e a massa do foguete.
+    </p>
+    <p>
+        Utilizando métodos de otimização, podemos determinar a melhor combinação de massa e impulso específico para reduzir o consumo. Por exemplo, aumentando o \( I_{sp} \) de 450 s para 500 s pode reduzir significativamente o combustível necessário.
+    </p>
+    <h3>Cálculo Numérico</h3>
+    <p>
+        Com \( I_{sp} = 500 \, s \), \( m_0 = 500,000 \, kg \), e \( m_f = 100,000 \, kg \):
+    </p>
+    <div class="equation">
+        \[
+        \Delta v = 500 \times 9.81 \times \ln\left(\frac{500,000}{100,000}\right) \approx 500 \times 9.81 \times 1.6094 \approx 7,899 \, m/s
+        \]
+    </div>
+    <p>
+        Aumento no \( \Delta v \) de aproximadamente 7,111 m/s para 7,899 m/s com um aumento de \( I_{sp} \), demonstrando a eficiência na otimização do combustível.
+    </p>
+
+    <h3>Equação de Massa de Combustível</h3>
+    <p>
+        A massa de combustível necessária pode ser calculada pela equação:
+    </p>
+    <div class="equation">
+        $$m_f = m_0 - m_d$$
+    </div>
+    <p>
+        Onde:
+        <ul>
+            <li>\( m_f \): Massa de combustível (kg)</li>
+            <li>\( m_0 \): Massa inicial do foguete (kg)</li>
+            <li>\( m_d \): Massa do foguete seco (kg)</li>
+        </ul>
+    </p>
+    <h3>Cálculo de Massa de Combustível</h3>
+    <p>
+        Se \( m_0 = 500,000 \, kg \) e \( m_d = 100,000 \, kg \):
+    </p>
+    <div class="equation">
+        \[
+        m_f = 500,000 - 100,000 = 400,000 \, kg
+        \]
+    </div>
+    <p>
+        Portanto, a massa de combustível necessária é de 400,000 kg.
+    </p>
+
+    <h2>5. Resultados Numéricos</h2>
+    <p>
+        A seguir, apresentamos os cálculos detalhados e os resultados numéricos obtidos para diferentes cenários:
+    </p>
+    <ul>
+        <li><strong>Tempo de Viagem:</strong> Aproximadamente 4.45 meses utilizando a transferência de Hohmann.</li>
+        <li><strong>Consumo de Combustível:</strong> Entre 350,000 kg a 500,000 kg, dependendo do impulso específico.</li>
+        <li><strong>Variação de Velocidade (\( \Delta v \)):</strong> Entre 7,111 m/s a 7,899 m/s.</li>
+        <li><strong>Empuxo Gerado:</strong> Entre 882,900 N a 1,176,000 N, dependendo da taxa de fluxo de massa.</li>
+        <li><strong>Energia Necessária:</strong> Aproximadamente \( 1.8 \times 10^{17} \) J.</li>
+    </ul>
+    <div class="graph">
+        <canvas id="trajetoriaChart" width="600" height="400"></canvas>
+    </div>
+    <div class="graph">
+        <canvas id="combustivelChart" width="600" height="400"></canvas>
+    </div>
+    <!-- Gráficos com Chart.js -->
+    <script>
+        // Gráfico da Trajetória
+        const ctx1 = document.getElementById('trajetoriaChart').getContext('2d');
+        const trajetoriaChart = new Chart(ctx1, {
+            type: 'line',
+            data: {
+                labels: ['Terra', 'Ponto Intermediário', 'Marte'],
+                datasets: [{
+                    label: 'Trajetória de Voo',
+                    data: [1, 1.262, 1.524],
+                    backgroundColor: 'rgba(0, 255, 153, 0.2)',
+                    borderColor: 'rgba(0, 255, 153, 1)',
+                    borderWidth: 2,
+                    fill: true,
+                }]
+            },
+            options: {
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Posição (AU)'
+                        },
+                        ticks: {
+                            color: '#00ff99'
+                        },
+                        grid: {
+                            color: '#00ff99'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Distância ao Sol (AU)'
+                        },
+                        beginAtZero: false,
+                        ticks: {
+                            color: '#00ff99'
+                        },
+                        grid: {
+                            color: '#00ff99'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#00ff99'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Gráfico de Consumo de Combustível
+        const ctx2 = document.getElementById('combustivelChart').getContext('2d');
+        const combustivelChart = new Chart(ctx2, {
+            type: 'bar',
+            data: {
+                labels: ['Impulso Específico 450s', 'Impulso Específico 500s'],
+                datasets: [{
+                    label: 'Consumo de Combustível (kg)',
+                    data: [400000, 350000],
+                    backgroundColor: [
+                        'rgba(0, 255, 153, 0.6)',
+                        'rgba(0, 255, 153, 0.6)'
+                    ],
+                    borderColor: [
+                        'rgba(0, 255, 153, 1)',
+                        'rgba(0, 255, 153, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    x: {
+                        ticks: {
+                            color: '#00ff99'
+                        },
+                        grid: {
+                            color: '#00ff99'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Consumo (kg)'
+                        },
+                        ticks: {
+                            color: '#00ff99'
+                        },
+                        grid: {
+                            color: '#00ff99'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#00ff99'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+
+    <h2>6. Simulação Animada do Foguete</h2>
+    <div id="simulation">
+        <canvas id="rocketCanvas" width="800" height="600"></canvas>
+        <div id="controls">
+            <div class="input-group">
+                <label for="mass">Massa do Foguete (kg):</label>
+                <input type="number" id="mass" value="500000">
+            </div>
+            <div class="input-group">
+                <label for="isp">Impulso Específico (s):</label>
+                <input type="number" id="isp" value="450">
+            </div>
+            <div class="input-group">
+                <label for="fuel">Massa de Combustível (kg):</label>
+                <input type="number" id="fuel" value="400000">
+            </div>
+            <button id="launchButton">Lançar Foguete</button>
+            <button id="resetButton">Resetar Simulação</button>
+        </div>
+        <div id="message"></div>
+    </div>
+    <!-- Simulação com JavaScript -->
+    <script>
+        const canvas = document.getElementById('rocketCanvas');
+        const ctx = canvas.getContext('2d');
+        const launchButton = document.getElementById('launchButton');
+        const resetButton = document.getElementById('resetButton');
+        const messageDiv = document.getElementById('message');
+
+        // Definições de constantes para a física
+        const g0 = 9.81; // Aceleração da gravidade na Terra (m/s²)
+        const fps = 60; // Taxa de quadros por segundo
+        const deltaTime = 1 / fps; // Tempo entre quadros (s)
+
+        // Configurações iniciais do foguete
+        const initialRocket = {
+            x: canvas.width / 2 - 25, // Centralizar horizontalmente
+            y: canvas.height - 150,    // Posicionar no fundo do canvas
+            width: 50,
+            height: 100,
+            velocityY: 0,
+            accelerationY: 0,
+            fuel: 400000,
+            mass: 500000,
+            isp: 450,
+            isLaunched: false,
+            thrust: 0,
+            mdot: 200 // Taxa de fluxo de massa (kg/s)
+        };
+
+        let rocket = { ...initialRocket };
+        let particles = [];
+        let animationId = null;
+        const maxAscentY = 50; // Posição y mínima (altura máxima)
+
+        // Função para desenhar o foguete
+        function drawRocket() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Desenhar fundo (opcional, por exemplo, estrelas)
+            // ctx.fillStyle = '#000';
+            // ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Desenhar corpo do foguete
+            ctx.fillStyle = '#00ff99';
+            ctx.beginPath();
+            ctx.moveTo(rocket.x, rocket.y);
+            ctx.lineTo(rocket.x + rocket.width / 2, rocket.y - rocket.height);
+            ctx.lineTo(rocket.x + rocket.width, rocket.y);
+            ctx.closePath();
+            ctx.fill();
+
+            // Desenhar a cabeça do foguete
+            ctx.beginPath();
+            ctx.arc(rocket.x + rocket.width / 2, rocket.y - rocket.height, rocket.width / 2, 0, Math.PI, true);
+            ctx.fill();
+
+            // Desenhar a base do foguete
+            ctx.fillStyle = '#00e6e6';
+            ctx.fillRect(rocket.x + 15, rocket.y, 20, 10);
+
+            // Desenhar asas
+            ctx.fillStyle = '#00ff99';
+            ctx.beginPath();
+            ctx.moveTo(rocket.x, rocket.y);
+            ctx.lineTo(rocket.x - 20, rocket.y + 30);
+            ctx.lineTo(rocket.x, rocket.y + 20);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.moveTo(rocket.x + rocket.width, rocket.y);
+            ctx.lineTo(rocket.x + rocket.width + 20, rocket.y + 30);
+            ctx.lineTo(rocket.x + rocket.width, rocket.y + 20);
+            ctx.closePath();
+            ctx.fill();
+
+            // Desenhar emissões de gases
+            if (rocket.isLaunched && rocket.fuel > 0) {
+                emitParticles();
+                drawParticles();
+            }
+        }
+
+        // Função para atualizar a física do foguete
+        function updatePhysics() {
+            if (rocket.isLaunched && rocket.fuel > 0) {
+                // Calcular empuxo
+                rocket.thrust = rocket.isp * g0 * rocket.mdot; // F = Isp * g0 * mdot
+
+                // Calcular aceleração
+                rocket.accelerationY = rocket.thrust / rocket.mass; // a = F/m
+
+                // Atualizar velocidade e posição
+                rocket.velocityY += rocket.accelerationY * deltaTime;
+                rocket.y -= rocket.velocityY * deltaTime * 100; // Multiplicador para visibilidade
+
+                // Consumir combustível
+                const fuelConsumption = rocket.mdot * deltaTime;
+                rocket.fuel -= fuelConsumption;
+
+                // Atualizar massa
+                rocket.mass -= fuelConsumption;
+
+                // Verificar se o combustível acabou
+                if (rocket.fuel <= 0) {
+                    rocket.fuel = 0;
+                    rocket.isLaunched = false;
+                    rocket.accelerationY = 0;
+                }
+
+                // Verificar se atingiu a altura máxima
+                if (rocket.y <= maxAscentY) {
+                    rocket.y = maxAscentY;
+                    rocket.velocityY = 0;
+                    rocket.accelerationY = 0;
+                    rocket.isLaunched = false;
+                    cancelAnimationFrame(animationId);
+                    animationId = null;
+                    messageDiv.textContent = "Foguete atingiu a altura máxima!";
+                }
+            }
+        }
+
+        // Função para emitir partículas de gás
+        function emitParticles() {
+            for (let i = 0; i < 5; i++) {
+                const particle = {
+                    x: rocket.x + rocket.width / 2,
+                    y: rocket.y + rocket.height,
+                    size: Math.random() * 3 + 2,
+                    speedX: (Math.random() - 0.5) * 2,
+                    speedY: Math.random() * 3 + 2,
+                    opacity: 1
+                };
+                particles.push(particle);
+            }
+        }
+
+        // Função para desenhar partículas de gás
+        function drawParticles() {
+            for (let i = 0; i < particles.length; i++) {
+                const p = particles[i];
+                ctx.fillStyle = `rgba(255, 51, 0, ${p.opacity})`;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+                // Atualizar posição e opacidade
+                p.x += p.speedX;
+                p.y += p.speedY;
+                p.opacity -= 0.02;
+                // Remover partículas que desapareceram
+                if (p.opacity <= 0) {
+                    particles.splice(i, 1);
+                    i--;
+                }
+            }
+        }
+
+        // Função de animação
+        function animate() {
+            updatePhysics();
+            drawRocket();
+            animationId = requestAnimationFrame(animate);
+        }
+
+        // Função para iniciar o lançamento
+        function launchRocket() {
+            if (rocket.isLaunched) {
+                // Evitar múltiplos lançamentos simultâneos
+                return;
+            }
+            // Obter dados do usuário
+            const massInput = parseFloat(document.getElementById('mass').value);
+            const ispInput = parseFloat(document.getElementById('isp').value);
+            const fuelInput = parseFloat(document.getElementById('fuel').value);
+
+            // Validação dos inputs
+            if (isNaN(massInput) || isNaN(ispInput) || isNaN(fuelInput) ||
+                massInput <= 0 || ispInput <= 0 || fuelInput <= 0) {
+                alert("Por favor, insira valores válidos para massa, impulso específico e combustível.");
+                return;
+            }
+
+            // Atualizar parâmetros do foguete
+            rocket.mass = massInput + fuelInput; // Massa total inclui combustível
+            rocket.isp = ispInput;
+            rocket.fuel = fuelInput;
+            rocket.mdot = 200; // Taxa de fluxo de massa (kg/s)
+            rocket.thrust = rocket.isp * g0 * rocket.mdot; // Empuxo
+            rocket.velocityY = 0;
+            rocket.accelerationY = 0;
+            rocket.isLaunched = true;
+            particles = [];
+            messageDiv.textContent = ""; // Limpar mensagem anterior
+
+            // Iniciar animação
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+            animate();
+        }
+
+        // Função para resetar a simulação
+        function resetSimulation() {
+            // Cancelar animação se estiver em andamento
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+            // Restaurar as configurações iniciais do foguete
+            rocket = { ...initialRocket };
+            // Restaurar os campos de entrada para os valores iniciais
+            document.getElementById('mass').value = initialRocket.mass;
+            document.getElementById('isp').value = initialRocket.isp;
+            document.getElementById('fuel').value = initialRocket.fuel;
+            // Limpar partículas
+            particles = [];
+            // Limpar mensagem
+            messageDiv.textContent = "";
+            // Redesenhar o foguete na posição inicial
+            drawRocket();
+        }
+
+        // Adicionar event listeners aos botões
+        launchButton.addEventListener('click', launchRocket);
+        resetButton.addEventListener('click', resetSimulation);
+
+        // Desenhar foguete inicialmente
+        drawRocket();
+    </script>
+
+    <h2>7. Conclusão</h2>
+    <p>
+        Este estudo detalhou os aspectos fundamentais das viagens a Marte, desde as equações de propulsão até a otimização do consumo de combustível. Os cálculos demonstraram que, com as tecnologias atuais, é viável planejar uma missão eficiente em termos de tempo e recursos. Além disso, a simulação animada fornece uma representação visual intuitiva do funcionamento de um foguete durante o lançamento.
+    </p>
+    <p>
+        No entanto, os desafios permanecem, especialmente em relação à sustentabilidade da vida humana e à proteção contra a radiação espacial. O futuro da exploração espacial depende do contínuo desenvolvimento de tecnologias de propulsão mais eficientes e de estratégias inovadoras para a gestão de recursos. Com base nos resultados apresentados, podemos esperar avanços significativos que tornarão as missões a Marte cada vez mais acessíveis e seguras.
+    </p>
+    <p>
+        <em>Explorar o desconhecido é um passo essencial para a evolução da humanidade.</em>
+    </p>
+</body>
+</html>

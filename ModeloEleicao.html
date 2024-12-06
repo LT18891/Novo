@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modelo Matemático das Eleições em Joinville</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css" />
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+        #map { height: 400px; width: 100%; margin-top: 20px; }
+        .calculator { margin: 20px; }
+        .equations { margin: 20px; }
+    </style>
+</head>
+<body>
+
+<h1>Modelo Matemático das Eleições de Joinville</h1>
+
+<!-- Mapa interativo -->
+<div id="map"></div>
+
+<!-- Equações Diferenciais -->
+<div class="equations">
+    <h2>Equações Diferenciais do Modelo</h2>
+    <p>As equações diferenciais que descrevem a dinâmica das intenções de voto entre dois candidatos para prefeito:</p>
+    <p>
+        \[
+        \frac{dV_1}{dt} = r_1 V_1 (1 - \frac{V_1}{K}) - a_{12} V_1 V_2
+        \]
+    </p>
+    <p>
+        \[
+        \frac{dV_2}{dt} = r_2 V_2 (1 - \frac{V_2}{K}) - a_{21} V_2 V_1
+        \]
+    </p>
+</div>
+
+<!-- Calculadora -->
+<div class="calculator">
+    <h2>Simulador de Intenção de Voto</h2>
+    <label for="r1">Taxa de Crescimento do Candidato 1 (r1):</label>
+    <input type="number" id="r1" value="0.05" step="0.01"><br><br>
+    
+    <label for="r2">Taxa de Crescimento do Candidato 2 (r2):</label>
+    <input type="number" id="r2" value="0.04" step="0.01"><br><br>
+    
+    <label for="a12">Impacto do Candidato 2 sobre o Candidato 1 (a12):</label>
+    <input type="number" id="a12" value="0.02" step="0.01"><br><br>
+    
+    <label for="a21">Impacto do Candidato 1 sobre o Candidato 2 (a21):</label>
+    <input type="number" id="a21" value="0.03" step="0.01"><br><br>
+    
+    <label for="K">Capacidade Total de Eleitores (K):</label>
+    <input type="number" id="K" value="100000"><br><br>
+    
+    <button onclick="simulate()">Simular</button>
+    
+    <h3>Resultados:</h3>
+    <p id="result"></p>
+</div>
+
+<script>
+    // Mapa interativo de Joinville
+    var map = L.map('map').setView([-26.3044, -48.8487], 12);
+    
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: 'Map data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    // Função de simulação de intenções de voto usando as equações diferenciais
+    function simulate() {
+        var r1 = parseFloat(document.getElementById('r1').value);
+        var r2 = parseFloat(document.getElementById('r2').value);
+        var a12 = parseFloat(document.getElementById('a12').value);
+        var a21 = parseFloat(document.getElementById('a21').value);
+        var K = parseFloat(document.getElementById('K').value);
+
+        var V1 = 1000;  // Intenção de voto inicial do candidato 1
+        var V2 = 800;   // Intenção de voto inicial do candidato 2
+        var t = 0;
+        var dt = 0.1;   // Intervalo de tempo
+        var result = "t = 0, V1 = " + V1 + ", V2 = " + V2 + "<br>";
+
+        while (t < 50) {  // Simula por 50 unidades de tempo
+            var dV1_dt = r1 * V1 * (1 - V1/K) - a12 * V1 * V2;
+            var dV2_dt = r2 * V2 * (1 - V2/K) - a21 * V2 * V1;
+            
+            V1 += dV1_dt * dt;
+            V2 += dV2_dt * dt;
+            t += dt;
+            
+            result += "t = " + t.toFixed(1) + ", V1 = " + V1.toFixed(2) + ", V2 = " + V2.toFixed(2) + "<br>";
+        }
+
+        document.getElementById('result').innerHTML = result;
+    }
+</script>
+
+</body>
+</html>

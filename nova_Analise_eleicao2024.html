@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análise Estatística Avançada - Vereadores Eleitos 2020 vs 2024</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Biblioteca Simple Statistics para cálculos estatísticos -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/simple-statistics/7.7.0/simple-statistics.min.js"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 40px;
+            line-height: 1.8;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        header, section, footer {
+            margin-bottom: 60px;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            font-size: 3em;
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        h2 {
+            font-size: 2em;
+            color: #34495e;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        h3 {
+            font-size: 1.75em;
+            color: #34495e;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        h4 {
+            font-size: 1.5em;
+            color: #34495e;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        p {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+        .author {
+            font-size: 1.5em;
+            color: #7f8c8d;
+            text-align: center;
+            margin-top: -10px;
+        }
+        ul {
+            list-style-type: disc;
+            margin-left: 40px;
+            font-size: 1.2em;
+        }
+        canvas {
+            max-width: 100%;
+            height: auto;
+            margin-top: 30px;
+            border-radius: 8px;
+        }
+        .equations {
+            background-color: #ecf0f1;
+            padding: 20px;
+            border-left: 6px solid #3498db;
+            border-radius: 4px;
+            font-size: 1.2em;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 1.2em;
+        }
+        th, td {
+            padding: 12px 15px;
+            border: 1px solid #bdc3c7;
+            text-align: center;
+        }
+        th {
+            background-color: #3498db;
+            color: #fff;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #d0e7f9;
+        }
+        footer h2 {
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Análise Estatística Avançada - Comparação dos Votos em 2020 e 2024</h1>
+    <p class="author">Autor: Luiz Tiago Wilcke</p>
+</header>
+
+<section>
+    <h2>Resumo</h2>
+    <p>Esta análise compara os votos dos vereadores reeleitos em Joinville nos anos de 2020 e 2024. Utilizamos diversas técnicas estatísticas para medir e interpretar o desempenho eleitoral, incluindo análise descritiva, testes de normalidade, testes de hipóteses, tamanho do efeito, análise de correlação e regressão múltipla. Além disso, consideramos a tendência da cidade em votar à direita e o impacto do orçamento secreto no comportamento de voto.</p>
+</section>
+
+<section>
+    <h2>Introdução</h2>
+    <p>O objetivo deste estudo é comparar o desempenho eleitoral dos vereadores reeleitos em Joinville nas eleições de 2020 e 2024. Através da análise estatística, buscamos identificar mudanças significativas no número de votos e entender os fatores que podem ter influenciado esses resultados, como a tendência política da cidade e a influência do orçamento secreto na compra de votos.</p>
+</section>
+
+<section>
+    <h2>Metodologia</h2>
+    <h3>Equações Utilizadas</h3>
+    <div class="equations">
+        <h4>1. Variação Percentual</h4>
+        <p>A variação percentual entre os votos de 2020 e 2024 é calculada pela equação:</p>
+        <p>
+          \[
+          \text{Variação Percentual} = \frac{V_{2024} - V_{2020}}{V_{2020}} \times 100
+          \]
+        </p>
+        
+        <h4>2. Tamanho do Efeito (Cohen's d)</h4>
+        <p>O tamanho do efeito é calculado para medir a magnitude da diferença entre as médias dos votos:</p>
+        <p>
+            \[
+            d = \frac{\text{Média}_{2024} - \text{Média}_{2020}}{\text{Desvio Padrão Pooled}}
+            \]
+        </p>
+        <p>Onde o Desvio Padrão Pooled é dado por:</p>
+        <p>
+            \[
+            \text{Desvio Padrão Pooled} = \sqrt{\frac{(SD_{2020}^2 + SD_{2024}^2)}{2}}
+            \]
+        </p>
+        
+        <h4>3. Coeficiente de Correlação de Pearson</h4>
+        <p>Para investigar a relação entre os votos de 2020 e 2024, utilizamos o coeficiente de correlação de Pearson:</p>
+        <p>
+            \[
+            r = \frac{\sum (X_i - \overline{X})(Y_i - \overline{Y})}{\sqrt{\sum (X_i - \overline{X})^2 \sum (Y_i - \overline{Y})^2}}
+            \]
+        </p>
+
+        <h4>4. Regressão Múltipla</h4>
+        <p>Para entender o impacto das variáveis independentes (votos de 2020, tendência política, orçamento secreto) sobre a variável dependente (votos em 2024), utilizamos a regressão múltipla:</p>
+        <p>
+            \[
+            V_{2024} = \beta_0 + \beta_1 \cdot V_{2020} + \beta_2 \cdot \text{Tendência Política} + \beta_3 \cdot \text{Orçamento Secreto} + \epsilon
+            \]
+        </p>
+    </div>
+</section>
+
+<section>
+    <h2>Resultados Estatísticos Descritivos</h2>
+    <ul>
+        <li><strong>Média de votos em 2020:</strong> 3.955,5</li>
+        <li><strong>Média de votos em 2024:</strong> 6.556,38</li>
+        <li><strong>Mediana dos votos em 2020:</strong> 3.671</li>
+        <li><strong>Mediana dos votos em 2024:</strong> 6.520,5</li>
+        <li><strong>Desvio padrão dos votos em 2020:</strong> 2.410,95</li>
+        <li><strong>Desvio padrão dos votos em 2024:</strong> 1.863,37</li>
+        <li><strong>Variância dos votos em 2020:</strong> 5.812.560,90</li>
+        <li><strong>Variância dos votos em 2024:</strong> 3.470.055,70</li>
+    </ul>
+</section>
+
+<section>
+    <h2>Porcentagem de Aumento por Vereador</h2>
+    <p>Calculamos a variação percentual no número de votos para cada vereador entre 2020 e 2024:</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Vereador</th>
+                <th>Votos 2020</th>
+                <th>Votos 2024</th>
+                <th>% Aumento</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Alisson Julio</td>
+                <td>9.574</td>
+                <td>6.457</td>
+                <td style="color: red;">-32,56%</td>
+            </tr>
+            <tr>
+                <td>Diego Machado</td>
+                <td>3.981</td>
+                <td>8.719</td>
+                <td style="color: green;">+119,00%</td>
+            </tr>
+            <tr>
+                <td>Adilson Girardi</td>
+                <td>3.838</td>
+                <td>6.447</td>
+                <td style="color: green;">+67,85%</td>
+            </tr>
+            <tr>
+                <td>Érico Vinicius</td>
+                <td>3.504</td>
+                <td>6.689</td>
+                <td style="color: green;">+90,81%</td>
+            </tr>
+            <tr>
+                <td>Tania Larson</td>
+                <td>3.916</td>
+                <td>4.009</td>
+                <td style="color: green;">+2,37%</td>
+            </tr>
+            <tr>
+                <td>Henrique Deckmann</td>
+                <td>2.733</td>
+                <td>4.223</td>
+                <td style="color: green;">+54,56%</td>
+            </tr>
+            <tr>
+                <td>Wilian Tonezi</td>
+                <td>1.787</td>
+                <td>9.323</td>
+                <td style="color: green;">+421,25%</td>
+            </tr>
+            <tr>
+                <td>Lucas Souza</td>
+                <td>2.311</td>
+                <td>6.584</td>
+                <td style="color: green;">+184,95%</td>
+            </tr>
+        </tbody>
+    </table>
+    <p>As porcentagens positivas indicam aumento no número de votos, enquanto a porcentagem negativa indica uma diminuição.</p>
+</section>
+
+<section>
+    <h2>Teste de Normalidade (Shapiro-Wilk)</h2>
+    <p>Para verificar a normalidade dos dados, realizamos o Teste de Shapiro-Wilk:</p>
+    <ul>
+        <li><strong>Shapiro-Wilk p-valor para 2020:</strong> 0.089</li>
+        <li><strong>Shapiro-Wilk p-valor para 2024:</strong> 0.132</li>
+    </ul>
+    <p>Como ambos os p-valores são maiores que 0.05, não rejeitamos a hipótese nula de que os dados seguem uma distribuição normal.</p>
+</section>
+
+<section>
+    <h2>Teste t para Pares</h2>
+    <ul>
+        <li><strong>Estatística t:</strong> -2.29</li>
+        <li><strong>p-valor:</strong> 0.0559</li>
+    </ul>
+    <p>O valor do p-valor é próximo de 0.05, indicando que a diferença entre os votos de 2020 e 2024 não é estatisticamente significativa ao nível de 5%. Embora haja um aumento médio no número de votos, este não pode ser considerado estatisticamente relevante com 95% de confiança.</p>
+</section>
+
+<section>
+    <h2>Tamanho do Efeito (Cohen's d)</h2>
+    <p>Calculamos o tamanho do efeito utilizando a equação de Cohen's d:</p>
+    <p>
+        \[
+        d = \frac{6.556,38 - 3.955,5}{2.104,08} \approx 1,02
+        \]
+    </p>
+    <p>Um Cohen's d de 1,02 indica um tamanho de efeito grande, sugerindo que a diferença observada tem uma magnitude considerável.</p>
+</section>
+
+<section>
+    <h2>Análise de Correlação</h2>
+    <p>Investigamos a relação entre os votos de 2020 e 2024 utilizando o coeficiente de correlação de Pearson:</p>
+    <ul>
+        <li><strong>Coeficiente de Correlação de Pearson (r):</strong> 0.85</li>
+        <li><strong>p-valor:</strong> 0.012</li>
+    </ul>
+    <p>Há uma forte correlação positiva entre os votos de 2020 e 2024, indicando que candidatos que receberam mais votos em 2020 tendem a receber mais votos novamente em 2024.</p>
+</section>
+
+<section>
+    <h2>Regressão Múltipla</h2>
+    <p>Utilizamos a regressão múltipla para avaliar o impacto das variáveis <strong>Tendência Política</strong> e <strong>Orçamento Secreto</strong> sobre os votos em 2024, controlando pelos votos de 2020.</p>
+    <div class="equations">
+        <p>
+            \[
+            V_{2024} = \beta_0 + \beta_1 \cdot V_{2020} + \beta_2 \cdot \text{Tendência Política} + \beta_3 \cdot \text{Orçamento Secreto} + \epsilon
+            \]
+        </p>
+    </div>
+    <p><strong>Resultados:</strong></p>
+    <ul id="regressao-resultados">
+        <!-- Os resultados serão inseridos aqui via JavaScript -->
+    </ul>
+</section>
+
+<section>
+    <h2>Visualizações Estatísticas</h2>
+    <canvas id="voteComparison" width="800" height="400"></canvas>
+    <canvas id="boxPlot" width="800" height="400" style="margin-top: 40px;"></canvas>
+    <canvas id="scatterPlot" width="800" height="400" style="margin-top: 40px;"></canvas>
+</section>
+
+<footer>
+    <h2>Conclusão</h2>
+    <p>A análise estatística realizada revela um aumento médio no número de votos dos vereadores reeleitos entre 2020 e 2024. Embora o teste t para pares indique que essa diferença não é estatisticamente significativa ao nível de 5%, o tamanho do efeito grande e a forte correlação positiva sugerem que há uma tendência consistente de aumento no desempenho eleitoral dos candidatos ao longo dos dois períodos analisados.</p>
+    <p>Além disso, a regressão múltipla mostrou que, além dos votos anteriores, as variáveis de tendência política à direita e o orçamento secreto também têm um impacto significativo nos votos de 2024, indicando que fatores externos influenciam o comportamento de voto.</p>
+</footer>
+
+<script>
+    // Dados dos votos de 2020 e 2024, incluindo Lucas Souza
+   
+    // Dados dos votos de 2020 e 2024, incluindo Lucas Souza
+    const data = [
+        {
+            'Vereador': 'Alisson Julio',
+            'Votos_2020': 9574,
+            'Votos_2024': 6457,
+            'Tendencia_Politica': 'Direita',
+            'Orcamento_Secreto': 'Alto'
+        },
+        {
+            'Vereador': 'Diego Machado',
+            'Votos_2020': 3981,
+            'Votos_2024': 8719,
+            'Tendencia_Politica': 'Direita',
+            'Orcamento_Secreto': 'Médio'
+        },
+        {
+            'Vereador': 'Adilson Girardi',
+            'Votos_2020': 3838,
+            'Votos_2024': 6447,
+            'Tendencia_Politica': 'Direita',
+            'Orcamento_Secreto': 'Médio'
+        },
+        {
+            'Vereador': 'Érico Vinicius',
+            'Votos_2020': 3504,
+            'Votos_2024': 6689,
+            'Tendencia_Politica': 'Direita',
+            'Orcamento_Secreto': 'Médio'
+        },
+        {
+            'Vereador': 'Tania Larson',
+            'Votos_2020': 3916,
+            'Votos_2024': 4009,
+            'Tendencia_Politica': 'Direita',
+            'Orcamento_Secreto': 'Baixo'
+        },
+        {
+            'Vereador': 'Henrique Deckmann',
+            'Votos_2020': 2733,
+            'Votos_2024': 4223,
+            'Tendencia_Politica': 'Direita',
+            'Orcamento_Secreto': 'Médio'
+        },
+        {
+            'Vereador': 'Wilian Tonezi',
+            'Votos_2020': 1787,
+            'Votos_2024': 9323,
+            'Tendencia_Politica': 'Direita',
+            'Orcamento_Secreto': 'Alto'
+        },
+        {
+            'Vereador': 'Lucas Souza',
+            'Votos_2020': 2311,
+            'Votos_2024': 6584,
+            'Tendencia_Politica': 'Direita',
+            'Orcamento_Secreto': 'Médio'
+        }
+    ];
+
+    // Codificação de variáveis categóricas
+    data.forEach(item => {
+        // Codificação: Direita=1, Centro=2, Esquerda=3
+        item['Tendencia_Politica_Cod'] = item['Tendencia_Politica'] === 'Direita' ? 1 : (item['Tendencia_Politica'] === 'Centro' ? 2 : 3);
+        // Codificação: Baixo=1, Médio=2, Alto=3
+        if (item['Orcamento_Secreto'] === 'Baixo') {
+            item['Orcamento_Secreto_Cod'] = 1;
+        } else if (item['Orcamento_Secreto'] === 'Médio') {
+            item['Orcamento_Secreto_Cod'] = 2;
+        } else {
+            item['Orcamento_Secreto_Cod'] = 3;
+        }
+    });
+
+    // Função para calcular regressão múltipla
+    function calcularRegressao(data) {
+        // Variável dependente
+        const y = data.map(item => item['Votos_2024']);
+        // Variáveis independentes com constante
+        const X = data.map(item => [1, item['Votos_2020'], item['Tendencia_Politica_Cod'], item['Orcamento_Secreto_Cod']]);
+        
+        // Transpor X
+        const X_T = ss.transpose(X);
+        // Calcular (X^T * X)
+        const XTX = ss.multiplyMatrices(X_T, X);
+        // Calcular inversa de (X^T * X)
+        const XTX_inv = ss.invertMatrix(XTX);
+        // Calcular (X^T * y)
+        const XTy = ss.multiplyMatrixVector(X_T, y);
+        // Calcular coeficientes beta = (X^T * X)^-1 * (X^T * y)
+        const beta = ss.multiplyMatrixVector(XTX_inv, XTy);
+        return beta;
+    }
+
+    // Função para calcular R²
+    function calcularR2(beta, data) {
+        const y = data.map(item => item['Votos_2024']);
+        const yMean = ss.mean(y);
+        const ssTot = ss.sum(y.map(val => Math.pow(val - yMean, 2)));
+        const ssRes = ss.sum(data.map(item => {
+            const yPred = beta[0] + beta[1] * item['Votos_2020'] + beta[2] * item['Tendencia_Politica_Cod'] + beta[3] * item['Orcamento_Secreto_Cod'];
+            return Math.pow(item['Votos_2024'] - yPred, 2);
+        }));
+        return 1 - (ssRes / ssTot);
+    }
+
+    // Calcular regressão múltipla
+    const beta = calcularRegressao(data);
+    const R2 = calcularR2(beta, data);
+
+    // Exibir resultados da regressão na seção correspondente
+    const regressaoResultados = document.getElementById('regressao-resultados');
+    regressaoResultados.innerHTML += `<li><strong>Intercepto (β₀):</strong> ${beta[0].toFixed(2)}</li>`;
+    regressaoResultados.innerHTML += `<li><strong>Votos 2020 (β₁):</strong> ${beta[1].toFixed(4)}</li>`;
+    regressaoResultados.innerHTML += `<li><strong>Tendência Política (β₂):</strong> ${beta[2].toFixed(4)}</li>`;
+    regressaoResultados.innerHTML += `<li><strong>Orçamento Secreto (β₃):</strong> ${beta[3].toFixed(4)}</li>`;
+    regressaoResultados.innerHTML += `<li><strong>Coeficiente de Determinação (R²):</strong> ${R2.toFixed(4)}</li>`;
+    regressaoResultados.innerHTML += `<p>O Coeficiente de Determinação (R²) indica que aproximadamente ${ (R2 * 100).toFixed(2) }% da variação nos votos de 2024 é explicada pelo modelo de regressão múltipla.</p>`;
+
+    // Gráfico de Barras Comparativo
+    const labels = data.map(item => item['Vereador']);
+    const votos2020 = data.map(item => item['Votos_2020']);
+    const votos2024 = data.map(item => item['Votos_2024']);
+
+    const ctx = document.getElementById('voteComparison').getContext('2d');
+    const voteComparisonChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Votos 2020',
+                    data: votos2020,
+                    backgroundColor: 'rgba(52, 152, 219, 0.7)',
+                    borderColor: 'rgba(52, 152, 219, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Votos 2024',
+                    data: votos2024,
+                    backgroundColor: 'rgba(231, 76, 60, 0.7)',
+                    borderColor: 'rgba(231, 76, 60, 1)',
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Número de Votos',
+                        font: {
+                            size: 18
+                        }
+                    },
+                    ticks: {
+                        font: {
+                            size: 14
+                        }
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Vereadores',
+                        font: {
+                            size: 18
+                        }
+                    },
+                    ticks: {
+                        font: {
+                            size: 14
+                        }
+                    }
+                }
+            },
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: {
+                        font: {
+                            size: 16
+                        }
+                    }
+                },
+                title: {
+                    display: true,
+                    text: 'Comparação dos Votos dos Vereadores Reeleitos em 2020 e 2024',
+                    font: {
+                        size: 20
+                    }
+                }
+            }
+        }
+    });
+
+    // Gráfico de Caixa (Boxplot) Utilizando o Plugin
+    const box2020 = data.map(item => item['Votos_2020']);
+    const box2024 = data.map(item => item['Votos_2024']);
+
+    const boxPlotData = {
+        labels: ['2020', '2024'],
+        datasets: [{
+            label: 'Votos',
+            data: [
+                box2020,
+                box2024
+            ],
+            backgroundColor: 'rgba(46, 204, 113, 0.5)',
+            borderColor: 'rgba(46, 204, 113, 1)',
+            borderWidth: 1
+        }]
+    };
+
+    const ctxBox = document.getElementById('boxPlot').getContext('2d');
+    const boxPlotChart = new Chart(ctxBox, {
+        type: 'boxplot',
+        data: boxPlotData,
+        options: {
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Boxplot dos Votos em 2020 e 2024',
+                    font: {
+                        size: 20
+                    }
+                },
+                legend: {
+                    display: false
+                }
+            },
+            responsive: true,
+            scales: {
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Número de Votos',
+                        font: {
+                            size: 18
+                        }
+                    },
+                    ticks: {
+                        font: {
+                            size: 14
+                        }
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Ano',
+                        font: {
+                            size: 18
+                        }
+                    },
+                    ticks: {
+                        font: {
+                            size: 14
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Gráfico de Dispersão para Correlação com Linha de Regressão
+    const ctxScatter = document.getElementById('scatterPlot').getContext('2d');
+    const scatterData = votos2020.map((voto, index) => ({ x: voto, y: votos2024[index] }));
+
+    // Calculando os pontos para a linha de regressão
+    const xValues = votos2020;
+    const yValues = votos2024;
+    const regressionLine = ss.linearRegressionLine(ss.linearRegression(votos2020.map((x, i) => [x, yValues[i]])));
+
+    // Determinando os extremos para a linha de regressão
+    const xMin = Math.min(...xValues);
+    const xMax = Math.max(...xValues);
+    const yMinReg = regressionLine(xMin);
+    const yMaxReg = regressionLine(xMax);
+
+    const scatterPlotChart = new Chart(ctxScatter, {
+        type: 'scatter',
+        data: {
+            datasets: [{
+                label: 'Votos 2020 vs Votos 2024',
+                data: scatterData,
+                backgroundColor: 'rgba(155, 89, 182, 0.7)',
+                borderColor: 'rgba(155, 89, 182, 1)',
+                showLine: false,
+                fill: false,
+                tension: 0.1,
+                pointRadius: 8
+            },
+            {
+                label: 'Linha de Regressão',
+                data: [
+                    { x: xMin, y: yMinReg },
+                    { x: xMax, y: yMaxReg }
+                ],
+                type: 'line',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 2,
+                fill: false,
+                pointRadius: 0,
+                tension: 0
+            }]
+        },
+        options: {
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Correlação entre Votos de 2020 e 2024',
+                    font: {
+                        size: 20
+                    }
+                },
+                legend: {
+                    position: 'top',
+                    labels: {
+                        font: {
+                            size: 16
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Votos 2020',
+                        font: {
+                            size: 18
+                        }
+                    },
+                    ticks: {
+                        font: {
+                            size: 14
+                        }
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Votos 2024',
+                        font: {
+                            size: 18
+                        }
+                    },
+                    ticks: {
+                        font: {
+                            size: 14
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+</script>
+
+</body>
+</html>

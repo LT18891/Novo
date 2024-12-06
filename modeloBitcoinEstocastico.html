@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Modelo Avançado de Equação Diferencial Estocástica para Previsão do Preço do Bitcoin</title>
+    <!-- Inclusão do MathJax para renderização de equações LaTeX -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async
+            src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+    </script>
+    <!-- Inclusão do Chart.js para visualização dos resultados -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+        }
+        h1, h2, h3, h4 {
+            color: #333;
+        }
+        .equation {
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-left: 3px solid #ccc;
+            margin: 20px 0;
+        }
+        .input-section, .output-section {
+            margin: 20px 0;
+        }
+        .input-group {
+            margin-bottom: 10px;
+        }
+        label {
+            display: inline-block;
+            width: 200px;
+        }
+        input {
+            padding: 5px;
+            width: 200px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #28a745;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        #chartContainer {
+            width: 100%;
+            max-width: 800px;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Modelo Avançado de Equação Diferencial Estocástica para Previsão do Preço do Bitcoin</h1>
+    <p><strong>Autor:</strong> Luiz Tiago Wilcke</p>
+
+    <h2>Introdução</h2>
+    <p>Este artigo apresenta uma equação diferencial estocástica avançada para modelar e prever o preço do Bitcoin. O modelo incorpora múltiplos fatores estocásticos, correlações entre diferentes processos, componentes de volatilidade estocástica e saltos (jumps) para capturar a natureza altamente volátil e imprevisível do mercado de criptomoedas.</p>
+
+    <h2>Modelo Proposto</h2>
+    <div class="equation">
+        \[
+        \begin{cases}
+        dP(t) = \mu P(t) dt + \sqrt{V(t)} P(t) dW_P(t) + \alpha P(t) dS(t) + J(t) P(t) dN(t) \\
+        dV(t) = \kappa (\theta - V(t)) dt + \xi \sqrt{V(t)} dW_V(t) \\
+        dS(t) = \beta S(t) dt + \gamma S(t) dW_S(t)
+        \end{cases}
+        \]
+    </div>
+
+    <h3>Descrição dos Termos</h3>
+    <ul>
+        <li><strong>P(t)</strong>: Preço do Bitcoin no tempo t.</li>
+        <li><strong>V(t)</strong>: Volatilidade estocástica do preço do Bitcoin.</li>
+        <li><strong>S(t)</strong>: Fatores externos influenciadores.</li>
+        <li><strong>μ</strong>: Taxa de retorno esperada do Bitcoin.</li>
+        <li><strong>κ</strong>: Taxa de reversão à média para a volatilidade.</li>
+        <li><strong>θ</strong>: Nível médio de volatilidade.</li>
+        <li><strong>ξ</strong>: Volatilidade da volatilidade.</li>
+        <li><strong>β</strong>: Taxa de crescimento esperado dos fatores externos.</li>
+        <li><strong>γ</strong>: Volatilidade dos fatores externos.</li>
+        <li><strong>α</strong>: Sensibilidade do preço do Bitcoin aos fatores externos.</li>
+        <li><strong>W_P(t), W_V(t), W_S(t)</strong>: Processos de Wiener padrão com correlações especificadas.</li>
+        <li><strong>J(t)</strong>: Processo de salto.</li>
+        <li><strong>N(t)</strong>: Processo de Poisson representando a chegada de saltos.</li>
+    </ul>
+
+    <h2>Explicação Ampla do Modelo</h2>
+    <p>O modelo proposto é uma extensão sofisticada das equações diferenciais estocásticas utilizadas para prever preços de ativos financeiros, adaptado para o contexto específico e altamente volátil do Bitcoin. A complexidade adicional permite capturar uma gama mais ampla de comportamentos e influências que afetam o preço da criptomoeda.</p>
+
+    <h3>Componentes do Modelo</h3>
+    
+    <h4>1. Equação para o Preço do Bitcoin \( P(t) \)</h4>
+    <p>A equação principal descreve a evolução do preço do Bitcoin ao longo do tempo e é composta por quatro termos distintos:</p>
+    <ul>
+        <li><strong>Termo Determinístico (\( \mu P(t) dt \)):</strong> Representa o crescimento esperado do preço do Bitcoin baseado na taxa média de retorno \( \mu \). Este termo é similar ao modelo de movimento geométrico browniano utilizado em finanças tradicionais.</li>
+        <li><strong>Termo de Volatilidade Estocástica (\( \sqrt{V(t)} P(t) dW_P(t) \)):</strong> Introduz uma volatilidade que varia ao longo do tempo, modelada pelo processo \( V(t) \). Isso permite que a volatilidade seja adaptativa e reflita melhor as flutuações reais do mercado.</li>
+        <li><strong>Termo de Influência Externa (\( \alpha P(t) dS(t) \)):</strong> Captura o impacto de fatores externos no preço do Bitcoin. Esses fatores podem incluir indicadores de sentimento de mercado, mudanças regulatórias, inovações tecnológicas e eventos macroeconômicos.</li>
+        <li><strong>Termo de Saltos (\( J(t) P(t) dN(t) \)):</strong> Modela eventos súbitos que podem causar grandes variações no preço, como notícias inesperadas, mudanças abruptas em políticas governamentais ou incidentes de segurança em exchanges.</li>
+    </ul>
+
+    <h4>2. Equação para a Volatilidade \( V(t) \)</h4>
+    <p>A volatilidade não é tratada como uma constante, mas sim como um processo estocástico que evolui ao longo do tempo:</p>
+    <ul>
+        <li><strong>Reversão à Média (\( \kappa (\theta - V(t)) dt \)):</strong> Este termo assegura que a volatilidade tende a retornar a um nível médio \( \theta \) a uma taxa \( \kappa \). É similar ao modelo de Ornstein-Uhlenbeck.</li>
+        <li><strong>Volatilidade da Volatilidade (\( \xi \sqrt{V(t)} dW_V(t) \)):</strong> Introduz incerteza na própria volatilidade, permitindo que a volatilidade flutue de maneira estocástica e capture a dinâmica realista de mercados financeiros.</li>
+    </ul>
+
+    <h4>3. Equação para os Fatores Externos \( S(t) \)</h4>
+    <p>Os fatores externos que influenciam o preço do Bitcoin são modelados separadamente:</p>
+    <ul>
+        <li><strong>Crescimento Determinístico (\( \beta S(t) dt \)):</strong> Representa o crescimento esperado dos fatores externos ao longo do tempo.</li>
+        <li><strong>Volatilidade dos Fatores Externos (\( \gamma S(t) dW_S(t) \)):</strong> Captura a incerteza e a variação nos fatores externos que afetam o preço do Bitcoin.</li>
+    </ul>
+
+    <h4>4. Processos de Saltos \( J(t) \) e \( N(t) \)</h4>
+    <p>Para capturar movimentos abruptos e inesperados no preço do Bitcoin:</p>
+    <ul>
+        <li><strong>Processo de Salto \( J(t) \):</strong> Pode ser modelado como uma variável aleatória normalmente distribuída \( J(t) \sim \mathcal{N}(\mu_J, \sigma_J^2) \), representando o tamanho do salto.</li>
+        <li><strong>Processo de Poisson \( N(t) \):</strong> Controla a frequência dos saltos, com \( \lambda \) sendo a taxa média de ocorrência de saltos por unidade de tempo.</li>
+    </ul>
+
+    <h3>Correlação Entre Processos</h3>
+    <p>As correlações entre os processos de Wiener (\( W_P(t) \), \( W_V(t) \), \( W_S(t) \)) são fundamentais para capturar a interdependência entre os diferentes componentes do modelo:</p>
+    <ul>
+        <li><strong>Correlação \( \rho_{PV} \) entre \( W_P(t) \) e \( W_V(t) \):</strong> Reflete como a volatilidade está relacionada com o movimento do preço do Bitcoin.</li>
+        <li><strong>Correlação \( \rho_{PS} \) entre \( W_P(t) \) e \( W_S(t) \):</strong> Indica a relação entre os movimentos do preço e os fatores externos.</li>
+        <li><strong>Correlação \( \rho_{VS} \) entre \( W_V(t) \) e \( W_S(t) \):</strong> Representa como a volatilidade interage com os fatores externos.</li>
+    </ul>
+    <p>Essas correlações permitem que o modelo reflita de maneira mais precisa as dinâmicas reais do mercado, onde diferentes fatores não atuam de forma isolada.</p>
+
+    <h3>Justificativa para a Complexidade do Modelo</h3>
+    <p>O mercado de criptomoedas, especialmente o Bitcoin, é conhecido por sua extrema volatilidade e sensibilidade a uma variedade de fatores internos e externos. Modelos simples, como o movimento browniano geométrico, muitas vezes falham em capturar essas nuances. Portanto, o modelo proposto inclui:</p>
+    <ul>
+        <li><strong>Volatilidade Estocástica:</strong> Permite que a volatilidade varie ao longo do tempo, refletindo melhor as mudanças no mercado.</li>
+        <li><strong>Fatores Externos:</strong> Incorpora elementos como sentimento de mercado, regulamentações e inovações tecnológicas que influenciam o preço do Bitcoin.</li>
+        <li><strong>Saltos:</strong> Captura eventos inesperados que podem causar movimentos bruscos no preço.</li>
+        <li><strong>Correlação Entre Processos:</strong> Reflete a interdependência entre diferentes aspectos do mercado, melhorando a precisão das previsões.</li>
+    </ul>
+
+    <h2>Implementação do Modelo</h2>
+    <p>O modelo foi implementado em JavaScript utilizando o método de Euler-Maruyama para simulação numérica. Abaixo, você pode inserir os valores das variáveis e executar a simulação para visualizar a trajetória simulada do preço do Bitcoin.</p>
+
+    <div class="input-section">
+        <h3>Parâmetros do Modelo</h3>
+        <div class="input-group">
+            <label for="mu">Taxa de Retorno Esperada (μ):</label>
+            <input type="number" id="mu" placeholder="0.05">
+        </div>
+        <div class="input-group">
+            <label for="kappa">Taxa de Reversão à Média (κ):</label>
+            <input type="number" id="kappa" placeholder="1.5">
+        </div>
+        <div class="input-group">
+            <label for="theta">Nível Médio de Volatilidade (θ):</label>
+            <input type="number" id="theta" placeholder="0.04">
+        </div>
+        <div class="input-group">
+            <label for="xi">Volatilidade da Volatilidade (ξ):</label>
+            <input type="number" id="xi" placeholder="0.3">
+        </div>
+        <div class="input-group">
+            <label for="beta">Taxa de Crescimento de Fatores Externos (β):</label>
+            <input type="number" id="beta" placeholder="0.02">
+        </div>
+        <div class="input-group">
+            <label for="gamma">Volatilidade de Fatores Externos (γ):</label>
+            <input type="number" id="gamma" placeholder="0.1">
+        </div>
+        <div class="input-group">
+            <label for="alpha">Sensibilidade aos Fatores Externos (α):</label>
+            <input type="number" id="alpha" placeholder="0.05">
+        </div>
+        <div class="input-group">
+            <label for="lambda">Intensidade de Saltos (λ):</label>
+            <input type="number" id="lambda" placeholder="0.1">
+        </div>
+        <div class="input-group">
+            <label for="muJ">Média do Salto (μ_J):</label>
+            <input type="number" id="muJ" placeholder="0">
+        </div>
+        <div class="input-group">
+            <label for="sigmaJ">Desvio Padrão do Salto (σ_J):</label>
+            <input type="number" id="sigmaJ" placeholder="0.1">
+        </div>
+        <div class="input-group">
+            <label for="rhoPV">Correlação W_P & W_V (ρ_PV):</label>
+            <input type="number" id="rhoPV" placeholder="0.3" step="0.1">
+        </div>
+        <div class="input-group">
+            <label for="rhoPS">Correlação W_P & W_S (ρ_PS):</label>
+            <input type="number" id="rhoPS" placeholder="0.2" step="0.1">
+        </div>
+        <div class="input-group">
+            <label for="rhoVS">Correlação W_V & W_S (ρ_VS):</label>
+            <input type="number" id="rhoVS" placeholder="0.1" step="0.1">
+        </div>
+        <div class="input-group">
+            <label for="initialP">Preço Inicial do Bitcoin (P₀):</label>
+            <input type="number" id="initialP" placeholder="50000">
+        </div>
+        <div class="input-group">
+            <label for="initialV">Volatilidade Inicial (V₀):</label>
+            <input type="number" id="initialV" placeholder="0.04">
+        </div>
+        <div class="input-group">
+            <label for="initialS">Fatores Externos Iniciais (S₀):</label>
+            <input type="number" id="initialS" placeholder="1">
+        </div>
+        <div class="input-group">
+            <label for="timeHorizon">Horizonte de Tempo (dias):</label>
+            <input type="number" id="timeHorizon" placeholder="30">
+        </div>
+        <div class="input-group">
+            <label for="dt">Passo de Tempo (dt):</label>
+            <input type="number" id="dt" placeholder="1" step="1">
+        </div>
+        <button onclick="runSimulation()">Executar Simulação</button>
+    </div>
+
+    <div class="output-section">
+        <h3>Resultado da Simulação</h3>
+        <div id="chartContainer">
+            <canvas id="priceChart"></canvas>
+        </div>
+    </div>
+
+    <script>
+        // Função para gerar números aleatórios com distribuição normal usando o método Box-Muller
+        function randn_bm() {
+            let u = 0, v = 0;
+            while(u === 0) u = Math.random(); // Evitar log(0)
+            while(v === 0) v = Math.random();
+            return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+        }
+
+        // Função para gerar variáveis correlacionadas
+        function generateCorrelatedRandoms(rho) {
+            let z1 = randn_bm();
+            let z2 = randn_bm();
+            let x = z1;
+            let y = rho * z1 + Math.sqrt(1 - rho * rho) * z2;
+            return [x, y];
+        }
+
+        // Função principal para executar a simulação
+        function runSimulation() {
+            // Coleta de valores dos inputs
+            const mu = parseFloat(document.getElementById('mu').value) || 0.05;
+            const kappa = parseFloat(document.getElementById('kappa').value) || 1.5;
+            const theta = parseFloat(document.getElementById('theta').value) || 0.04;
+            const xi = parseFloat(document.getElementById('xi').value) || 0.3;
+            const beta = parseFloat(document.getElementById('beta').value) || 0.02;
+            const gamma = parseFloat(document.getElementById('gamma').value) || 0.1;
+            const alpha = parseFloat(document.getElementById('alpha').value) || 0.05;
+            const lambda = parseFloat(document.getElementById('lambda').value) || 0.1;
+            const muJ = parseFloat(document.getElementById('muJ').value) || 0;
+            const sigmaJ = parseFloat(document.getElementById('sigmaJ').value) || 0.1;
+            const rhoPV = parseFloat(document.getElementById('rhoPV').value) || 0.3;
+            const rhoPS = parseFloat(document.getElementById('rhoPS').value) || 0.2;
+            const rhoVS = parseFloat(document.getElementById('rhoVS').value) || 0.1;
+            const initialP = parseFloat(document.getElementById('initialP').value) || 50000;
+            const initialV = parseFloat(document.getElementById('initialV').value) || 0.04;
+            const initialS = parseFloat(document.getElementById('initialS').value) || 1;
+            const timeHorizon = parseInt(document.getElementById('timeHorizon').value) || 30;
+            const dt = parseFloat(document.getElementById('dt').value) || 1;
+
+            // Número de passos
+            const steps = Math.floor(timeHorizon / dt);
+            const time = Array.from({length: steps + 1}, (_, i) => i * dt);
+
+            // Arrays para armazenar os resultados
+            let P = [initialP];
+            let V = [initialV];
+            let S = [initialS];
+
+            // Inicialização dos processos
+            let currentP = initialP;
+            let currentV = initialV;
+            let currentS = initialS;
+
+            for(let i = 1; i <= steps; i++) {
+                // Gerar correlações entre W_P, W_V, W_S
+                // Primeiro, gerar W_P e W_V com correlação rhoPV
+                let [z1, z2] = generateCorrelatedRandoms(rhoPV);
+                let W_P = z1 * Math.sqrt(dt);
+                let W_V = z2 * Math.sqrt(dt);
+
+                // Gerar W_S com correlação rhoPS com W_P e rhoVS com W_V
+                // Utilizamos uma combinação linear para manter as correlações
+                let W_S_part1 = rhoPS * z1;
+                let W_S_part2 = rhoVS * z2;
+                let z3 = randn_bm();
+                let W_S = (W_S_part1 + W_S_part2) * Math.sqrt(dt) + Math.sqrt(1 - rhoPS * rhoPS - rhoVS * rhoVS) * z3 * Math.sqrt(dt);
+
+                // Processos de salto
+                let N = (Math.random() < lambda * dt) ? 1 : 0;
+                let J = N ? randn_bm() * sigmaJ + muJ : 0;
+
+                // Atualização de V(t)
+                let dV = kappa * (theta - currentV) * dt + xi * Math.sqrt(currentV) * W_V;
+                currentV = currentV + dV;
+                if(currentV < 0) currentV = 0; // Evitar volatilidade negativa
+
+                // Atualização de S(t)
+                let dS = beta * currentS * dt + gamma * currentS * W_S;
+                currentS = currentS + dS;
+
+                // Atualização de P(t)
+                let dP = mu * currentP * dt + Math.sqrt(currentV) * currentP * W_P + alpha * currentP * (currentS * W_S);
+                dP += J * currentP; // Termo de salto
+                currentP = currentP + dP;
+                if(currentP < 0) currentP = 0; // Evitar preços negativos
+
+                // Armazenar os valores
+                P.push(currentP);
+                V.push(currentV);
+                S.push(currentS);
+            }
+
+            // Preparar dados para o gráfico
+            const ctx = document.getElementById('priceChart').getContext('2d');
+            if(window.priceChartInstance) {
+                window.priceChartInstance.destroy();
+            }
+            window.priceChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: time,
+                    datasets: [{
+                        label: 'Preço do Bitcoin (P(t))',
+                        data: P,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        fill: false,
+                        tension: 0.1
+                    },
+                    {
+                        label: 'Volatilidade (V(t))',
+                        data: V,
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        fill: false,
+                        tension: 0.1,
+                        yAxisID: 'y1'
+                    },
+                    {
+                        label: 'Fatores Externos (S(t))',
+                        data: S,
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        fill: false,
+                        tension: 0.1,
+                        yAxisID: 'y2'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    stacked: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Tempo (dias)'
+                            }
+                        },
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: 'Preço do Bitcoin (P(t))'
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            grid: {
+                                drawOnChartArea: false,
+                            },
+                            title: {
+                                display: true,
+                                text: 'Volatilidade (V(t))'
+                            }
+                        },
+                        y2: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            grid: {
+                                drawOnChartArea: false,
+                            },
+                            title: {
+                                display: true,
+                                text: 'Fatores Externos (S(t))'
+                            },
+                            // Ajustar para não sobrepor y1
+                            ticks: {
+                                callback: function(value) {
+                                    return value;
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                        },
+                        title: {
+                            display: true,
+                            text: 'Simulação do Modelo Avançado de Equação Diferencial Estocástica'
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+
+</body>
+</html>

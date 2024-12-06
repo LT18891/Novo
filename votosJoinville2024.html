@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análise de Desigualdade de Votos - Eleições Joinville 2024</title>
+    <!-- Polyfill for ES6 features -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <!-- MathJax for rendering LaTeX equations -->
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <!-- Chart.js for plotting graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Montserrat:wght@600&display=swap" rel="stylesheet">
+    <style>
+        /* Reset de margens e paddings */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Estilização do corpo da página */
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #f0f4f8, #d9e2ec);
+            color: #333333;
+            line-height: 1.6;
+        }
+
+        /* Container principal */
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 30px 40px;
+            background-color: #ffffff;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            transition: transform 0.3s;
+        }
+
+        .container:hover {
+            transform: translateY(-5px);
+        }
+
+        /* Estilização dos cabeçalhos */
+        h1, h2, h3, h4 {
+            font-family: 'Montserrat', sans-serif;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+        }
+
+        h2 {
+            font-size: 1.8em;
+            font-weight: 600;
+        }
+
+        h3 {
+            font-size: 1.6em;
+            margin-top: 40px;
+        }
+
+        h4 {
+            font-size: 1.4em;
+            margin-top: 30px;
+        }
+
+        /* Estilização dos parágrafos */
+        p {
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        /* Estilização das listas */
+        ul {
+            list-style-type: disc;
+            margin-left: 20px;
+            margin-bottom: 20px;
+        }
+
+        li {
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        /* Estilização das tabelas */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 1.05em;
+        }
+
+        table, th, td {
+            border: 1px solid #dddddd;
+        }
+
+        th {
+            background-color: #2980b9;
+            color: white;
+            padding: 14px;
+            font-size: 1.1em;
+        }
+
+        td {
+            padding: 12px;
+            text-align: center;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        /* Estilização do resultado do Gini */
+        #gini-result {
+            font-weight: bold;
+            text-align: center;
+            font-size: 1.4em;
+            margin: 30px 0;
+            color: #27ae60;
+        }
+
+        /* Container do gráfico */
+        .chart-container {
+            position: relative;
+            margin: 40px auto;
+            width: 90%;
+            max-width: 1000px;
+        }
+
+        /* Rodapé */
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            color: #777777;
+            font-size: 1em;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            h2 {
+                font-size: 1.5em;
+            }
+
+            h3 {
+                font-size: 1.4em;
+            }
+
+            h4 {
+                font-size: 1.2em;
+            }
+
+            p, li {
+                font-size: 1em;
+            }
+
+            th, td {
+                padding: 10px;
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Análise da Desigualdade de Votos nas Eleições de Vereadores em Joinville 2024</h1>
+        <h2>Autor: Luiz Tiago Wilcke</h2>
+
+        <p>
+            Nesta análise, avaliamos a desigualdade na distribuição de votos entre os vereadores eleitos nas eleições municipais de Joinville em 2024, utilizando o <strong>Índice de Gini</strong>. O Índice de Gini é uma métrica comumente utilizada para medir a desigualdade de renda, mas sua aplicação pode ser estendida para avaliar a distribuição de votos entre os candidatos.
+        </p>
+
+        <h3>Fundamentação Teórica</h3>
+        <p>
+            O Índice de Gini varia entre 0 e 1, onde:
+        </p>
+        <ul>
+            <li><strong>0</strong> indica perfeita igualdade (todos os candidatos têm o mesmo número de votos).</li>
+            <li><strong>1</strong> indica máxima desigualdade (um único candidato recebe todos os votos).</li>
+        </ul>
+
+        <p>
+            Para calcular o Índice de Gini na distribuição de votos, seguimos os seguintes passos:
+        </p>
+
+        <h4>Curva de Lorenz</h4>
+        <p>
+            A Curva de Lorenz é uma representação gráfica da distribuição acumulada de votos. Ela é construída ordenando os candidatos pelo número de votos, do menor para o maior, e plotando a porcentagem acumulada dos votos contra a porcentagem acumulada dos candidatos.
+        </p>
+
+        <p>
+            Matematicamente, a Curva de Lorenz pode ser definida como:
+        </p>
+        <div>
+            $$ L(p) = \frac{\sum_{i=1}^{k} v_i}{\sum_{i=1}^{n} v_i} $$
+        </div>
+        <p>Onde:</p>
+        <ul>
+            <li> \( v_i \) é o número de votos do i-ésimo candidato.</li>
+            <li> \( n \) é o número total de candidatos.</li>
+            <li> \( k \) varia de 1 a \( n \).</li>
+        </ul>
+
+        <h4>Cálculo do Índice de Gini</h4>
+        <p>
+            O Índice de Gini é calculado com a fórmula:
+        </p>
+        <div>
+            $$ Gini = \frac{2 \sum_{i=1}^{n} i \cdot v_{ordenados}[i]}{n \sum_{i=1}^{n} v_i} - \frac{n + 1}{n} $$
+        </div>
+        <p>
+            Onde:
+        </p>
+        <ul>
+            <li> \( v_{ordenados}[i] \) são os votos ordenados de forma crescente.</li>
+            <li> \( n \) é o número total de candidatos.</li>
+        </ul>
+
+        <h3>Votos dos Vereadores Eleitos em Joinville 2024</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Vereador</th>
+                    <th>Partido</th>
+                    <th>Votos</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>Wilian Tonezi</td><td>PL</td><td>9.323</td></tr>
+                <tr><td>Diego Machado</td><td>PSD</td><td>8.719</td></tr>
+                <tr><td>Neto Petters</td><td>NOVO</td><td>7.586</td></tr>
+                <tr><td>Pastor Ascendino Batista</td><td>PSD</td><td>6.880</td></tr>
+                <tr><td>Brandel Junior</td><td>PL</td><td>6.810</td></tr>
+                <tr><td>Erico Vinicius</td><td>NOVO</td><td>6.689</td></tr>
+                <tr><td>Lucas Souza</td><td>REPUBLICANOS</td><td>6.584</td></tr>
+                <tr><td>Alisson</td><td>NOVO</td><td>6.457</td></tr>
+                <tr><td>Adilson Girardi</td><td>MDB</td><td>6.447</td></tr>
+                <tr><td>Mateus Batista</td><td>UNIÃO</td><td>5.698</td></tr>
+                <tr><td>Instrutor Lucas</td><td>PL</td><td>5.027</td></tr>
+                <tr><td>Kiko da Luz</td><td>PSD</td><td>4.402</td></tr>
+                <tr><td>Professora Vanessa da Rosa</td><td>PT</td><td>4.366</td></tr>
+                <tr><td>Henrique Deckmann</td><td>MDB</td><td>4.223</td></tr>
+                <tr><td>Tânia Larson</td><td>UNIÃO</td><td>4.009</td></tr>
+                <tr><td>Pelé</td><td>MDB</td><td>3.466</td></tr>
+                <tr><td>Vanessa Falk</td><td>NOVO</td><td>3.395</td></tr>
+                <tr><td>Cleiton Profeta</td><td>PL</td><td>3.225</td></tr>
+                <tr><td>Liliane da Frada</td><td>PODE</td><td>3.136</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Índice de Gini Calculado</h3>
+        <p id="gini-result"></p>
+
+        <h3>Distribuição de Votos</h3>
+        <div class="chart-container">
+            <canvas id="votesChart"></canvas>
+        </div>
+
+        <h3>Interpretação dos Resultados</h3>
+        <p>
+            O Índice de Gini resultante para a distribuição de votos nas eleições de Joinville foi de <span id="gini-value"></span>. Este valor indica que a distribuição de votos entre os vereadores eleitos foi relativamente <span id="gini-interpretation"></span>, sugerindo uma competitividade saudável entre os candidatos.
+        </p>
+
+        <footer>
+            <p>&copy; 2024 Luiz Tiago Wilcke. Todos os direitos reservados.</p>
+        </footer>
+
+        <script>
+            // Dados dos votos
+            const votos = [9323, 8719, 7586, 6880, 6810, 6689, 6584, 6457, 6447, 5698, 5027, 4402, 4366, 4223, 4009, 3466, 3395, 3225, 3136];
+            const candidatos = [
+                "Wilian Tonezi", "Diego Machado", "Neto Petters", "Pastor Ascendino Batista",
+                "Brandel Junior", "Erico Vinicius", "Lucas Souza", "Alisson",
+                "Adilson Girardi", "Mateus Batista", "Instrutor Lucas", "Kiko da Luz",
+                "Professora Vanessa da Rosa", "Henrique Deckmann", "Tânia Larson",
+                "Pelé", "Vanessa Falk", "Cleiton Profeta", "Liliane da Frada"
+            ];
+
+            // Função para calcular o Índice de Gini
+            function calcularGini(votos) {
+                const n = votos.length;
+                const votosOrdenados = [...votos].sort((a, b) => a - b);
+                const somaVotos = votosOrdenados.reduce((acc, val) => acc + val, 0);
+                let numerador = 0;
+
+                for (let i = 0; i < n; i++) {
+                    numerador += (i + 1) * votosOrdenados[i];
+                }
+
+                const gini = (2 * numerador) / (n * somaVotos) - (n + 1) / n;
+                return gini;
+            }
+
+            // Calcular e exibir o Índice de Gini
+            const gini = calcularGini(votos).toFixed(4);
+            document.getElementById('gini-result').innerText = `O Índice de Gini para a distribuição de votos é: ${gini}`;
+            document.getElementById('gini-value').innerText = gini;
+
+            // Interpretar o Índice de Gini
+            let interpretation = '';
+            if (gini < 0.2) {
+                interpretation = 'equitativa';
+            } else if (gini < 0.4) {
+                interpretation = 'moderadamente desigual';
+            } else {
+                interpretation = 'altamente desigual';
+            }
+            document.getElementById('gini-interpretation').innerText = interpretation;
+
+            // Preparar dados para o gráfico
+            const ctx = document.getElementById('votesChart').getContext('2d');
+            const chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: candidatos,
+                    datasets: [{
+                        label: 'Número de Votos',
+                        data: votos,
+                        backgroundColor: 'rgba(52, 152, 219, 0.6)',
+                        borderColor: 'rgba(41, 128, 185, 1)',
+                        borderWidth: 1,
+                        hoverBackgroundColor: 'rgba(41, 128, 185, 0.8)',
+                        hoverBorderColor: 'rgba(52, 152, 219, 1)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.parsed.y.toLocaleString()} votos`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Votos',
+                                font: {
+                                    size: 14
+                                }
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toLocaleString();
+                                },
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Vereadores',
+                                font: {
+                                    size: 14
+                                }
+                            },
+                            ticks: {
+                                font: {
+                                    size: 12
+                                },
+                                maxRotation: 90,
+                                minRotation: 45
+                            }
+                        }
+                    }
+                }
+            });
+        </script>
+    </div>
+</body>
+</html>

@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Modelo Matemático Avançado do Preço do Dólar</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+    </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            line-height: 1.8; /* Aumentei o espaçamento entre linhas para melhor legibilidade */
+            background-color: #f5f5f5;
+            font-size: 18px; /* Aumenta o tamanho da fonte padrão do corpo */
+        }
+        h1 {
+            color: #2c3e50;
+            font-size: 2.5em; /* Aumenta o tamanho da fonte do título principal */
+        }
+        h2 {
+            color: #2c3e50;
+            font-size: 2em; /* Aumenta o tamanho das fontes dos subtítulos */
+            margin-top: 30px;
+        }
+        h3 {
+            color: #2c3e50;
+            font-size: 1.75em; /* Aumenta o tamanho das fontes dos sub-subtítulos */
+            margin-top: 20px;
+        }
+        h4 {
+            color: #2c3e50;
+            font-size: 1.5em; /* Aumenta o tamanho das fontes dos sub-sub-subtítulos */
+            margin-top: 15px;
+        }
+        p {
+            font-size: 1.1em; /* Aumenta ligeiramente o tamanho das fontes dos parágrafos */
+            margin-bottom: 15px;
+        }
+        ul {
+            font-size: 1.1em; /* Aumenta o tamanho das fontes das listas */
+            margin-bottom: 15px;
+        }
+        .calculator {
+            margin-top: 30px;
+            padding: 25px; /* Aumenta o padding para melhor espaçamento interno */
+            border: 1px solid #bdc3c7;
+            border-radius: 5px;
+            background-color: #ffffff;
+            max-width: 600px; /* Aumenta a largura máxima da calculadora */
+            font-size: 1.1em; /* Garante que os textos dentro da calculadora também sejam maiores */
+        }
+        .calculator input, .calculator button {
+            width: 100%;
+            padding: 12px; /* Aumenta o padding dos inputs e botões */
+            margin-top: 12px; /* Aumenta o espaçamento entre os campos */
+            font-size: 1.1em; /* Aumenta o tamanho da fonte dos inputs e botões */
+            box-sizing: border-box;
+        }
+        .result {
+            margin-top: 25px;
+            padding: 15px; /* Aumenta o padding da área de resultado */
+            background-color: #ecf0f1;
+            border-radius: 5px;
+            font-size: 1.2em; /* Aumenta o tamanho da fonte do resultado */
+        }
+        .equation {
+            background-color: #ecf0f1;
+            padding: 15px; /* Aumenta o padding das equações */
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 1.2em; /* Aumenta o tamanho da fonte das equações */
+        }
+        footer {
+            margin-top: 60px;
+            font-size: 1em; /* Mantém o footer com um tamanho de fonte adequado */
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+    <h1>Modelo Matemático Avançado do Preço do Dólar</h1>
+    <p><strong>Autor:</strong> Luiz Tiago Wilcke</p>
+
+    <h2>Introdução</h2>
+    <p>
+        O preço do dólar em relação a outras moedas é um indicador crucial da saúde econômica de um país e afeta diretamente o comércio internacional, investimentos e políticas monetárias. Modelar as variações cambiais de forma precisa é desafiador devido à complexidade dos fatores envolvidos. Este artigo apresenta um modelo matemático avançado baseado em um sistema de equações diferenciais para descrever o comportamento do preço do dólar. Além disso, implementamos uma calculadora interativa em HTML e JavaScript que permite aos usuários explorar e analisar o modelo de maneira prática.
+    </p>
+
+    <h2>Modelo Matemático</h2>
+    <p>
+        Para capturar a dinâmica do preço do dólar, consideramos múltiplos fatores que influenciam a taxa de câmbio. O modelo proposto utiliza um sistema de equações diferenciais que incorpora a oferta e demanda de dólares, as políticas monetárias e a influência de eventos externos.
+    </p>
+
+    <h3>Equações Diferenciais</h3>
+    <p>
+        As variações no preço do dólar \( S(t) \) são influenciadas por diversos componentes. Vamos definir:
+    </p>
+    <ul>
+        <li>\( D(t) \): Demanda por dólares no tempo \( t \).</li>
+        <li>\( O(t) \): Oferta de dólares no tempo \( t \).</li>
+        <li>\( P(t) \): Política monetária que afeta a oferta e demanda, como taxas de juros.</li>
+        <li>\( E(t) \): Eventos externos que impactam a economia, como crises financeiras ou mudanças geopolíticas.</li>
+    </ul>
+    <p>
+        O sistema de equações diferenciais que descreve o modelo é:
+    </p>
+    <div class="equation">
+        \[
+        \begin{cases}
+        \dfrac{dS}{dt} = a \cdot (D(t) - O(t)) + b \cdot P(t) + c \cdot E(t) \\
+        \dfrac{dD}{dt} = k_1 \cdot S(t) - m_1 \cdot D(t) \\
+        \dfrac{dO}{dt} = k_2 \cdot S(t) - m_2 \cdot O(t) \\
+        \dfrac{dP}{dt} = -d \cdot P(t) + e \cdot U(t) \\
+        \dfrac{dE}{dt} = f \cdot V(t) - g \cdot E(t)
+        \end{cases}
+        \]
+    </div>
+    <p>
+        Onde:
+    </p>
+    <ul>
+        <li>\( a, b, c, k_1, k_2, m_1, m_2, d, e, f, g \) são constantes que determinam a sensibilidade entre as variáveis.</li>
+        <li>\( U(t) \) representa estímulos na política monetária, como mudanças nas taxas de juros.</li>
+        <li>\( V(t) \) representa influências de eventos externos que afetam a economia.</li>
+    </ul>
+    <p>
+        Este sistema de equações diferenciais permite modelar como o preço do dólar \( S(t) \) evolui ao longo do tempo em resposta a mudanças na demanda e oferta, políticas monetárias e eventos externos.
+    </p>
+
+    <h3>Solução do Sistema</h3>
+    <p>
+        Resolver este sistema de equações diferenciais fornece a trajetória do preço do dólar ao longo do tempo. Para simplificação, assumimos que \( P(t) \) e \( E(t) \) são afetados por estímulos constantes \( U(t) = U_0 \) e \( V(t) = V_0 \), respectivamente, durante o período analisado. Assim, podemos linearizar o sistema e resolver numericamente utilizando métodos como o de Euler ou Runge-Kutta.
+    </p>
+
+    <h2>Calculadora do Modelo</h2>
+    <p>
+        A seguir, apresentamos uma calculadora interativa que implementa o modelo matemático descrito. Ela permite que os usuários insiram os parâmetros do modelo e observem a estimativa do preço do dólar ao longo do tempo.
+    </p>
+
+    <div class="calculator">
+        <h3>Calculadora Avançada do Preço do Dólar</h3>
+        <label for="S0">Preço Inicial do Dólar (\( S_0 \)):</label>
+        <input type="number" id="S0" placeholder="Ex: 5.20">
+
+        <label for="D0">Demanda Inicial (\( D_0 \)):</label>
+        <input type="number" id="D0" placeholder="Ex: 0.05">
+
+        <label for="O0">Oferta Inicial (\( O_0 \)):</label>
+        <input type="number" id="O0" placeholder="Ex: 0.04">
+
+        <label for="P0">Política Monetária Inicial (\( P_0 \)):</label>
+        <input type="number" id="P0" placeholder="Ex: 0.03">
+
+        <label for="E0">Evento Externo Inicial (\( E_0 \)):</label>
+        <input type="number" id="E0" placeholder="Ex: 0.02">
+
+        <label for="a">Constante \( a \):</label>
+        <input type="number" step="0.01" id="a" placeholder="Ex: 0.1">
+
+        <label for="b">Constante \( b \):</label>
+        <input type="number" step="0.01" id="b" placeholder="Ex: 0.05">
+
+        <label for="c">Constante \( c \):</label>
+        <input type="number" step="0.01" id="c" placeholder="Ex: 0.02">
+
+        <label for="k1">Constante \( k_1 \):</label>
+        <input type="number" step="0.01" id="k1" placeholder="Ex: 0.03">
+
+        <label for="m1">Constante \( m_1 \):</label>
+        <input type="number" step="0.01" id="m1" placeholder="Ex: 0.02">
+
+        <label for="k2">Constante \( k_2 \):</label>
+        <input type="number" step="0.01" id="k2" placeholder="Ex: 0.04">
+
+        <label for="m2">Constante \( m_2 \):</label>
+        <input type="number" step="0.01" id="m2" placeholder="Ex: 0.03">
+
+        <label for="d">Constante \( d \):</label>
+        <input type="number" step="0.01" id="d" placeholder="Ex: 0.05">
+
+        <label for="e">Constante \( e \):</label>
+        <input type="number" step="0.01" id="e" placeholder="Ex: 0.02">
+
+        <label for="f">Constante \( f \):</label>
+        <input type="number" step="0.01" id="f" placeholder="Ex: 0.04">
+
+        <label for="g">Constante \( g \):</label>
+        <input type="number" step="0.01" id="g" placeholder="Ex: 0.03">
+
+        <label for="U0">Estímulo Política Monetária (\( U_0 \)):</label>
+        <input type="number" step="0.01" id="U0" placeholder="Ex: 0.01">
+
+        <label for="V0">Estímulo Evento Externo (\( V_0 \)):</label>
+        <input type="number" step="0.01" id="V0" placeholder="Ex: 0.02">
+
+        <label for="t">Tempo (\( t \)):</label>
+        <input type="number" id="t" placeholder="Ex: 10">
+
+        <button onclick="calculateAdvancedModel()">Calcular \( S(t) \)</button>
+
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        // Função para calcular S(t) com base no modelo avançado
+        function calculateAdvancedModel() {
+            // Obter valores dos inputs
+            const S0 = parseFloat(document.getElementById('S0').value);
+            const D0 = parseFloat(document.getElementById('D0').value);
+            const O0 = parseFloat(document.getElementById('O0').value);
+            const P0 = parseFloat(document.getElementById('P0').value);
+            const E0 = parseFloat(document.getElementById('E0').value);
+            const a = parseFloat(document.getElementById('a').value);
+            const b = parseFloat(document.getElementById('b').value);
+                const c = parseFloat(document.getElementById('c').value);
+            const k1 = parseFloat(document.getElementById('k1').value);
+            const m1 = parseFloat(document.getElementById('m1').value);
+            const k2 = parseFloat(document.getElementById('k2').value);
+            const m2 = parseFloat(document.getElementById('m2').value);
+            const d = parseFloat(document.getElementById('d').value);
+            const e = parseFloat(document.getElementById('e').value);
+            const f = parseFloat(document.getElementById('f').value);
+            const g = parseFloat(document.getElementById('g').value);
+            const U0 = parseFloat(document.getElementById('U0').value);
+            const V0 = parseFloat(document.getElementById('V0').value);
+            const t = parseFloat(document.getElementById('t').value);
+
+            // Verificar se todos os campos estão preenchidos
+            const inputs = [S0, D0, O0, P0, E0, a, b, c, k1, m1, k2, m2, d, e, f, g, U0, V0, t];
+            if (inputs.some(isNaN)) {
+                document.getElementById('result').innerHTML = '<span style="color:red;">Por favor, preencha todos os campos com valores numéricos.</span>';
+                return;
+            }
+
+            // Definir o número de passos para a simulação
+            const passos = 1000;
+            const deltaT = t / passos;
+
+            // Inicializar variáveis
+            let S = S0;
+            let D = D0;
+            let O = O0;
+            let P = P0;
+            let E = E0;
+
+            // Iterar usando o método de Euler
+            for (let i = 0; i < passos; i++) {
+                // Calcular derivadas
+                const dSdt = a * (D - O) + b * P + c * E;
+                const dDdt = k1 * S - m1 * D;
+                const dOdt = k2 * S - m2 * O;
+                const dPdt = -d * P + e * U0;
+                const dEdt = f * V0 - g * E;
+
+                // Atualizar variáveis 
+                S += dSdt * deltaT;
+                D += dDdt * deltaT;
+                O += dOdt * deltaT;
+                P += dPdt * deltaT;
+                E += dEdt * deltaT;
+            }
+
+            // Exibir resultado com duas casas decimais
+            document.getElementById('result').innerHTML = `<strong>Preço estimado do dólar após ${t} unidades de tempo:</strong> ${S.toFixed(2)}`;
+        }
+    </script>
+
+    <h2>Análise e Discussão</h2>
+    <p>
+        O modelo avançado apresentado permite uma análise mais detalhada das interações entre oferta, demanda, políticas monetárias e eventos externos no comportamento do preço do dólar. Ao incorporar múltiplas equações diferenciais, conseguimos capturar a complexidade das forças econômicas que atuam simultaneamente.
+    </p>
+    <p>
+        A equação para \( \dfrac{dS}{dt} \) considera não apenas a diferença entre demanda e oferta, mas também como as políticas monetárias e eventos externos influenciam a taxa de câmbio. As equações para \( D(t) \) e \( O(t) \) modelam a dinâmica da demanda e oferta em resposta ao preço do dólar, enquanto \( P(t) \) e \( E(t) \) capturam as mudanças nas políticas monetárias e os impactos de eventos externos, respectivamente.
+    </p>
+    <p>
+        A utilização do método de Euler para a solução numérica do sistema permite que os usuários obtenham estimativas do preço do dólar ao longo do tempo, ajustando os parâmetros conforme diferentes cenários econômicos. Embora o método de Euler seja simples e eficiente para este propósito, métodos mais avançados como Runge-Kutta poderiam ser implementados para aumentar a precisão das simulações.
+    </p>
+
+    <h2>Considerações Finais</h2>
+    <p>
+        Este modelo matemático avançado fornece uma ferramenta poderosa para entender e prever as flutuações no preço do dólar. A integração de múltiplas variáveis e suas interações oferece uma representação mais realista das forças econômicas em jogo. A calculadora desenvolvida permite que investidores, economistas e estudantes explorem diferentes cenários e compreendam melhor como mudanças em parâmetros específicos podem impactar a taxa de câmbio.
+    </p>
+    <p>
+        Para aprimoramentos futuros, recomenda-se a inclusão de fatores adicionais como inflação, balança comercial e indicadores econômicos internacionais. Além disso, a calibração do modelo com dados históricos reais pode aumentar significativamente sua precisão e aplicabilidade no mundo real.
+    </p>
+
+    <footer>
+        &copy; 2024 Luiz Tiago Wilcke. Todos os direitos reservados.
+    </footer>
+</body>
+</html>
+

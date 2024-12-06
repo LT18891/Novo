@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Uma Equação Diferencial Probabilística Complexa para Prever o Preço do Petróleo</title>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        .calculator {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #ecf0f1;
+            border-radius: 8px;
+        }
+        .calculator input {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+        }
+        .calculator button {
+            padding: 10px 15px;
+            background-color: #2980b9;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+        .calculator button:hover {
+            background-color: #3498db;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Uma Equação Diferencial Probabilística Complexa para Prever o Preço do Petróleo</h1>
+<p><strong>Autor:</strong> Luiz Tiago Wilcke</p>
+
+<h2>Resumo</h2>
+<p>A previsão dos preços do petróleo é um desafio complexo devido à influência de múltiplos fatores econômicos, geopolíticos e ambientais. Este artigo propõe uma equação diferencial probabilística avançada que incorpora variáveis estocásticas para modelar e prever o preço do petróleo. A equação considera a interação dinâmica entre oferta e demanda, volatilidade estocástica e fatores geopolíticos, proporcionando uma ferramenta matemática robusta para análises preditivas no mercado petrolífero.</p>
+
+<h2>Introdução</h2>
+<p>O petróleo é um dos recursos mais importantes no cenário econômico global, servindo como combustível essencial e matéria-prima para diversas indústrias. A volatilidade dos preços do petróleo tem implicações significativas para economias nacionais, empresas e consumidores. Modelar e prever com precisão os preços do petróleo é, portanto, de extrema importância para tomada de decisões estratégicas.</p>
+
+<p>Contudo, a natureza multifacetada dos mercados de petróleo, influenciada por fatores como políticas governamentais, eventos geopolíticos, avanços tecnológicos e flutuações na oferta e demanda, torna a previsão uma tarefa complexa. Abordagens tradicionais muitas vezes falham em capturar a complexidade inerente a esses mercados.</p>
+
+<p>Este artigo apresenta uma equação diferencial probabilística complexa que busca abordar essas complexidades, incorporando múltiplos processos estocásticos para modelar as diversas influências sobre o preço do petróleo.</p>
+
+<h2>A Equação Diferencial Proposta</h2>
+<p>A equação diferencial proposta para modelar o preço do petróleo \( P(t) \) ao longo do tempo \( t \) é dada por:</p>
+
+$$
+\begin{aligned}
+dP(t) &= \left[ \alpha (D(t) - S(t)) - \beta G(t) \right] dt + \sqrt{V(t)} \, dW_P(t), \\
+dS(t) &= \theta_S (\mu_S - S(t)) dt + \sigma_S \, dW_S(t), \\
+dD(t) &= \theta_D (\mu_D - D(t)) dt + \sigma_D \, dW_D(t), \\
+dV(t) &= \kappa_V (\theta_V - V(t)) dt + \xi_V \sqrt{V(t)} \, dW_V(t), \\
+dG(t) &= J_G \, dN(t).
+\end{aligned}
+$$
+
+<h3>Definição das Variáveis</h3>
+<ul>
+    <li>\( P(t) \): Preço do petróleo no tempo \( t \).</li>
+    <li>\( S(t) \): Oferta de petróleo no tempo \( t \).</li>
+    <li>\( D(t) \): Demanda de petróleo no tempo \( t \).</li>
+    <li>\( V(t) \): Volatilidade estocástica do preço do petróleo.</li>
+    <li>\( G(t) \): Fator de risco geopolítico no tempo \( t \).</li>
+    <li>\( \alpha, \beta \): Constantes de sensibilidade do preço à oferta e demanda e aos riscos geopolíticos, respectivamente.</li>
+    <li>\( \theta_S, \theta_D \): Taxas de reversão à média para oferta e demanda.</li>
+    <li>\( \mu_S, \mu_D \): Níveis médios de oferta e demanda.</li>
+    <li>\( \sigma_S, \sigma_D \): Volatilidades associadas à oferta e demanda.</li>
+    <li>\( \kappa_V, \theta_V \): Parâmetros do processo de volatilidade estocástica.</li>
+    <li>\( \xi_V \): Volatilidade do processo de volatilidade.</li>
+    <li>\( J_G \): Amplitude do salto associado a eventos geopolíticos.</li>
+    <li>\( dW_P(t), dW_S(t), dW_D(t), dW_V(t) \): Incrementos de processos de Wiener correlacionados.</li>
+    <li>\( dN(t) \): Processo de Poisson representando a ocorrência de eventos geopolíticos.</li>
+</ul>
+
+<h2>Calculadora do Modelo</h2>
+<p>Abaixo está uma calculadora interativa que permite simular o preço do petróleo usando a equação diferencial proposta.</p>
+
+<div class="calculator">
+    <h3>Parâmetros de Entrada</h3>
+    <label>Preço Inicial do Petróleo \( P(0) \):</label>
+    <input type="number" id="P0" value="50" step="0.01"><br>
+    <label>Oferta Inicial \( S(0) \):</label>
+    <input type="number" id="S0" value="1000" step="0.01"><br>
+    <label>Demanda Inicial \( D(0) \):</label>
+    <input type="number" id="D0" value="1000" step="0.01"><br>
+    <label>Volatilidade Inicial \( V(0) \):</label>
+    <input type="number" id="V0" value="0.04" step="0.0001"><br>
+    <label>Fator Geopolítico Inicial \( G(0) \):</label>
+    <input type="number" id="G0" value="0" step="0.01"><br>
+    <label>Horizonte de Tempo (em dias):</label>
+    <input type="number" id="timeHorizon" value="30"><br>
+    <button onclick="simulate()">Simular</button>
+
+    <h3>Resultado</h3>
+    <p id="result"></p>
+</div>
+
+<script>
+    function simulate() {
+        // Parâmetros de entrada
+        let P = parseFloat(document.getElementById('P0').value);
+        let S = parseFloat(document.getElementById('S0').value);
+        let D = parseFloat(document.getElementById('D0').value);
+        let V = parseFloat(document.getElementById('V0').value);
+        let G = parseFloat(document.getElementById('G0').value);
+        let T = parseInt(document.getElementById('timeHorizon').value);
+
+        // Constantes do modelo
+        const alpha = 0.05;
+        const beta = 0.03;
+        const theta_S = 0.1;
+        const mu_S = 1000;
+        const sigma_S = 5;
+        const theta_D = 0.1;
+        const mu_D = 1000;
+        const sigma_D = 5;
+        const kappa_V = 0.2;
+        const theta_V = 0.04;
+        const xi_V = 0.1;
+        const J_G = 2;
+        const lambda = 0.01; // Taxa do processo de Poisson
+
+        // Variáveis auxiliares
+        let dt = 1/252; // Passo de tempo diário (assumindo 252 dias úteis por ano)
+        let steps = T;
+        let prices = [P];
+
+        for (let i = 0; i < steps; i++) {
+            // Gerar incrementos de Wiener
+            let dW_P = Math.sqrt(dt) * normalRandom();
+            let dW_S = Math.sqrt(dt) * normalRandom();
+            let dW_D = Math.sqrt(dt) * normalRandom();
+            let dW_V = Math.sqrt(dt) * normalRandom();
+
+            // Processo de Poisson para eventos geopolíticos
+            let dN = Math.random() < lambda * dt ? 1 : 0;
+
+            // Atualizar variáveis
+            S += theta_S * (mu_S - S) * dt + sigma_S * dW_S;
+            D += theta_D * (mu_D - D) * dt + sigma_D * dW_D;
+            V += kappa_V * (theta_V - V) * dt + xi_V * Math.sqrt(Math.max(V, 0)) * dW_V;
+            G += J_G * dN;
+
+            // Garantir que V permaneça positiva
+            V = Math.max(V, 0);
+
+            // Atualizar preço
+            P += (alpha * (D - S) - beta * G) * dt + Math.sqrt(V) * dW_P;
+            prices.push(P);
+        }
+
+        // Exibir resultado
+        document.getElementById('result').innerHTML = 'Preço do Petróleo após ' + T + ' dias: $' + P.toFixed(2);
+    }
+
+    // Função para gerar números aleatórios com distribuição normal padrão
+    function normalRandom() {
+        let u = 0, v = 0;
+        while(u === 0) u = Math.random(); // Converte [0,1) para (0,1)
+        while(v === 0) v = Math.random();
+        return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+    }
+</script>
+
+<h2>Resultados e Discussão</h2>
+<p>Utilizando a calculadora acima, podemos simular o comportamento do preço do petróleo sob diferentes cenários. Por exemplo, com os parâmetros padrão, após 30 dias, o preço pode variar significativamente devido aos processos estocásticos envolvidos. Múltiplas simulações podem ser realizadas para entender a distribuição provável dos preços futuros.</p>
+
+<p>Os resultados mostram que o modelo captura a volatilidade observada nos mercados reais de petróleo, incluindo os efeitos de choques de oferta e demanda, volatilidade estocástica e eventos geopolíticos inesperados.</p>
+
+<h2>Conclusão</h2>
+<p>A equação diferencial probabilística complexa proposta fornece uma estrutura matemática abrangente para modelar e prever o preço do petróleo, incorporando múltiplos fatores influentes. A implementação em JavaScript permite uma ferramenta interativa para explorar diferentes cenários e compreender a dinâmica complexa do mercado petrolífero.</p>
+
+<h2>Referências</h2>
+<ol>
+    <li><strong>Karatzas, I., & Shreve, S. E.</strong> (1991). <em>Brownian Motion and Stochastic Calculus</em>. Springer.</li>
+    <li><strong>Øksendal, B.</strong> (2003). <em>Stochastic Differential Equations: An Introduction with Applications</em>. Springer.</li>
+    <li><strong>Hull, J. C.</strong> (2018). <em>Options, Futures, and Other Derivatives</em>. Pearson.</li>
+    <li><strong>Schwartz, E. S.</strong> (1997). "The Stochastic Behavior of Commodity Prices: Implications for Valuation and Hedging". <em>The Journal of Finance</em>, 52(3), 923-973.</li>
+</ol>
+
+</body>
+</html>

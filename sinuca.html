@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Jogo de Sinuca</title>
+    <style>
+        body {
+            text-align: center;
+            background-color: #2E7D32;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        canvas {
+            background-color: #388E3C;
+            display: block;
+            margin: 20px auto;
+            border: 5px solid #1B5E20;
+            border-radius: 10px;
+        }
+        #info {
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <h1 id="info">Clique e arraste para dar o tiro</h1>
+    <h1>Autor: Luiz Tiago Wilcke</h1>
+    <canvas id="canvasJogo" width="800" height="400"></canvas>
+
+    <script>
+        // Autor: Luiz Tiago Wilcke
+
+        const canvas = document.getElementById('canvasJogo');
+        const contexto = canvas.getContext('2d');
+
+        const larguraMesa = canvas.width;
+        const alturaMesa = canvas.height;
+
+        const raioBola = 10;
+        const atrito = 0.99;
+
+        let bolas = [];
+        let bolaBranca;
+        let arrastando = false;
+        let inicioArraste = {x: 0, y: 0};
+        let fimArraste = {x: 0, y: 0};
+        let jogadorAtual = 'Jogador'; // 'Jogador' ou 'IA'
+
+        // Posições das bocas (caçapas)
+        const bocas = [
+            {x: 0, y: 0},
+            {x: larguraMesa / 2, y: 0},
+            {x: larguraMesa, y: 0},
+            {x: 0, y: alturaMesa},
+            {x: larguraMesa / 2, y: alturaMesa},
+            {x: larguraMesa, y: alturaMesa}
+        ];
+        const raioBoca = 25; // Aumentar o tamanho das caçapas
+
+        // Classe Bola
+        class Bola {
+            constructor(x, y, cor, numero) {
+                this.x = x;
+                this.y = y;
+                this.vx = 0;
+                this.vy = 0;
+                this.cor = cor;
+                this.numero = numero;
+                this.raio = raioBola;
+                this.ativa = true; // Indica se a bola está em jogo
+            }
+
+            desenhar() {
+                if (!this.ativa) return;
+                contexto.beginPath();
+                contexto.arc(this.x, this.y, this.raio, 0, Math.PI * 2);
+                contexto.fillStyle = this.cor;
+                contexto.fill();
+                contexto.strokeStyle = 'black';
+                contexto.stroke();
+                if (this.numero !== 0) {
+                    contexto.fillStyle = 'white';
+                    contexto.font = '12px Arial';
+                    contexto.textAlign = 'center';
+                    contexto.textBaseline = 'middle';
+                    contexto.fillText(this.numero, this.x, this.y);
+                }
+            }
+
+            atualizar() {
+                if (!this.ativa) return;
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // Aplicar atrito
+                this.vx *= atrito;
+                this.vy *= atrito;
+
+                // Detectar colisões com as bordas da mesa
+                if (this.x <= this.raio || this.x >= larguraMesa - this.raio) {
+                    this.vx = -this.vx;
+                    this.x = this.x <= this.raio ? this.raio : larguraMesa - this.raio;
+                }
+                if (this.y <= this.raio || this.y >= alturaMesa - this.raio) {
+                    this.vy = -this.vy;
+                    this.y = this.y <= this.raio ? this.raio : alturaMesa - this.raio;
+                }
+
+                // Verificar se a bola caiu em uma boca
+                for (let boca of bocas) {
+                    let dx = this.x - boca.x;
+                    let dy = this.y - boca.y;
+                    let distancia = Math.hypot(dx, dy);
+                    if (distancia < raioBoca) {
+                        this.encaçapar();
+                        break;
+                    }
+                }
+            }
+
+            encaçapar() {
+                this.ativa = false;
+                this.vx = 0;
+                this.vy = 0;
+                // Se for a bola branca, reposicioná-la
+                if (this.numero === 0) {
+                    this.x = 150;
+                    this.y = alturaMesa / 2;
+                    this.ativa = true;
+                    // Penalidade: O jogador atual perde a vez
+                    jogadorAtual = jogadorAtual === 'Jogador' ? 'IA' : 'Jogador';
+                    document.getElementById('info').innerText = jogadorAtual === 'Jogador' ? "Sua vez de jogar!" : "A IA está jogando...";
+                }
+            }
+        }
+
+        // Inicializar as bolas
+        function inicializarBolas() {
+            bolas = [];
+            // Bola branca (bola de tiro)
+            bolaBranca = new Bola(150, alturaMesa / 2, 'white', 0);
+            bolas.push(bolaBranca);
+
+            // Bolas vermelhas e azuis
+            const cores = ['red', 'blue'];
+            let posXInicial = 600;
+            let posYInicial = alturaMesa / 2;
+            let linhas = 5;
+            let contador = 1;
+            for (let linha = 0; linha < linhas; linha++) {
+                for (let i = 0; i <= linha; i++) {
+                    let x = posXInicial + linha * (raioBola * 2 + 1);
+                    let y = posYInicial - linha * raioBola + i * (raioBola * 2 + 1);
+                    let corBola = cores[(contador - 1) % 2]; // Alternar entre vermelho e azul
+                    bolas.push(new Bola(x, y, corBola, contador));
+                    contador++;
+                    if (contador > 10) break;
+                }
+                if (contador > 10) break;
+            }
+        }
+
+        // Desenhar a mesa
+        function desenharMesa() {
+            contexto.fillStyle = '#388E3C';
+            contexto.fillRect(0, 0, larguraMesa, alturaMesa);
+            // Desenhar bordas
+            contexto.strokeStyle = '#1B5E20';
+            contexto.lineWidth = 20;
+            contexto.strokeRect(0, 0, larguraMesa, alturaMesa);
+
+            // Desenhar as bocas (caçapas)
+            bocas.forEach(boca => {
+                contexto.beginPath();
+                contexto.arc(boca.x, boca.y, raioBoca, 0, Math.PI * 2);
+                contexto.fillStyle = '#000';
+                contexto.fill();
+            });
+        }
+
+        // Desenhar todas as bolas
+        function desenharBolas() {
+            bolas.forEach(bola => bola.desenhar());
+        }
+
+        // Detectar colisões entre as bolas
+        function tratarColisoes() {
+            for (let i = 0; i < bolas.length; i++) {
+                for (let j = i + 1; j < bolas.length; j++) {
+                    let bola1 = bolas[i];
+                    let bola2 = bolas[j];
+
+                    if (!bola1.ativa || !bola2.ativa) continue;
+
+                    let dx = bola2.x - bola1.x;
+                    let dy = bola2.y - bola1.y;
+                    let distancia = Math.hypot(dx, dy);
+                    if (distancia < bola1.raio + bola2.raio) {
+                        // Calculando o ângulo de colisão
+                        let angulo = Math.atan2(dy, dx);
+                        let seno = Math.sin(angulo);
+                        let cosseno = Math.cos(angulo);
+
+                        // Rotacionar as velocidades
+                        let v1 = rotacionar(bola1.vx, bola1.vy, seno, cosseno, true);
+                        let v2 = rotacionar(bola2.vx, bola2.vy, seno, cosseno, true);
+
+                        // Trocar as velocidades no eixo x
+                        let temp = v1.x;
+                        v1.x = v2.x;
+                        v2.x = temp;
+
+                        // Rotacionar de volta
+                        let v1Final = rotacionar(v1.x, v1.y, seno, cosseno, false);
+                        let v2Final = rotacionar(v2.x, v2.y, seno, cosseno, false);
+
+                        bola1.vx = v1Final.x;
+                        bola1.vy = v1Final.y;
+                        bola2.vx = v2Final.x;
+                        bola2.vy = v2Final.y;
+
+                        // Ajustar posições para evitar sobreposição
+                        let sobreposicao = (bola1.raio + bola2.raio) - distancia;
+                        bola1.x -= (sobreposicao / 2) * cosseno;
+                        bola1.y -= (sobreposicao / 2) * seno;
+                        bola2.x += (sobreposicao / 2) * cosseno;
+                        bola2.y += (sobreposicao / 2) * seno;
+                    }
+                }
+            }
+        }
+
+        // Função para rotacionar as velocidades
+        function rotacionar(vx, vy, seno, cosseno, reverso) {
+            return {
+                x: reverso ? (vx * cosseno + vy * seno) : (vx * cosseno - vy * seno),
+                y: reverso ? (-vx * seno + vy * cosseno) : (vx * seno + vy * cosseno)
+            };
+        }
+
+        // Atualizar a física do jogo
+        function atualizarFisica() {
+            bolas.forEach(bola => bola.atualizar());
+            tratarColisoes();
+        }
+
+        // Desenhar o taco
+        function desenharTaco() {
+            if (jogadorAtual === 'Jogador' && arrastando) {
+                // Taco do jogador humano
+                let dx = fimArraste.x - bolaBranca.x;
+                let dy = fimArraste.y - bolaBranca.y;
+                let angulo = Math.atan2(dy, dx);
+
+                contexto.save();
+                contexto.translate(bolaBranca.x, bolaBranca.y);
+                contexto.rotate(angulo);
+
+                // Desenhar taco mais realista
+                contexto.beginPath();
+                contexto.moveTo(-150, -5);
+                contexto.lineTo(0, -2);
+                contexto.lineTo(0, 2);
+                contexto.lineTo(-150, 5);
+                contexto.closePath();
+                contexto.fillStyle = '#8B4513'; // Cor marrom para o taco
+                contexto.fill();
+
+                contexto.restore();
+            } else if (jogadorAtual === 'IA' && !arrastando) {
+                // Taco da IA
+                let alvoIA = calcularAlvoIA();
+                if (!alvoIA) return;
+
+                let dx = alvoIA.x - bolaBranca.x;
+                let dy = alvoIA.y - bolaBranca.y;
+                let angulo = Math.atan2(dy, dx);
+
+                contexto.save();
+                contexto.translate(bolaBranca.x, bolaBranca.y);
+                contexto.rotate(angulo);
+
+                // Desenhar taco mais realista
+                contexto.beginPath();
+                contexto.moveTo(-150, -5);
+                contexto.lineTo(0, -2);
+                contexto.lineTo(0, 2);
+                contexto.lineTo(-150, 5);
+                contexto.closePath();
+                contexto.fillStyle = '#8B4513';
+                contexto.fill();
+
+                contexto.restore();
+            }
+        }
+
+        // Verificar se todas as bolas estão paradas
+        function todasBolasParadas() {
+            return bolas.every(bola => Math.abs(bola.vx) < 0.1 && Math.abs(bola.vy) < 0.1);
+        }
+
+        // Lógica da IA
+        function movimentoIA() {
+            let bolaAlvo = calcularAlvoIA();
+            if (!bolaAlvo) {
+                jogadorAtual = 'Jogador';
+                document.getElementById('info').innerText = "Sua vez de jogar!";
+                return;
+            }
+
+            let dx = bolaAlvo.x - bolaBranca.x;
+            let dy = bolaAlvo.y - bolaBranca.y;
+            let angulo = Math.atan2(dy, dx);
+
+            let potencia = 5; // Poder do tiro
+            bolaBranca.vx = Math.cos(angulo) * potencia;
+            bolaBranca.vy = Math.sin(angulo) * potencia;
+
+            jogadorAtual = 'Jogador';
+            document.getElementById('info').innerText = "Sua vez de jogar!";
+        }
+
+        // Calcular o alvo da IA
+        function calcularAlvoIA() {
+            // Procurar a primeira bola ativa que não seja a bola branca
+            for (let bola of bolas) {
+                if (bola.numero !== 0 && bola.ativa) {
+                    return bola;
+                }
+            }
+            return null;
+        }
+
+        // Loop principal do jogo
+        function loopJogo() {
+            desenharMesa();
+            desenharBolas();
+            desenharTaco();
+            atualizarFisica();
+
+            if (todasBolasParadas()) {
+                if (jogadorAtual === 'IA') {
+                    // Turno da IA
+                    setTimeout(() => {
+                        movimentoIA();
+                    }, 1000);
+                }
+            }
+
+            requestAnimationFrame(loopJogo);
+        }
+
+        // Eventos de mouse para o tiro
+        canvas.addEventListener('mousedown', (e) => {
+            if (jogadorAtual !== 'Jogador') return;
+            let retangulo = canvas.getBoundingClientRect();
+            let mouseX = e.clientX - retangulo.left;
+            let mouseY = e.clientY - retangulo.top;
+
+            // Verificar se o clique foi na bola branca
+            let distancia = Math.hypot(mouseX - bolaBranca.x, mouseY - bolaBranca.y);
+            if (distancia <= bolaBranca.raio) {
+                arrastando = true;
+                inicioArraste = {x: bolaBranca.x, y: bolaBranca.y};
+                fimArraste = {x: mouseX, y: mouseY};
+            }
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (arrastando) {
+                let retangulo = canvas.getBoundingClientRect();
+                let mouseX = e.clientX - retangulo.left;
+                let mouseY = e.clientY - retangulo.top;
+                fimArraste = {x: mouseX, y: mouseY};
+            }
+        });
+
+        canvas.addEventListener('mouseup', (e) => {
+            if (arrastando) {
+                let dx = fimArraste.x - inicioArraste.x;
+                let dy = fimArraste.y - inicioArraste.y;
+                let potencia = Math.min(Math.hypot(dx, dy) / 10, 10); // Limitar o poder
+                let angulo = Math.atan2(dy, dx);
+                bolaBranca.vx = Math.cos(angulo) * potencia;
+                bolaBranca.vy = Math.sin(angulo) * potencia;
+                arrastando = false;
+                jogadorAtual = 'IA';
+                document.getElementById('info').innerText = "A IA está jogando...";
+            }
+        });
+
+        // Inicialização
+        inicializarBolas();
+        loopJogo();
+    </script>
+</body>
+</html>

@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Teoria de Shapiro-Stiglitz</title>
+    <!-- Inclusão do MathJax para renderização de fórmulas matemáticas -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async 
+            src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+    </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            line-height: 1.6;
+            color: #333;
+        }
+        h1, h2, h3, h4 {
+            color: #2c3e50;
+        }
+        .author {
+            font-style: italic;
+            margin-bottom: 20px;
+        }
+        .references {
+            margin-top: 40px;
+        }
+        .references li {
+            margin-bottom: 10px;
+        }
+        .formula {
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-left: 4px solid #2c3e50;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Teoria de Shapiro-Stiglitz</h1>
+    <p class="author">Autor: Luiz Tiago Wilcke</p>
+
+    <h2>Introdução</h2>
+    <p>
+        A teoria de Shapiro-Stiglitz, desenvolvida por Joseph E. Stiglitz e Robert Shapiro em 1984, é um modelo fundamental na economia do trabalho que busca explicar a persistência do desemprego friccional. Este modelo introduz o conceito de salários de eficiência, argumentando que salários acima do nível de equilíbrio são necessários para incentivar os trabalhadores a se esforçarem e evitar o desemprego involuntário.
+    </p>
+
+    <h2>Fundamentação Teórica</h2>
+    <p>
+        A teoria parte do pressuposto de que os trabalhadores enfrentam um dilema moral no qual podem optar por procurar um novo emprego ou permanecer na posição atual. Salários de eficiência são definidos como aqueles que são suficientemente altos para desencorajar o <em>shirk</em> (desempenho abaixo do esperado) e incentivar a produtividade.
+    </p>
+
+    <h3>Função de Utilidade do Trabalhador</h3>
+    <p>
+        A utilidade do trabalhador pode ser representada pela função:
+    </p>
+    <div class="formula">
+        $$ U = w - C(e) $$
+    </div>
+    <p>
+        Onde:
+        <ul>
+            <li>\( U \) é a utilidade do trabalhador.</li>
+            <li>\( w \) é o salário recebido.</li>
+            <li>\( C(e) \) é o custo de esforço.</li>
+        </ul>
+    </p>
+
+    <h3>Função de Custo de Esforço</h3>
+    <p>
+        O custo de esforço pode ser definido como:
+    </p>
+    <div class="formula">
+        $$ C(e) = \frac{e^{2}}{2} $$
+    </div>
+
+    <h3>Função de Produção da Empresa</h3>
+    <p>
+        A produção \( Y \) da empresa depende do esforço \( e \) do trabalhador:
+    </p>
+    <div class="formula">
+        $$ Y = A \cdot e $$
+    </div>
+    <p>
+        Onde \( A \) é a produtividade total dos fatores.
+    </p>
+
+    <h3>Maximização do Lucro da Empresa</h3>
+    <p>
+        A empresa busca maximizar seu lucro \( \Pi \):
+    </p>
+    <div class="formula">
+        $$ \Pi = Y - w = A \cdot e - w $$
+    </div>
+    <p>
+        Substituindo a função de produção:
+    </p>
+    <div class="formula">
+        $$ \Pi = A \cdot e - w $$
+    </div>
+
+    <h3>Condição de Equilíbrio do Trabalhador</h3>
+    <p>
+        Para o trabalhador maximizar sua utilidade, a condição de equilíbrio é:
+    </p>
+    <div class="formula">
+        $$ \frac{dU}{de} = 0 \Rightarrow \frac{dw}{de} = \frac{dC(e)}{de} $$
+    </div>
+    <p>
+        Onde:
+    </p>
+    <div class="formula">
+        $$ \frac{dC(e)}{de} = e $$
+    </div>
+    <p>
+        Portanto:
+    </p>
+    <div class="formula">
+        $$ \frac{dw}{de} = e $$
+    </div>
+
+    <h3>Condição de Equilíbrio da Empresa</h3>
+    <p>
+        A empresa determina o salário de eficiência \( w^e \) de modo que:
+    </p>
+    <div class="formula">
+        $$ \frac{d\Pi}{de} = 0 \Rightarrow A = \frac{dw^e}{de} $$
+    </div>
+
+    <h3>Taxa de Desemprego</h3>
+    <p>
+        A taxa de desemprego \( u \) é influenciada pelo salário de eficiência. Podemos modelar a relação entre salário e desemprego pela função:
+    </p>
+    <div class="formula">
+        $$ w^e = w_0 + \alpha u $$
+    </div>
+    <p>
+        Onde:
+        <ul>
+            <li>\( w_0 \) é o salário de mercado sem desemprego.</li>
+            <li>\( \alpha \) é um parâmetro positivo que indica a sensibilidade do salário ao desemprego.</li>
+        </ul>
+    </p>
+
+    <h3>Função de Utilidade com Desemprego</h3>
+    <p>
+        Considerando a utilidade do trabalhador que está desempregado:
+    </p>
+    <div class="formula">
+        $$ U_d = -C_d $$
+    </div>
+    <p>
+        Onde \( C_d \) é o custo do desemprego.
+    </p>
+
+    <h3>Equilíbrio de Salário de Eficiência</h3>
+    <p>
+        No equilíbrio, o salário de eficiência \( w^e \) é determinado onde o custo marginal do desemprego iguala-se ao benefício marginal de aumentar a produtividade dos trabalhadores:
+    </p>
+    <div class="formula">
+        $$ \frac{dC(u)}{du} = \frac{dw^e}{du} $$
+    </div>
+    <p>
+        Substituindo as funções:
+    </p>
+    <div class="formula">
+        $$ \frac{d}{du}\left( \frac{c}{u} \right) = \alpha $$
+    </div>
+    <div class="formula">
+        $$ -\frac{c}{u^2} = \alpha $$
+    </div>
+    <p>
+        Resolvendo para \( u \):
+    </p>
+    <div class="formula">
+        $$ u^* = \sqrt{\frac{c}{\alpha}} $$
+    </div>
+
+    <h3>Função de Oferta de Trabalho</h3>
+    <p>
+        A oferta de trabalho pode ser representada pela função:
+    </p>
+    <div class="formula">
+        $$ S(w) = \beta w $$
+    </div>
+    <p>
+        Onde \( \beta \) é um parâmetro que reflete a sensibilidade da oferta de trabalho ao salário.
+    </p>
+
+    <h3>Função de Demanda por Trabalho</h3>
+    <p>
+        A demanda por trabalho é dada por:
+    </p>
+    <div class="formula">
+        $$ D(w) = \gamma Y - \delta w $$
+    </div>
+    <p>
+        Onde:
+        <ul>
+            <li>\( \gamma \) é a produtividade marginal do trabalho.</li>
+            <li>\( \delta \) é a sensibilidade da demanda ao salário.</li>
+        </ul>
+    </p>
+
+    <h3>Equilíbrio no Mercado de Trabalho</h3>
+    <p>
+        No equilíbrio, a oferta de trabalho é igual à demanda de trabalho:
+    </p>
+    <div class="formula">
+        $$ S(w^e) = D(w^e) $$
+    </div>
+    <p>
+        Substituindo as funções:
+    </p>
+    <div class="formula">
+        $$ \beta w^e = \gamma Y - \delta w^e $$
+    </div>
+    <div class="formula">
+        $$ (\beta + \delta) w^e = \gamma Y $$
+    </div>
+    <div class="formula">
+        $$ w^e = \frac{\gamma Y}{\beta + \delta} $$
+    </div>
+
+    <h3>Função de Demanda Agregada</h3>
+    <p>
+        Considerando a função de demanda agregada com múltiplos setores, a demanda total pode ser representada por:
+    </p>
+    <div class="formula">
+        $$ Y = \int_{0}^{T} A(t) e(t) \, dt $$
+    </div>
+    <p>
+        Onde \( T \) é o período de análise e \( A(t) \) é a produtividade no tempo \( t \).
+    </p>
+
+    <h3>Função de Consumo</h3>
+    <p>
+        A função de consumo dos trabalhadores pode ser modelada como:
+    </p>
+    <div class="formula">
+        $$ C = \int_{0}^{T} c(w(t)) \, dt $$
+    </div>
+    <p>
+        Onde \( c(w(t)) \) é o consumo no tempo \( t \), dependente do salário \( w(t) \).
+    </p>
+
+    <h3>Equação Diferencial do Desemprego</h3>
+    <p>
+        A dinâmica do desemprego pode ser descrita pela seguinte equação diferencial:
+    </p>
+    <div class="formula">
+        $$ \frac{du}{dt} = \eta (S(w^e) - D(w^e)) $$
+    </div>
+    <p>
+        Onde \( \eta \) é a taxa de ajuste do desemprego.
+    </p>
+
+    <h2>Implicações da Teoria</h2>
+    <p>
+        A teoria de Shapiro-Stiglitz sugere que salários mais altos podem levar a uma maior eficiência no local de trabalho, reduzindo a probabilidade de desemprego involuntário. Além disso, explica por que o desemprego pode persistir mesmo em mercados de trabalho que, de outra forma, tenderiam para o pleno emprego.
+    </p>
+
+    <h3>Equilíbrio de Salários e Desemprego</h3>
+    <p>
+        No equilíbrio, os salários de eficiência garantem que os trabalhadores não desocupem suas posições apenas para procurar melhores oportunidades, mantendo a produtividade e reduzindo os custos de monitoramento para as empresas.
+    </p>
+
+    <h3>Salários e Motivação</h3>
+    <p>
+        Salários de eficiência servem como um incentivo para que os trabalhadores mantenham seu desempenho, evitando o shirk e assegurando que a produtividade da empresa seja maximizada.
+    </p>
+
+    <h3>Rigidez Salarial</h3>
+    <p>
+        A teoria também introduz a noção de rigidez salarial, onde os salários não se ajustam rapidamente para eliminar o desemprego devido aos custos associados ao ajuste dos salários.
+    </p>
+
+    <h2>Críticas e Extensões</h2>
+    <p>
+        Embora a teoria tenha sido amplamente influente, ela também recebeu críticas. Alguns economistas argumentam que outros fatores, como rigidezes institucionais e choques de demanda agregada, também desempenham papéis significativos na determinação das taxas de desemprego.
+    </p>
+
+    <h3>Críticas à Teoria de Salários de Eficiência</h3>
+    <p>
+        - **Rigidez Salarial Institucional**: Argumenta-se que as leis trabalhistas e acordos coletivos contribuem para a rigidez salarial, independentemente dos salários de eficiência.
+    </p>
+    <div class="formula">
+        $$ \frac{dW}{dt} + \lambda W = \kappa u $$
+    </div>
+    <p>
+        - **Choques de Demanda Agregada**: Eventos econômicos externos que afetam a demanda por trabalho e, consequentemente, as taxas de desemprego.
+    </p>
+
+    <h3>Extensões da Teoria</h3>
+    <p>
+        Diversos estudos expandiram a teoria de Shapiro-Stiglitz, incorporando elementos como contratos dinâmicos, múltiplos tipos de trabalhadores e interação com outras políticas econômicas.
+    </p>
+
+    <h2>Conclusão</h2>
+    <p>
+        A teoria de Shapiro-Stiglitz fornece uma base sólida para entender a relação entre salários e desemprego, destacando a importância dos salários de eficiência na manutenção da produtividade e na redução do desemprego friccional. Sua influência continua a ser sentida nas políticas de mercado de trabalho e nas pesquisas econômicas contemporâneas.
+    </p>
+
+    <h2>Referências</h2>
+    <ol class="references">
+        <li>Shapiro, J. M., & Stiglitz, J. E. (1984). Equilibrium Unemployment as a Worker Discipline Device. <em>American Economic Review, 74</em>(3), 433-444.</li>
+        <li>Stiglitz, J. E. (1982). <em>Employment, Unemployment, and Economic Theory</em>. New York: McGraw-Hill.</li>
+        <li>Card, D., & Lemieux, T. (2001). <em>Can Falling Supply Explain the Rising Return to College?</em> Journal of Labor Economics, 19(1), 1-58.</li>
+        <li>Blanchard, O. J., & Katz, L. F. (1992). Regional Evolutions. In <em>Handbook of Macroeconomics</em> (Vol. 1, pp. 1481-1545). Elsevier.</li>
+        <li>Mankiw, N. G. (2014). <em>Principles of Economics</em>. Cengage Learning.</li>
+        <li>Mortensen, D. T., & Pissarides, C. A. (1994). <em>Job Creation and Job Destruction in the Theory of Unemployment</em>. Cambridge University Press.</li>
+        <li>Friedman, M. (1968). <em>The Role of Monetary Policy</em> in a New Institutionalist Approach. <em>American Economic Review, 58</em>(1), 1-17.</li>
+        <li>Diamond, P. A. (1982). Aggregate Demand Management in Search Equilibrium Models of Unemployment. <em>American Economic Review, 72</em>(3), 545-556.</li>
+        <li>Rocheteau, D. (1994). Collective Bargaining and Efficiency Wages: Stability and Cyclicality. <em>European Economic Review, 38</em>(4), 847-863.</li>
+        <li>Lucas, R. E. (1978). "On the Mechanics of Economic Development." <em>Journal of Monetary Economics, 2</em>(1), 3-42.</li>
+    </ol>
+</body>
+</html>

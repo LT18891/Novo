@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Integral Tripla - Luiz Tiago Wilcke</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #000;
+            color: #0f0;
+            margin: 0;
+            padding: 20px;
+        }
+        h1, p {
+            color: #f00;
+        }
+        .integral-block {
+            font-size: 24px;
+            color: #f00;
+            margin-bottom: 20px;
+        }
+        .integral-input {
+            width: 50px;
+            padding: 5px;
+            background-color: #111;
+            color: #0f0;
+            border: 1px solid #f00;
+            text-align: center;
+            margin: 0 5px;
+        }
+        .function-input {
+            width: 200px;
+            padding: 5px;
+            background-color: #111;
+            color: #0f0;
+            border: 1px solid #f00;
+            text-align: center;
+            margin: 0 5px;
+        }
+        .resultado {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #333;
+            border-left: 4px solid #f00;
+            color: #0f0;
+        }
+        button {
+            background-color: #f00;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #ff3333;
+        }
+    </style>
+</head>
+<body>
+    <h1>Calculadora de Integral Tripla</h1>
+    <p><strong>Autor: Luiz Tiago Wilcke</strong></p>
+
+    <div class="integral-block">
+        $$\int_{y_{\text{inf}}}^{y_{\text{sup}}} \int_{z_{\text{inf}}}^{z_{\text{sup}}} \int_{x_{\text{inf}}}^{x_{\text{sup}}}$$
+        <input type="text" id="funcao" class="function-input" placeholder="f(x,y,z)" value="x*y*z^2"> 
+        $$dx \, dy \, dz$$
+    </div>
+
+    <div class="integral-block">
+        <label for="limiteXInferior">Limite inferior de x:</label>
+        <input type="text" id="limiteXInferior" class="integral-input" placeholder="x inf" value="0">
+        <label for="limiteXSuperior">Limite superior de x:</label>
+        <input type="text" id="limiteXSuperior" class="integral-input" placeholder="x sup" value="1">
+    </div>
+
+    <div class="integral-block">
+        <label for="limiteYInferior">Limite inferior de y:</label>
+        <input type="text" id="limiteYInferior" class="integral-input" placeholder="y inf" value="-1">
+        <label for="limiteYSuperior">Limite superior de y:</label>
+        <input type="text" id="limiteYSuperior" class="integral-input" placeholder="y sup" value="2">
+    </div>
+
+    <div class="integral-block">
+        <label for="limiteZInferior">Limite inferior de z:</label>
+        <input type="text" id="limiteZInferior" class="integral-input" placeholder="z inf" value="0">
+        <label for="limiteZSuperior">Limite superior de z:</label>
+        <input type="text" id="limiteZSuperior" class="integral-input" placeholder="z sup" value="3">
+    </div>
+
+    <button onclick="calcularIntegral()">Calcular Integral Tripla</button>
+
+    <div id="resultado" class="resultado"></div>
+
+    <script>
+        function calcularIntegral() {
+            let funcao = document.getElementById("funcao").value;
+            let limiteXInferior = parseFloat(document.getElementById("limiteXInferior").value);
+            let limiteXSuperior = parseFloat(document.getElementById("limiteXSuperior").value);
+            let limiteYInferior = parseFloat(document.getElementById("limiteYInferior").value);
+            let limiteYSuperior = parseFloat(document.getElementById("limiteYSuperior").value);
+            let limiteZInferior = parseFloat(document.getElementById("limiteZInferior").value);
+            let limiteZSuperior = parseFloat(document.getElementById("limiteZSuperior").value);
+
+            let resultado = 0;
+
+            // Função para calcular o valor da função
+            function f(x, y, z) {
+                return eval(funcao);
+            }
+
+            // Passo da integração (quanto menor, mais preciso, mas mais demorado)
+            let passos = 100;
+            let dx = (limiteXSuperior - limiteXInferior) / passos;
+            let dy = (limiteYSuperior - limiteYInferior) / passos;
+            let dz = (limiteZSuperior - limiteZInferior) / passos;
+
+            // Regra do ponto médio
+            for (let x = limiteXInferior + dx / 2; x < limiteXSuperior; x += dx) {
+                for (let y = limiteYInferior + dy / 2; y < limiteYSuperior; y += dy) {
+                    for (let z = limiteZInferior + dz / 2; z < limiteZSuperior; z += dz) {
+                        resultado += f(x, y, z) * dx * dy * dz;
+                    }
+                }
+            }
+
+            document.getElementById("resultado").innerHTML = `<p>O valor da integral tripla é: <strong>${resultado.toFixed(4)}</strong></p>`;
+            MathJax.typeset();  // Atualiza a renderização do MathJax após a mudança no conteúdo
+        }
+    </script>
+</body>
+</html>
+
+

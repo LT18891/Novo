@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Distribuição de Poisson</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        .math {
+            margin: 20px 0;
+        }
+        .example {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        canvas {
+            margin: 30px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Distribuição de Poisson</h1>
+    <p><strong>Autor:</strong> Luiz Tiago Wilcke</p>
+
+    <h2>1. Introdução</h2>
+    <p>
+        A distribuição de Poisson é uma distribuição de probabilidade discreta que descreve a probabilidade de que 
+        um número dado de eventos ocorra em um intervalo fixo de tempo ou espaço, desde que esses eventos ocorram 
+        com uma taxa média constante e independentemente do tempo desde o último evento.
+    </p>
+
+    <h2>2. Função de Massa de Probabilidade (PMF)</h2>
+    <p>
+        A função de massa de probabilidade (PMF) da distribuição de Poisson para um valor \( k \) é dada por:
+    </p>
+    <div class="math">
+        \[
+        P(X = k) = \frac{\lambda^k e^{-\lambda}}{k!}, \quad k = 0, 1, 2, \dots
+        \]
+    </div>
+    <p>Onde:</p>
+    <ul>
+        <li>\( \lambda \) é o número médio de eventos que ocorrem no intervalo.</li>
+        <li>\( k \) é o número de eventos observados.</li>
+        <li>\( e \) é a constante de Euler (aproximadamente 2.71828).</li>
+    </ul>
+
+    <h2>3. Propriedades da Distribuição de Poisson</h2>
+
+    <h3>3.1. Esperança (Média)</h3>
+    <p>A esperança \( E[X] \) de uma variável aleatória com distribuição de Poisson é:</p>
+    <div class="math">
+        \[
+        E[X] = \lambda
+        \]
+    </div>
+
+    <h3>3.2. Variância</h3>
+    <p>A variância \( \text{Var}(X) \) também é igual a \( \lambda \), o que significa que a média e a variância são iguais:</p>
+    <div class="math">
+        \[
+        \text{Var}(X) = \lambda
+        \]
+    </div>
+
+    <h3>3.3. Função Geradora de Momentos Integral</h3>
+    <p>A função geradora de momentos também pode ser obtida pela integral da seguinte forma:</p>
+    <div class="math">
+        \[
+        M_X(t) = \int_{0}^{\infty} e^{tx} f(x) \,dx = \exp(\lambda (e^t - 1))
+        \]
+    </div>
+
+    <h3>3.4. Soma da PMF</h3>
+    <p>A soma de todas as probabilidades possíveis para uma distribuição de Poisson é dada pela somatória:</p>
+    <div class="math">
+        \[
+        \sum_{k=0}^{\infty} \frac{\lambda^k e^{-\lambda}}{k!} = 1
+        \]
+    </div>
+
+    <h3>3.5. Variância em termos de Expectância</h3>
+    <p>A variância pode ser expressa como:</p>
+    <div class="math">
+        \[
+        \text{Var}(X) = E[X^2] - (E[X])^2
+        \]
+    </div>
+
+    <h3>3.6. Integral da Distribuição de Poisson</h3>
+    <p>Se formos calcular a integral da função de massa de probabilidade, temos:</p>
+    <div class="math">
+        \[
+        \int_0^{\infty} P(X = k) \, dk = \frac{\lambda^k e^{-\lambda}}{k!}
+        \]
+    </div>
+
+    <h2>4. Funções Geradoras</h2>
+
+    <h3>4.1. Função Geradora de Momentos</h3>
+    <p>A função geradora de momentos \( M_X(t) \) da distribuição de Poisson é:</p>
+    <div class="math">
+        \[
+        M_X(t) = \exp(\lambda(e^t - 1))
+        \]
+    </div>
+
+    <h3>4.2. Função Característica</h3>
+    <p>A função característica \( \phi_X(t) \) é dada por:</p>
+    <div class="math">
+        \[
+        \phi_X(t) = \exp(\lambda(e^{it} - 1))
+        \]
+    </div>
+
+    <h2>5. Plotagem da Função de Massa de Probabilidade</h2>
+    <p>Abaixo está a plotagem da função de massa de probabilidade (PMF) da distribuição de Poisson para diferentes valores de \( \lambda \):</p>
+
+    <canvas id="poissonChart1" width="400" height="200"></canvas>
+    <canvas id="poissonChart2" width="400" height="200"></canvas>
+
+    <script>
+        // Função para calcular o fatorial
+        function factorial(n) {
+            return n ? n * factorial(n - 1) : 1;
+        }
+
+        // Função de probabilidade da distribuição de Poisson
+        function poissonPMF(lambda, k) {
+            return (Math.pow(lambda, k) * Math.exp(-lambda)) / factorial(k);
+        }
+
+        // Gerar os valores de k e suas probabilidades para diferentes lambdas
+        const kValues = [];
+        for (let k = 0; k <= 15; k++) {
+            kValues.push(k);
+        }
+
+        function getPMFValues(lambda) {
+            const pmfValues = [];
+            for (let k = 0; k <= 15; k++) {
+                pmfValues.push(poissonPMF(lambda, k));
+            }
+            return pmfValues;
+        }
+
+        // Lambda = 3
+        const ctx1 = document.getElementById('poissonChart1').getContext('2d');
+        new Chart(ctx1, {
+            type: 'bar',
+            data: {
+                labels: kValues,
+                datasets: [{
+                    label: 'Distribuição de Poisson (λ = 3)',
+                    data: getPMFValues(3),
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Lambda = 7
+        const ctx2 = document.getElementById('poissonChart2').getContext('2d');
+        new Chart(ctx2, {
+            type: 'bar',
+            data: {
+                labels: kValues,
+                datasets: [{
+                    label: 'Distribuição de Poisson (λ = 7)',
+                    data: getPMFValues(7),
+                    backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                    borderColor: 'rgba(153, 102, 255, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+
+    <h2>6. Aplicações</h2>
+    <p>A distribuição de Poisson é amplamente utilizada em diversas áreas. Vamos explorar dois exemplos práticos.</p>
+
+    <h3>Exemplo 1: Chamadas Telefônicas</h3>
+    <p>Se uma central de atendimento recebe, em média, 5 chamadas por hora, qual é a probabilidade de receber exatamente 3 chamadas em uma hora?</p>
+    <div class="math example">
+        \[
+        P(X = 3) = \frac{5^3 e^{-5}}{3!} = \frac{125 e^{-5}}{6} \approx 0.1404
+        \]
+    </div>
+
+    <h3>Exemplo 2: Pacientes em um Hospital</h3>
+    <p>Se, em média, 10 pacientes chegam à emergência de um hospital durante a noite, qual é a probabilidade de que exatamente 8 pacientes cheguem em uma noite?</p>
+    <div class="math example">
+        \[
+        P(X = 8) = \frac{10^8 e^{-10}}{8!} \approx 0.1126
+        \]
+    </div>
+
+    <h2>7. Teorema Limite de Poisson</h2>
+    <p>
+        A distribuição de Poisson pode ser vista como um caso limite de uma distribuição binomial \( \text{Bin}(n, p) \) 
+        quando o número de tentativas \( n \) é grande e a probabilidade de sucesso \( p \) é pequena, de forma que 
+        \( \lambda = np \) permaneça constante. Isso leva ao Teorema Limite de Poisson:
+    </p>
+    <div class="math">
+        \[
+        \lim_{n \to \infty} \text{Bin}(n, \frac{\lambda}{n}) = \text{Poisson}(\lambda)
+        \]
+    </div>
+
+    <h2>8. Conclusão</h2>
+    <p>
+        A distribuição de Poisson é uma das ferramentas mais poderosas para modelar eventos raros que ocorrem em um 
+        intervalo de tempo ou espaço. Suas aplicações vão desde modelagem de chamadas em centrais telefônicas até 
+        análise de filas e processos de espera. Com sua simplicidade e versatilidade, é amplamente utilizada em 
+        diversas áreas, como telecomunicações, biologia, economia e muito mais.
+    </p>
+</body>
+</html>

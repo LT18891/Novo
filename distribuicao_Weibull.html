@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Distribuição Weibull</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f0f0f0;
+            padding: 20px;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        .math {
+            margin: 20px 0;
+        }
+        canvas {
+            background-color: white;
+            display: block;
+            margin: 20px auto;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <h1>Distribuição Weibull</h1>
+    <p>Autor: Luiz Tiago Wilcke</p>
+    <p>A distribuição Weibull é uma distribuição contínua usada para modelar a confiabilidade de sistemas, tempo de vida de componentes, e fenômenos onde a taxa de falhas varia com o tempo. A função densidade de probabilidade (PDF) e a função de distribuição acumulada (CDF) são algumas das fórmulas mais importantes associadas a essa distribuição.</p>
+    
+    <h2>Função Densidade de Probabilidade (PDF)</h2>
+    <p>A função densidade de probabilidade (PDF) da distribuição Weibull para um parâmetro de forma \( k \) e parâmetro de escala \( \lambda \) é dada por:</p>
+    <div class="math">
+        $$ f(x; \lambda, k) = \frac{k}{\lambda} \left(\frac{x}{\lambda}\right)^{k-1} e^{-\left(\frac{x}{\lambda}\right)^k}, \, x \geq 0 $$
+    </div>
+    
+    <h2>Função de Distribuição Acumulada (CDF)</h2>
+    <p>A função de distribuição acumulada (CDF) da Weibull é dada por:</p>
+    <div class="math">
+        $$ F(x; \lambda, k) = 1 - e^{-\left(\frac{x}{\lambda}\right)^k}, \, x \geq 0 $$
+    </div>
+    
+    <h2>Função de Taxa de Falha</h2>
+    <p>A função de taxa de falha, também conhecida como função de risco, é:</p>
+    <div class="math">
+        $$ h(x; \lambda, k) = \frac{f(x; \lambda, k)}{1 - F(x; \lambda, k)} = \frac{k}{\lambda} \left(\frac{x}{\lambda}\right)^{k-1} $$
+    </div>
+    
+    <h2>Valor Esperado (Média)</h2>
+    <p>O valor esperado de uma variável aleatória Weibull é dado por:</p>
+    <div class="math">
+        $$ E(X) = \lambda \Gamma\left(1 + \frac{1}{k}\right) $$
+    </div>
+    
+    <h2>Variância</h2>
+    <p>A variância da distribuição Weibull é:</p>
+    <div class="math">
+        $$ Var(X) = \lambda^2 \left[\Gamma\left(1 + \frac{2}{k}\right) - \left(\Gamma\left(1 + \frac{1}{k}\right)\right)^2\right] $$
+    </div>
+    
+    <h2>Entropia</h2>
+    <p>A entropia da distribuição Weibull pode ser calculada como:</p>
+    <div class="math">
+        $$ H(X) = \gamma \left(1 - \frac{1}{k}\right) + \ln\left(\frac{\lambda}{k}\right) + 1 $$
+    </div>
+    
+    <h2>Gráfico da Distribuição Weibull</h2>
+    <p>Abaixo está o gráfico da função densidade de probabilidade (PDF) da distribuição Weibull para diferentes valores de \( k \) e \( \lambda \).</p>
+    <canvas id="weibullPlot" width="600" height="400"></canvas>
+
+    <script>
+        function weibullPDF(x, lambda, k) {
+            return (k / lambda) * Math.pow(x / lambda, k - 1) * Math.exp(-Math.pow(x / lambda, k));
+        }
+
+        function plotWeibull() {
+            const canvas = document.getElementById('weibullPlot');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const lambda = 1;
+            const kValues = [0.5, 1, 1.5, 2, 3];
+            const colors = ['red', 'green', 'blue', 'purple', 'orange'];
+
+            ctx.lineWidth = 2;
+            const xValues = [];
+            for (let x = 0; x <= 2.5; x += 0.01) {
+                xValues.push(x);
+            }
+
+            kValues.forEach((k, index) => {
+                ctx.beginPath();
+                ctx.strokeStyle = colors[index];
+                for (let i = 0; i < xValues.length; i++) {
+                    const x = xValues[i];
+                    const y = weibullPDF(x, lambda, k);
+                    const xPos = x * 200;
+                    const yPos = 400 - y * 500;
+                    if (i === 0) {
+                        ctx.moveTo(xPos, yPos);
+                    } else {
+                        ctx.lineTo(xPos, yPos);
+                    }
+                }
+                ctx.stroke();
+            });
+        }
+
+        plotWeibull();
+    </script>
+
+    <h2>Exemplos Adicionais de Fórmulas</h2>
+    <p>Outras fórmulas importantes associadas à distribuição Weibull incluem a função geradora de momentos e a função característica:</p>
+    
+    <div class="math">
+        $$ M_X(t) = E(e^{tX}) = \int_0^\infty e^{tx} f(x; \lambda, k) dx $$
+    </div>
+    
+    <div class="math">
+        $$ \phi_X(t) = E(e^{itX}) = \int_0^\infty e^{itx} f(x; \lambda, k) dx $$
+    </div>
+
+    <p>Além dessas, as funções cumulantes e a função de sobrevivência também desempenham um papel importante:</p>
+    <div class="math">
+        $$ K_X(t) = \ln M_X(t) $$
+    </div>
+    
+    <div class="math">
+        $$ S(x) = 1 - F(x) = e^{-\left(\frac{x}{\lambda}\right)^k} $$
+    </div>
+
+    <p>Essas fórmulas permitem uma análise completa da distribuição Weibull em diversos contextos, como confiabilidade e análise de falhas.</p>
+</body>
+</html>

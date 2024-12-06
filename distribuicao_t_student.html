@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Distribuição t de Student</title>
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+          tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+        });
+    </script>
+    <script type="text/javascript" async
+      src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-AMS_CHTML"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 20px;
+            line-height: 1.8;
+        }
+        h1, h2, h3 {
+            color: #1e3a8a;
+            text-align: center;
+        }
+        .formula {
+            margin: 20px 0;
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        #chart-container {
+            margin-top: 40px;
+            width: 800px;
+            height: 500px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+        canvas {
+            display: block;
+            margin: 40px auto;
+        }
+        footer {
+            margin-top: 50px;
+            text-align: center;
+            color: #777;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Distribuição t de Student</h1>
+    <p>Autor: Luiz Tiago Wilcke</p>
+
+    <p>A distribuição t de Student é amplamente utilizada em inferência estatística, especialmente em testes de hipóteses e intervalos de confiança. Aqui apresentamos uma coleção completa de fórmulas que descrevem as propriedades matemáticas dessa distribuição.</p>
+
+    <h2>Função Densidade de Probabilidade (PDF)</h2>
+    <p>A PDF da distribuição t de Student com \( \nu \) graus de liberdade é dada por:</p>
+    <div class="formula">
+        $$ f(t|\nu) = \frac{\Gamma\left(\frac{\nu + 1}{2}\right)}{\sqrt{\nu \pi} \Gamma\left(\frac{\nu}{2}\right)} \left(1 + \frac{t^2}{\nu}\right)^{-\frac{\nu + 1}{2}} $$
+    </div>
+
+    <h2>Função de Distribuição Acumulada (CDF)</h2>
+    <p>A função de distribuição acumulada (CDF) da distribuição t de Student é:</p>
+    <div class="formula">
+        $$ F(t|\nu) = \int_{-\infty}^t f(u|\nu) \, du $$
+    </div>
+
+    <h2>Momentos da Distribuição t de Student</h2>
+    <p>Os momentos da distribuição t de Student dependem dos graus de liberdade \( \nu \). O primeiro momento (média) é zero se \( \nu > 1 \), e a variância é definida para \( \nu > 2 \).</p>
+    <div class="formula">
+        $$ \mathbb{E}[t] = 0, \quad \text{para} \ \nu > 1 $$
+        $$ \text{Var}(t) = \frac{\nu}{\nu - 2}, \quad \text{para} \ \nu > 2 $$
+    </div>
+
+    <h2>Assimetria e Curtose</h2>
+    <p>Os momentos de ordem superior, como a assimetria e a curtose, também dependem dos graus de liberdade:</p>
+    <div class="formula">
+        $$ \text{Assimetria} = 0, \quad \text{se} \ \nu > 3 $$
+        $$ \text{Curtose} = \frac{6}{\nu - 4}, \quad \text{se} \ \nu > 4 $$
+    </div>
+
+    <h2>Relação com a Distribuição Normal</h2>
+    <p>À medida que \( \nu \) tende ao infinito, a distribuição t de Student converge para a distribuição normal padrão \( N(0, 1) \):</p>
+    <div class="formula">
+        $$ \lim_{\nu \to \infty} t_{\nu} = N(0,1) $$
+    </div>
+
+    <h2>Relação com a Distribuição Qui-quadrado</h2>
+    <p>Se \( Z \sim N(0,1) \) e \( U \sim \chi^2(\nu) \), então a distribuição t de Student pode ser definida como:</p>
+    <div class="formula">
+        $$ T = \frac{Z}{\sqrt{U/\nu}} $$
+    </div>
+
+    <h2>Distribuição Condicional</h2>
+    <p>A distribuição condicional da variável \( t \) dado outro conjunto de variáveis também segue uma distribuição t de Student. A fórmula condicional é dada por:</p>
+    <div class="formula">
+        $$ t_1 | t_2 \sim t_{\nu'}\left(\mu_1 + \Sigma_{12}\Sigma_{22}^{-1}(t_2 - \mu_2), \frac{\nu + d}{\nu + p}\right) $$
+    </div>
+
+    <h2>Função Geradora de Momentos</h2>
+    <p>A distribuição t de Student não tem uma função geradora de momentos definida, exceto para valores muito específicos de \( \nu \). No entanto, podemos usar a seguinte expressão para o caso de \( \nu > 2 \):</p>
+    <div class="formula">
+        $$ M(t) = \mathbb{E}\left[e^{tX}\right] = \left(1 - \frac{2t}{\nu}\right)^{-\frac{\nu}{2}} $$
+    </div>
+
+    <h2>Propriedade da Soma de Variáveis Independentes</h2>
+    <p>A soma de duas variáveis \( t_{\nu_1} \) e \( t_{\nu_2} \) resulta em uma variável com distribuição t de Student, mas com graus de liberdade combinados:</p>
+    <div class="formula">
+        $$ t_{\nu_1} + t_{\nu_2} \sim t_{\nu_1 + \nu_2} $$
+    </div>
+
+    <h2>Transformação Linear</h2>
+    <p>Se \( X \sim t_{\nu} \), então uma transformação linear de \( X \) segue uma distribuição t de Student com novos parâmetros:</p>
+    <div class="formula">
+        $$ Y = aX + b \sim t_{\nu}(a\mu + b, a^2\sigma^2) $$
+    </div>
+
+    <h2>Distribuição Marginal</h2>
+    <p>A distribuição marginal de um subconjunto de variáveis \( t \) também segue uma distribuição t de Student com graus de liberdade ajustados:</p>
+    <div class="formula">
+        $$ t_1 \sim t_{\nu - 1} $$
+    </div>
+
+    <h2>Intervalo de Confiança</h2>
+    <p>O intervalo de confiança para a média populacional \( \mu \), quando a variância populacional é desconhecida, é dado por:</p>
+    <div class="formula">
+        $$ \left(\bar{x} - t_{\nu}\frac{s}{\sqrt{n}}, \bar{x} + t_{\nu}\frac{s}{\sqrt{n}}\right) $$
+    </div>
+
+    <h2>Função Quantil</h2>
+    <p>A função quantil da distribuição t de Student é usada para calcular os quantis da distribuição. Para um nível de confiança \( \alpha \), o quantil \( t_\alpha \) é obtido pela inversão da CDF:</p>
+    <div class="formula">
+        $$ t_\alpha = F^{-1}(\alpha|\nu) $$
+    </div>
+
+    <h2>Testes de Hipóteses</h2>
+    <p>O teste t de Student é usado para testar a hipótese nula de que a média populacional é igual a um valor específico. O valor estatístico de teste é dado por:</p>
+    <div class="formula">
+        $$ t = \frac{\bar{x} - \mu_0}{s/\sqrt{n}} $$
+    </div>
+
+    <h2>Aplicações da Distribuição t de Student</h2>
+    <p>A distribuição t de Student é amplamente utilizada em várias áreas da estatística e além. Aqui estão algumas das principais aplicações:</p>
+    <ul>
+        <li><strong>Testes de Hipóteses:</strong> É a distribuição utilizada no teste t para determinar se as médias de duas populações são significativamente diferentes, especialmente quando o tamanho da amostra é pequeno.</li>
+        <li><strong>Intervalos de Confiança:</strong> A distribuição t é usada para calcular intervalos de confiança para a média populacional quando a variância da população é desconhecida e o tamanho da amostra é pequeno.</li>
+        <li><strong>Modelagem Financeira:</strong> Na modelagem de retornos de ativos financeiros, a distribuição t de Student pode ser usada para capturar os picos e caudas mais pesados, oferecendo uma alternativa à distribuição normal.</li>
+        <li><strong>Inferência Bayesiana:</strong> A distribuição t de Student aparece frequentemente em modelos bayesianos, particularmente como a distribuição a priori ou a posteriori para parâmetros quando há incerteza sobre a variabilidade dos dados.</li>
+        <li><strong>Análise de Regressão:</strong> Nos modelos de regressão linear, a distribuição t é usada para testar a significância dos coeficientes do modelo, garantindo que os resultados sejam robustos mesmo com amostras pequenas.</li>
+    </ul>
+
+    <h2>Visualização da Distribuição t de Student</h2>
+    <p>A seguir, temos um gráfico gerado usando JavaScript para visualizar a distribuição t de Student com diferentes graus de liberdade:</p>
+
+    <div id="chart-container">
+        <canvas id="chart"></canvas>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('chart').getContext('2d');
+        const degreesOfFreedom = [1, 2, 5, 10, 30, 50, 100];
+
+        const data = degreesOfFreedom.map(df => {
+            return {
+                label: `v = ${df}`,
+                data: Array.from({ length: 200 }, (_, i) => {
+                    const x = (i / 100) * 10 - 5; // range [-5, 5]
+                    const y = (1 / Math.sqrt(df * Math.PI)) * (1 + (x * x) / df) ** (-(df + 1) / 2);
+                    return { x, y };
+                }),
+                borderColor: `hsl(${Math.random() * 360}, 100%, 50%)`,
+                fill: false,
+                tension: 0.2
+            };
+        });
+
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                datasets: data
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        type: 'linear',
+                        position: 'bottom',
+                        title: {
+                            display: true,
+                            text: 'Eixo X',
+                            font: {
+                                size: 16
+                            }
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Densidade',
+                            font: {
+                                size: 16
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            font: {
+                                size: 14
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</div>
+
+<footer>
+    <p>Distribuição t de Student | Luiz Tiago Wilcke - 2024</p>
+</footer>
+
+</body>
+</html>

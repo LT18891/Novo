@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>A Distribuição de Pareto Aplicada à Distribuição de Renda</title>
+    <!-- Inclusão do MathJax para renderização de equações -->
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <!-- Inclusão da biblioteca Chart.js para plotagem de gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Inclusão do Google Fonts para melhor tipografia -->
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Definição de variáveis de cores */
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #2980b9;
+            --background-color: #f5f5f5;
+            --text-color: #333333;
+            --table-header-color: #ecf0f1;
+            --table-row-hover-color: #dfe6e9;
+            --equation-color: #c0392b;
+            --link-color: #2980b9;
+            --link-hover-color: #1abc9c;
+            --border-color: #bdc3c7;
+        }
+
+        /* Estilização geral do corpo */
+        body {
+            font-family: 'Lato', sans-serif;
+            margin: 40px;
+            line-height: 1.6;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 20px;
+        }
+
+        /* Estilização dos títulos */
+        h1, h2, h3 {
+            color: var(--primary-color);
+            margin-top: 40px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        h2 {
+            font-size: 2em;
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 10px;
+            font-weight: 700;
+        }
+
+        h3 {
+            font-size: 1.5em;
+            margin-top: 30px;
+            font-weight: 700;
+        }
+
+        /* Estilização dos parágrafos */
+        p {
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        /* Estilização das listas */
+        ul {
+            margin-left: 20px;
+        }
+
+        /* Estilização das equações */
+        .equation {
+            text-align: center;
+            margin: 30px 0;
+            color: var(--equation-color);
+            font-size: 1.1em;
+        }
+
+        /* Estilização do container do gráfico */
+        #chartContainer {
+            width: 90%;
+            margin: 40px auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+        }
+
+        /* Estilização das tabelas */
+        table {
+            width: 90%;
+            margin: 30px auto;
+            border-collapse: collapse;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        table, th, td {
+            border: none;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: center;
+        }
+
+        th {
+            background-color: var(--table-header-color);
+            font-weight: 700;
+            font-size: 1.1em;
+            color: var(--primary-color);
+        }
+
+        tr:nth-child(even) td {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover td {
+            background-color: var(--table-row-hover-color);
+        }
+
+        /* Estilização dos links */
+        a {
+            color: var(--link-color);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        a:hover {
+            color: var(--link-hover-color);
+            text-decoration: underline;
+        }
+
+        /* Estilização da seção de resultados */
+        .results {
+            width: 90%;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-left: 5px solid var(--secondary-color);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-radius: 4px;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            body {
+                margin: 20px;
+                padding: 10px;
+            }
+
+            #chartContainer, table, .results {
+                width: 100%;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            h2 {
+                font-size: 1.8em;
+            }
+
+            h3 {
+                font-size: 1.3em;
+            }
+
+            .equation {
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>A Distribuição de Pareto Aplicada à Distribuição de Renda</h1>
+    <p><strong>Autor:</strong> Luiz Tiago Wilcke</p>
+
+    <h2>Introdução</h2>
+    <p>
+        A distribuição de Pareto é uma distribuição de probabilidade frequentemente utilizada para descrever a distribuição de renda em uma sociedade. Proposta por Vilfredo Pareto no final do século XIX, essa distribuição captura a observação empírica de que uma pequena parcela da população detém a maior parte da riqueza.
+    </p>
+
+    <h2>Fundamentação Teórica</h2>
+    <p>
+        A distribuição de Pareto é caracterizada por dois parâmetros: o parâmetro de forma <span class="equation">\( \alpha \)</span> e o parâmetro de escala <span class="equation">\( x_m \)</span>. A função de densidade de probabilidade (PDF) da distribuição de Pareto é dada por:
+    </p>
+    <div class="equation">
+        \[
+        f(x; \alpha, x_m) = \begin{cases}
+        \frac{\alpha x_m^\alpha}{x^{\alpha + 1}} & x \geq x_m, \\
+        0 & x < x_m.
+        \end{cases}
+        \]
+    </div>
+    <p>
+        Onde:
+        <ul>
+            <li><strong>\( \alpha \)</strong>: parâmetro de forma que indica a concentração da distribuição.</li>
+            <li><strong>\( x_m \)</strong>: parâmetro de escala que representa o valor mínimo de renda considerado.</li>
+        </ul>
+    </p>
+
+    <h3>Função de Distribuição Acumulada (CDF)</h3>
+    <p>
+        A função de distribuição acumulada (CDF) da distribuição de Pareto é dada por:
+    </p>
+    <div class="equation">
+        \[
+        F(x; \alpha, x_m) = \begin{cases}
+        1 - \left( \frac{x_m}{x} \right)^\alpha & x \geq x_m, \\
+        0 & x < x_m.
+        \end{cases}
+        \]
+    </div>
+    <p>
+        Essa função representa a probabilidade de que a renda \( X \) seja menor ou igual a um valor \( x \).
+    </p>
+
+    <h3>Média e Variância</h3>
+    <p>
+        A média \( \mu \) e a variância \( \sigma^2 \) da distribuição de Pareto são calculadas da seguinte forma:
+    </p>
+    <div class="equation">
+        \[
+        \mu = \frac{\alpha x_m}{\alpha - 1} \quad \text{para} \quad \alpha > 1
+        \]
+    </div>
+    <div class="equation">
+        \[
+        \sigma^2 = \frac{\alpha x_m^2}{(\alpha - 1)^2 (\alpha - 2)} \quad \text{para} \quad \alpha > 2
+        \]
+    </div>
+    <p>
+        Essas expressões mostram que a média existe apenas para \( \alpha > 1 \) e a variância para \( \alpha > 2 \), indicando que para valores menores de \( \alpha \), a distribuição possui caudas pesadas que podem resultar em médias e variâncias indefinidas.
+    </p>
+
+    <h3>Medidas Adicionais</h3>
+    <p>
+        Além da média e variância, outras medidas estatísticas podem ser derivadas da distribuição de Pareto:
+    </p>
+    <div class="equation">
+        \[
+        \text{Mediana: } M = x_m \cdot 2^{1/\alpha}
+        \]
+    </div>
+    <div class="equation">
+        \[
+        \text{Moda: } \text{Não existe para } \alpha \leq 1, \quad \text{e} \quad \text{Moda} = x_m \cdot \left( \frac{\alpha}{\alpha + 1} \right)^{1/(\alpha + 1)} \quad \text{para } \alpha > 1
+        \]
+    </div>
+    <p>
+        A mediana representa o ponto central da distribuição onde 50% dos dados estão abaixo e 50% acima. A moda, quando existe, indica o valor de renda mais frequente na distribuição.
+    </p>
+
+    <h2>Aplicação na Distribuição de Renda</h2>
+    <p>
+        Ao aplicar a distribuição de Pareto à renda, assumimos que a probabilidade de uma pessoa ter uma renda acima de um determinado valor segue a função de sobrevivência da Pareto:
+    </p>
+    <div class="equation">
+        \[
+        P(X > x) = \left( \frac{x_m}{x} \right)^\alpha
+        \]
+    </div>
+    <p>
+        Essa formulação implica que, quanto maior o valor de <strong>\( \alpha \)</strong>, mais concentrada a renda está nas mãos de poucos indivíduos. Valores menores de <strong>\( \alpha \)</strong> indicam uma distribuição mais equitativa.
+    </p>
+
+    <h3>Coeficiente de Gini</h3>
+    <p>
+        O coeficiente de Gini é uma medida de desigualdade que pode ser derivada a partir da distribuição de Pareto. Para a distribuição de Pareto, o coeficiente de Gini \( G \) é dado por:
+    </p>
+    <div class="equation">
+        \[
+        G = \frac{1}{2\alpha - 1} \quad \text{para} \quad \alpha > \frac{1}{2}
+        \]
+    </div>
+    <p>
+        Este coeficiente varia entre 0 e 1, onde 0 representa perfeita igualdade e 1 representa máxima desigualdade. Observa-se que à medida que \( \alpha \) aumenta, \( G \) diminui, indicando uma distribuição de renda mais igualitária.
+    </p>
+
+    <h2>Análise de Dados Reais</h2>
+    <p>
+        Para ilustrar a aplicação prática da distribuição de Pareto na análise de renda, utilizaremos um conjunto de dados reais (simulados para este exemplo) de rendas anuais de uma população. A seguir, apresentamos os dados utilizados:
+    </p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Indivíduo</th>
+                <th>Renda Anual (R$)</th>
+            </tr>
+        </thead>
+        <tbody id="incomeTable">
+            <!-- Dados serão inseridos pelo JavaScript -->
+        </tbody>
+    </table>
+
+    <script>
+        // Dados reais simulados de renda anual em Reais (R$)
+        const rendaAnual = [
+            15000, 18000, 22000, 25000, 30000,
+            35000, 40000, 45000, 50000, 60000,
+            75000, 90000, 100000, 150000, 200000,
+            250000, 300000, 400000, 500000, 1000000
+        ];
+
+        // Inserção dos dados na tabela
+        const tableBody = document.getElementById('incomeTable');
+        rendaAnual.forEach((renda, index) => {
+            const row = document.createElement('tr');
+            const cellIndiv = document.createElement('td');
+            const cellRenda = document.createElement('td');
+            cellIndiv.textContent = `Indivíduo ${index + 1}`;
+            cellRenda.textContent = renda.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            row.appendChild(cellIndiv);
+            row.appendChild(cellRenda);
+            tableBody.appendChild(row);
+        });
+
+        // Função para calcular a estimativa de alpha usando Maximum Likelihood Estimation (MLE)
+        function estimarAlpha(xm, dados) {
+            const n = dados.length;
+            const sumLog = dados.reduce((acc, x) => acc + Math.log(x / xm), 0);
+            return n / sumLog;
+        }
+
+        // Função para calcular a estimativa de xm
+        function estimarXm(dados) {
+            return Math.min(...dados);
+        }
+
+        // Estimativa dos parâmetros
+        const xm = estimarXm(rendaAnual);
+        const alpha = estimarAlpha(xm, rendaAnual);
+
+        // Cálculo do coeficiente de Gini a partir dos dados
+        function calcularGini(dados) {
+            let n = dados.length;
+            let sorted = dados.slice().sort((a, b) => a - b);
+            let cumulative = 0;
+            let sum = sorted.reduce((acc, val) => acc + val, 0);
+            let gini = 0;
+            for (let i = 0; i < n; i++) {
+                cumulative += sorted[i];
+                gini += (i + 1) - (n + 1) / 2;
+            }
+            return gini / (n * sum);
+        }
+
+        const giniDados = calcularGini(rendaAnual);
+
+        // Adicionando resultados numéricos ao artigo
+        const resultsSection = `
+            <h3>Estimativas dos Parâmetros</h3>
+            <p>
+                Utilizando os dados de renda anual fornecidos, estimamos os parâmetros da distribuição de Pareto da seguinte forma:
+            </p>
+            <div class="equation">
+                \\[
+                \\hat{x}_m = ${xm.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                \\]
+            </div>
+            <div class="equation">
+                \\[
+                \\hat{\\alpha} = ${alpha.toFixed(2)}
+                \\]
+            </div>
+            <p>
+                Além disso, calculamos o coeficiente de Gini a partir dos dados observados:
+            </p>
+            <div class="equation">
+                \\[
+                G = ${giniDados.toFixed(3)}
+                \\]
+            </div>
+            <p>
+                A estimativa do coeficiente de Gini a partir dos dados observados é comparada à estimativa teórica derivada da distribuição de Pareto:
+            </p>
+            <div class="equation">
+                \\[
+                G_{\\text{Teórico}} = \\frac{1}{2\\hat{\\alpha} - 1} = \\frac{1}{2 \\times ${alpha.toFixed(2)} - 1} = ${(1 / (2 * alpha - 1)).toFixed(3)}
+                \\]
+            </div>
+            <p>
+                A proximidade entre os valores calculados indica a adequação da distribuição de Pareto para modelar a distribuição de renda neste conjunto de dados.
+            </p>
+        `;
+
+        // Inserção da seção de resultados com a classe "results"
+        const analysisSection = document.createElement('div');
+        analysisSection.className = 'results';
+        analysisSection.innerHTML = resultsSection;
+        document.body.insertBefore(analysisSection, document.getElementById('chartContainer'));
+
+        // Reprocessa o MathJax para renderizar as equações adicionadas dinamicamente
+        if (window.MathJax && MathJax.typesetPromise) {
+            MathJax.typesetPromise([analysisSection]).catch(function(err) {
+                console.error('MathJax failed to typeset:', err);
+            });
+        }
+    </script>
+
+    <h2>Plotagem da Distribuição de Pareto</h2>
+    <p>
+        A seguir, apresentamos uma plotagem da função de densidade de probabilidade da distribuição de Pareto para diferentes valores de <strong>\( \alpha \)</strong>, mantendo <strong>\( x_m = 1 \)</strong>.
+    </p>
+
+    <div id="chartContainer">
+        <canvas id="paretoChart"></canvas>
+    </div>
+
+    <script>
+        // Função para calcular a PDF da distribuição de Pareto
+        function paretoPDF(x, alpha, xm) {
+            return (alpha * Math.pow(xm, alpha)) / Math.pow(x, alpha + 1);
+        }
+
+        // Parâmetros da distribuição
+        const xmChart = 1;
+        const alphas = [1.5, 2.5, 3.5, 4.5, 5.5]; // Diferentes valores de alpha para comparar
+
+        // Geração de dados para o gráfico
+        const data = {
+            labels: [],
+            datasets: []
+        };
+
+        // Geração de valores de x
+        const xMin = xmChart;
+        const xMax = 10;
+        const numPoints = 100;
+        const step = (xMax - xMin) / (numPoints - 1);
+        for (let i = 0; i < numPoints; i++) {
+            const x = xMin + i * step;
+            data.labels.push(x.toFixed(2));
+        }
+
+        // Função para gerar cores aleatórias para os gráficos
+        function getRandomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+
+        // Criação dos datasets para cada alpha
+        alphas.forEach(alpha => {
+            const dataset = {
+                label: `α = ${alpha}`,
+                data: [],
+                fill: false,
+                borderColor: getRandomColor(),
+                tension: 0.1
+            };
+            for (let i = 0; i < numPoints; i++) {
+                const x = xMin + i * step;
+                dataset.data.push(paretoPDF(x, alpha, xmChart));
+            }
+            data.datasets.push(dataset);
+        });
+
+        // Configuração do gráfico
+        const config = {
+            type: 'line',
+            data: data,
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Função de Densidade de Probabilidade da Distribuição de Pareto'
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                },
+                interaction: {
+                    mode: 'nearest',
+                    axis: 'x',
+                    intersect: false
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Renda (x)'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'f(x)'
+                        },
+                        beginAtZero: true
+                    }
+                }
+            },
+        };
+
+        // Renderização do gráfico
+        const ctx = document.getElementById('paretoChart').getContext('2d');
+        new Chart(ctx, config);
+    </script>
+
+    <h2>Propriedades Adicionais</h2>
+    <h3>Momentos da Distribuição</h3>
+    <p>
+        Além da média e variância, outros momentos da distribuição de Pareto podem ser calculados para entender melhor suas características.
+    </p>
+    <div class="equation">
+        \[
+        E[X^k] = \frac{\alpha x_m^k}{\alpha - k} \quad \text{para} \quad \alpha > k
+        \]
+    </div>
+    <p>
+        Onde \( k \) é a ordem do momento. Isso indica que momentos de ordem superior a \( \alpha \) não existem para a distribuição de Pareto.
+    </p>
+
+    <h3>Entropia da Distribuição de Pareto</h3>
+    <p>
+        A entropia \( H(X) \) da distribuição de Pareto mede a incerteza associada à variável aleatória \( X \). É calculada pela integral da função de densidade multiplicada pelo logaritmo negativo da própria função de densidade:
+    </p>
+    <div class="equation">
+        \[
+        H(X) = -\int_{x_m}^{\infty} f(x; \alpha, x_m) \ln f(x; \alpha, x_m) \, dx
+        \]
+    </div>
+    <p>
+        Substituindo a PDF de Pareto, temos:
+    </p>
+    <div class="equation">
+        \[
+        H(X) = \ln(x_m) + \frac{1}{\alpha} + 1
+        \]
+    </div>
+    <p>
+        Este resultado mostra que a entropia aumenta com \( \ln(x_m) \) e diminui à medida que \( \alpha \) aumenta, indicando que distribuições com \( \alpha \) maiores são menos incertas.
+    </p>
+
+    <h3>Função de Risco (Hazard Function)</h3>
+    <p>
+        A função de risco \( h(x) \) da distribuição de Pareto representa a taxa instantânea de ocorrência do evento em \( x \) dado que o evento ainda não ocorreu. É definida como:
+    </p>
+    <div class="equation">
+        \[
+        h(x) = \frac{f(x; \alpha, x_m)}{1 - F(x; \alpha, x_m)} = \frac{\alpha}{x}
+        \]
+    </div>
+    <p>
+        A função de risco decresce com \( x \), indicando que a taxa de ocorrência do evento diminui à medida que \( x \) aumenta.
+    </p>
+
+    <h3>Função de Risco Cumulativa (Cumulative Hazard Function)</h3>
+    <p>
+        A função de risco cumulativa \( H(x) \) acumula a função de risco ao longo de \( x \) e é dada por:
+    </p>
+    <div class="equation">
+        \[
+        H(x) = \int_{x_m}^{x} h(t) \, dt = \alpha \ln\left(\frac{x}{x_m}\right)
+        \]
+    </div>
+    <p>
+        Esta função é útil para calcular probabilidades relacionadas a tempos até o evento.
+    </p>
+
+    <h3>Esperança de \( \ln X \)</h3>
+    <p>
+        A esperança do logaritmo de \( X \) para a distribuição de Pareto é dada por:
+    </p>
+    <div class="equation">
+        \[
+        E[\ln X] = \ln(x_m) + \frac{1}{\alpha - 1} \quad \text{para} \quad \alpha > 1
+        \]
+    </div>
+    <p>
+        Esta expectativa fornece insights adicionais sobre a distribuição, especialmente em contextos onde a transformação logarítmica é relevante.
+    </p>
+
+    <h3>Entropia</h3>
+    <p>
+        A entropia \( H(X) \) da distribuição de Pareto é uma medida da incerteza associada à variável aleatória \( X \). Para a distribuição de Pareto, a entropia é calculada por:
+    </p>
+    <div class="equation">
+        \[
+        H(X) = \ln(x_m) + \frac{1}{\alpha} + 1
+        \]
+    </div>
+    <p>
+        A entropia aumenta com \( x_m \) e diminui com \( \alpha \), refletindo que distribuições com maiores \( \alpha \) são menos incertas.
+    </p>
+
+    <h3>Função de Distribuição Acumulada Integral</h3>
+    <p>
+        A função de distribuição acumulada \( F(x; \alpha, x_m) \) pode ser expressa em termos de integrais envolvendo a função de densidade de probabilidade:
+    </p>
+    <div class="equation">
+        \[
+        F(x; \alpha, x_m) = \int_{x_m}^{x} f(t; \alpha, x_m) \, dt = 1 - \left( \frac{x_m}{x} \right)^\alpha
+        \]
+    </div>
+    <p>
+        Esta integral confirma a relação entre a PDF e a CDF da distribuição de Pareto.
+    </p>
+
+    <h2>Conclusão</h2>
+    <p>
+        A distribuição de Pareto fornece uma ferramenta valiosa para entender a desigualdade na distribuição de renda. Através da análise dos parâmetros <strong>\( \alpha \)</strong> e <strong>\( x_m \)</strong>, é possível quantificar a concentração de riqueza e identificar possíveis desigualdades estruturais em uma sociedade. Além disso, a comparação com outras distribuições estatísticas permite uma análise mais abrangente e precisa das dinâmicas econômicas.
+    </p>
+
+    <h2>Referências</h2>
+    <ul>
+        <li>Pareto, V. (1896). <em>Cours d'économie politique</em>.</li>
+        <li>Mitchell, M. (1998). <em>The 1% Windfall: How the Smartest Companies Profit from the Economic Crisis</em>.</li>
+        <li>Wikipedia. (2024). <a href="https://pt.wikipedia.org/wiki/Distribuição_de_Pareto">Distribuição de Pareto</a>.</li>
+        <li>Gini, C. (1912). <em>Variabilità e Mutabilità</em>.</li>
+        <li>Samuelson, P. A. (1947). "Foundations of Economic Analysis". Harvard University Press.</li>
+        <li>Jovanovic, B., & Rousseau, P. L. (2001). "Vintage Models of Growth and Firm Size". <em>Journal of Political Economy</em>, 109(5), 997-1029.</li>
+        <li>Anderson, R. A. (1998). <em>Income Inequality in the United States, 1913–1998</em>. <em>Journal of Economic Perspectives</em>, 12(3), 3-26.</li>
+        <li>Clauset, A., Shalizi, C. R., & Newman, M. E. J. (2009). "Power-law Distributions in Empirical Data". <em>SIAM Review</em>, 51(4), 661-703.</li>
+        <li>Lux, T. (1991). "Economic Dynamics as an Emergent Phenomenon". <em>Journal of Economic Behavior & Organization</em>, 14(3), 327-342.</li>
+    </ul>
+
+</body>
+</html>

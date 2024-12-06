@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Distribuição de Poisson</title>
+    <!-- Carrega o MathJax para renderização de equações -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+    </script>
+    <!-- Carrega a biblioteca Chart.js para plotagem de gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            line-height: 1.6;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        .content {
+            max-width: 800px;
+            margin: auto;
+        }
+        .chart-container {
+            position: relative;
+            margin: 40px 0;
+            height: 400px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <h1>Distribuição de Poisson</h1>
+        <p><strong>Autor:</strong> Luiz Tiago Wilcke</p>
+
+        <h2>Introdução</h2>
+        <p>A distribuição de Poisson é uma distribuição de probabilidade discreta que expressa a probabilidade de um determinado número de eventos ocorrer em um intervalo fixo de tempo ou espaço, desde que esses eventos ocorram com uma taxa média conhecida e de forma independente do tempo desde o último evento.</p>
+
+        <h2>Função de Probabilidade</h2>
+        <p>A função de probabilidade da distribuição de Poisson é dada por:</p>
+        <p>$$
+        P(X = k) = \frac{\lambda^k e^{-\lambda}}{k!}
+        $$</p>
+        <p>Onde:</p>
+        <ul>
+            <li>\( \lambda \) é a taxa média de ocorrência dos eventos no intervalo considerado.</li>
+            <li>\( k \) é o número de ocorrências.</li>
+        </ul>
+
+        <h2>Propriedades</h2>
+        <ul>
+            <li><strong>Média:</strong> \( E[X] = \lambda \)</li>
+            <li><strong>Variância:</strong> \( Var(X) = \lambda \)</li>
+            <li><strong>Momento de Ordem \( n \):</strong> \( E[X^n] = \lambda^n + n\lambda^{n-1} \)</li>
+        </ul>
+
+        <h2>Integrais Relacionadas</h2>
+        <p>Ainda que a distribuição de Poisson seja discreta, ela está relacionada a várias integrais importantes em probabilidade e estatística.</p>
+
+        <h3>Função Geradora de Momentos</h3>
+        <p>A função geradora de momentos \( M_X(t) \) é dada por:</p>
+        <p>$$
+        M_X(t) = E[e^{tX}] = e^{\lambda(e^{t} - 1)}
+        $$</p>
+        <p>Esta expressão pode ser derivada utilizando integrais e séries de potências.</p>
+
+        <h3>Função Característica</h3>
+        <p>A função característica \( \phi_X(t) \) é dada por:</p>
+        <p>$$
+        \phi_X(t) = E[e^{itX}] = e^{\lambda(e^{it} - 1)}
+        $$</p>
+        <p>Esta função é útil na análise de processos estocásticos e pode ser relacionada através da integral:</p>
+        <p>$$
+        \phi_X(t) = \int_{-\infty}^{\infty} e^{itx} dP(x)
+        $$</p>
+
+        <h3>Representação via Função Gama Incompleta</h3>
+        <p>A probabilidade acumulada \( P(X \leq k) \) pode ser expressa utilizando a função gama incompleta regularizada \( \gamma \):</p>
+        <p>$$
+        P(X \leq k) = e^{-\lambda} \sum_{i=0}^{k} \frac{\lambda^{i}}{i!} = e^{-\lambda} \gamma(k+1, \lambda)
+        $$</p>
+        <p>Onde a função gama incompleta inferior é definida por:</p>
+        <p>$$
+        \gamma(s, x) = \int_{0}^{x} t^{s-1} e^{-t} dt
+        $$</p>
+
+        <h3>Conexão com a Transformada de Laplace</h3>
+        <p>A transformada de Laplace da distribuição de Poisson é dada por:</p>
+        <p>$$
+        \mathcal{L}\{P(X = k)\}(s) = \int_{0}^{\infty} e^{-st} \frac{\lambda^{k} e^{-\lambda}}{k!} dt = \frac{\lambda^{k} e^{-\lambda}}{k!} \frac{1}{s}
+        $$</p>
+
+        <h2>Exemplo de Aplicação</h2>
+        <p>Considere que o número médio de partículas emitidas por uma fonte radioativa em um intervalo de 10 segundos é \( \lambda = 4 \). Qual é a probabilidade de que exatamente 6 partículas sejam emitidas nesse intervalo?</p>
+        <p>Utilizando a função de probabilidade da distribuição de Poisson:</p>
+        <p>$$
+        P(X = 6) = \frac{4^{6} e^{-4}}{6!} = \frac{4096 \times e^{-4}}{720} \approx 0.1042
+        $$</p>
+
+        <h2>Gráfico da Distribuição de Poisson</h2>
+        <div class="chart-container">
+            <canvas id="poissonChart"></canvas>
+        </div>
+
+        <h2>Derivação da Função de Probabilidade</h2>
+        <p>A distribuição de Poisson pode ser derivada como um caso limite da distribuição binomial quando o número de ensaios tende ao infinito e a probabilidade de sucesso tende a zero, de tal forma que o produto \( np = \lambda \) permanece constante. Matematicamente, temos:</p>
+        <p>$$
+        \lim_{n \to \infty} \binom{n}{k} p^{k} (1 - p)^{n - k} = \frac{\lambda^{k} e^{-\lambda}}{k!}
+        $$</p>
+        <p>Onde \( p = \frac{\lambda}{n} \).</p>
+
+        <h2>Conclusão</h2>
+        <p>A distribuição de Poisson é uma ferramenta poderosa para modelar eventos raros ou que ocorrem de forma independente dentro de um intervalo fixo. Sua relação com funções especiais e integrais a torna fundamental em análises estatísticas avançadas.</p>
+
+        <footer>
+            <p>Artigo por Luiz Tiago Wilcke</p>
+        </footer>
+    </div>
+
+    <script>
+        // Configura os parâmetros da distribuição de Poisson
+        const lambda = 4; // Taxa média (alterada para 4)
+        const maxK = 15; // Valor máximo de k para exibir no gráfico
+
+        // Função para calcular P(X = k)
+        function poissonProbability(k, lambda) {
+            return (Math.pow(lambda, k) * Math.exp(-lambda)) / factorial(k);
+        }
+
+        // Função para calcular fatorial
+        function factorial(n) {
+            if (n === 0 || n === 1) return 1;
+            let result = 1;
+            for (let i = 2; i <= n; i++) {
+                result *= i;
+            }
+            return result;
+        }
+
+        // Preparar os dados para o gráfico
+        const labels = [];
+        const data = [];
+        for (let k = 0; k <= maxK; k++) {
+            labels.push(k);
+            data.push(poissonProbability(k, lambda));
+        }
+
+        // Configurar o gráfico usando Chart.js
+        const ctx = document.getElementById('poissonChart').getContext('2d');
+        const poissonChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'P(X = k)',
+                    data: data,
+                    backgroundColor: 'rgba(52, 152, 219, 0.6)',
+                    borderColor: 'rgba(41, 128, 185, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'k'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Probabilidade'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let k = context.label;
+                                let prob = context.parsed.y.toFixed(4);
+                                return `P(X = ${k}) = ${prob}`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

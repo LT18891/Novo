@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Distribuição de Hotelling</title>
+    <!-- Import MathJax -->
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <!-- Import Plotly.js for plotting -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            line-height: 1.6;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        .plot {
+            width: 100%;
+            max-width: 800px;
+            margin: 40px auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Distribuição de Hotelling</h1>
+    <p><strong>Autor:</strong> Luiz Tiago Wilcke</p>
+
+    <h2>Introdução</h2>
+    <p>
+        A <em>Distribuição de Hotelling</em>, mais conhecida como a distribuição <em>T² de Hotelling</em>, é uma generalização multivariada do teste t de Student. Ela é amplamente utilizada em estatísticas multivariadas para testar hipóteses sobre as médias de populações multivariadas.
+    </p>
+
+    <h2>Definição</h2>
+    <p>
+        Considere uma amostra aleatória de tamanho \( n \) de uma população multivariada com média \( \boldsymbol{\mu} \) e matriz de covariância \( \Sigma \). O estatístico \( T^2 \) de Hotelling é definido por:
+    </p>
+    <p style="text-align: center;">
+        $$ T^2 = n (\overline{\mathbf{x}} - \boldsymbol{\mu}_0)^\top S^{-1} (\overline{\mathbf{x}} - \boldsymbol{\mu}_0) $$
+    </p>
+    <p>
+        Onde:
+        <ul>
+            <li> \( \overline{\mathbf{x}} \) é o vetor de médias amostrais.</li>
+            <li> \( \boldsymbol{\mu}_0 \) é o vetor de médias sob a hipótese nula.</li>
+            <li> \( S \) é a matriz de covariância amostral.</li>
+        </ul>
+    </p>
+
+    <h2>Propriedades</h2>
+    <p>
+        Sob a hipótese nula \( H_0: \boldsymbol{\mu} = \boldsymbol{\mu}_0 \), o estatístico \( T^2 \) de Hotelling segue uma distribuição relacionada à distribuição F de Snedecor:
+    </p>
+    <p style="text-align: center;">
+        $$ \frac{(n - p)}{p(n - 1)} T^2 \sim F_{p, n - p} $$
+    </p>
+    <p>
+        Onde \( p \) é a dimensão do vetor de médias.
+    </p>
+
+    <h2>Visualização da Distribuição</h2>
+    <p>
+        A distribuição \( T^2 \) de Hotelling pode ser visualizada considerando diferentes dimensões \( p \) e tamanhos de amostra \( n \). Abaixo, apresentamos uma plotagem da densidade da distribuição para diferentes valores de \( p \) e \( n \).
+    </p>
+    <div id="hotellingPlot" class="plot"></div>
+
+    <h2>Implementação em JavaScript</h2>
+    <p>
+        A seguir, apresentamos um exemplo de como plotar a distribuição \( T^2 \) de Hotelling utilizando a biblioteca Plotly.js. Note que, para simplificar, consideramos \( p = 2 \) e variamos \( n \).
+    </p>
+
+    <script>
+        // Função para calcular a densidade da distribuição F
+        function fDistribution(x, d1, d2) {
+            const gamma = function(z) {
+                return jStat.gammafn(z);
+            };
+            return (Math.pow(d1 / d2, d1 / 2) * Math.pow(x, d1 / 2 - 1)) /
+                   (jStat.beta(d1 / 2, d2 / 2)) *
+                   Math.pow(1 + (d1 / d2) * x, -(d1 + d2) / 2);
+        }
+
+        // Gerar dados para diferentes valores de n
+        const p = 2;
+        const ns = [10, 20, 30];
+        const traces = [];
+
+        ns.forEach(n => {
+            const d1 = p;
+            const d2 = n - p;
+            const xValues = [];
+            const yValues = [];
+            for (let x = 0; x <= 5; x += 0.05) {
+                xValues.push(x);
+                yValues.push(jStat.centralF.pdf(x, d1, d2));
+            }
+            traces.push({
+                x: xValues,
+                y: yValues,
+                mode: 'lines',
+                name: `n = ${n}`
+            });
+        });
+
+        const layout = {
+            title: 'Distribuição F para Diferentes Tamanhos de Amostra (p = 2)',
+            xaxis: { title: 'Valor de F' },
+            yaxis: { title: 'Densidade de Probabilidade' }
+        };
+
+        Plotly.newPlot('hotellingPlot', traces, layout);
+    </script>
+
+    <!-- Import jStat for statistical functions -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jstat/1.9.4/jstat.min.js"></script>
+
+    <h2>Conclusão</h2>
+    <p>
+        A distribuição \( T^2 \) de Hotelling é uma ferramenta poderosa em estatísticas multivariadas, permitindo a comparação de médias vetoriais entre populações. Através de sua relação com a distribuição F, é possível realizar testes de hipóteses robustos em contextos multivariados.
+    </p>
+</body>
+</html>

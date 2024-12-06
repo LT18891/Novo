@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Distribuição t de Student</title>
+    <!-- Bibliotecas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/10.6.4/math.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- MathJax para renderizar equações -->
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.6; font-size: 18px; }
+        h1 { color: #333; font-size: 36px; }
+        h2 { color: #333; font-size: 30px; }
+        h3 { color: #333; font-size: 24px; }
+        p { font-size: 18px; }
+        ul { margin-left: 20px; font-size: 18px; }
+        .chart-container { width: 80%; margin: auto; }
+    </style>
+</head>
+<body>
+
+<h1>Distribuição t de Student</h1>
+<p><strong>Autor:</strong> Luiz Tiago Wilcke</p>
+
+<h2>Introdução</h2>
+<p>
+    A distribuição <em>t</em> de Student é uma distribuição de probabilidade contínua que desempenha um papel fundamental na estatística inferencial, especialmente quando o tamanho da amostra é pequeno e o desvio padrão populacional é desconhecido. Introduzida por William Sealy Gosset em 1908, sob o pseudônimo "Student", ela é amplamente utilizada em testes de hipóteses sobre médias e na construção de intervalos de confiança (<a href="#ref3">Student, 1908</a>).
+</p>
+
+<h2>Definição</h2>
+<p>
+    Seja \( X_1, X_2, \dots, X_n \) uma amostra aleatória de uma população normalmente distribuída com média \( \mu \) e variância \( \sigma^2 \). A estatística:
+</p>
+<p>
+    \[
+    T = \dfrac{\bar{X} - \mu}{S / \sqrt{n}}
+    \]
+</p>
+<p>
+    onde \( \bar{X} \) é a média amostral e \( S \) é o desvio padrão amostral, segue uma distribuição <em>t</em> de Student com \( \nu = n - 1 \) graus de liberdade (<a href="#ref1">Casella & Berger, 2002</a>).
+</p>
+<p>
+    A função densidade de probabilidade (f.d.p.) pode ser expressa utilizando a função beta:
+</p>
+<p>
+    \[
+    f(t) = \dfrac{1}{\sqrt{\nu} \, B\left( \dfrac{1}{2}, \dfrac{\nu}{2} \right)} \left(1 + \dfrac{t^2}{\nu} \right)^{ -\dfrac{\nu + 1}{2} }
+    \]
+</p>
+<p>
+    onde \( B \) é a função beta (<a href="#ref2">Hogg & Craig, 2013</a>).
+</p>
+<p>
+    A função distribuição acumulada (f.d.a.) é dada por:
+</p>
+<p>
+    \[
+    F(t) = 1 - \dfrac{1}{2} I_{ \dfrac{\nu}{ \nu + t^2 } } \left( \dfrac{\nu}{2}, \dfrac{1}{2} \right)
+    \]
+</p>
+<p>
+    onde \( I \) é a função beta incompleta regularizada (<a href="#ref1">Casella & Berger, 2002</a>).
+</p>
+
+<h2>Propriedades</h2>
+<ul>
+    <li><strong>Média:</strong> 0 (para \( \nu > 1 \))</li>
+    <li><strong>Variância:</strong> \( \dfrac{\nu}{\nu - 2} \) (para \( \nu > 2 \))</li>
+    <li><strong>Assimetria:</strong> 0 (a distribuição é simétrica em torno de zero)</li>
+    <li><strong>Curtose:</strong> \( \dfrac{6}{\nu - 4} \) (para \( \nu > 4 \))</li>
+    <li><strong>Entropia:</strong> 
+        \[
+        H(T) = \ln\left( \sqrt{\nu} B\left( \dfrac{\nu}{2}, \dfrac{1}{2} \right) \right) + \dfrac{\nu + 1}{2} \left( \psi\left( \dfrac{\nu + 1}{2} \right) - \psi\left( \dfrac{\nu}{2} \right) \right)
+        \]
+        onde \( \psi \) é a função digama (<a href="#ref1">Casella & Berger, 2002</a>).
+    </li>
+</ul>
+
+<h3>Momentos</h3>
+<p>
+    O \( k \)-ésimo momento central (quando definido) é dado por:
+</p>
+<p>
+    \[
+    E[T^k] = 
+    \begin{cases}
+    0, & \text{se } k \text{ ímpar e } \nu > k \\
+    \dfrac{\nu^{k/2} \Gamma\left( \dfrac{k + 1}{2} \right) \Gamma\left( \dfrac{\nu - k}{2} \right) }{ \sqrt{\pi} \Gamma\left( \dfrac{\nu}{2} \right) }, & \text{se } k \text{ par e } \nu > k
+    \end{cases}
+    \]
+</p>
+<p>
+    (<a href="#ref2">Hogg & Craig, 2013</a>).
+</p>
+
+<h3>Função Característica</h3>
+<p>
+    A função característica da distribuição <em>t</em> de Student não possui uma forma fechada simples, mas pode ser relacionada à função hipergeométrica conflituente:
+</p>
+<p>
+    \[
+    \phi_T(s) = e^{i s \mu} \dfrac{ K_{\nu / 2} \left( \sqrt{ \nu } | s | \right) }{ \Gamma\left( \dfrac{\nu}{2} \right) ( \sqrt{ \nu } | s | )^{\nu / 2} }
+    \]
+</p>
+<p>
+    onde \( K_{\nu / 2} \) é a função de Bessel modificada de segunda espécie (<a href="#ref1">Casella & Berger, 2002</a>).
+</p>
+
+<h2>Relação com Outras Distribuições</h2>
+<ul>
+    <li>
+        Se \( Z \sim N(0,1) \) e \( V \sim \chi^2(\nu) \) são variáveis aleatórias independentes, então:
+        \[
+        T = \dfrac{ Z }{ \sqrt{ V / \nu } } \sim t_{\nu}
+        \]
+        (<a href="#ref1">Casella & Berger, 2002</a>).
+    </li>
+    <li>
+        Para \( \nu = 1 \), a distribuição <em>t</em> torna-se a distribuição de Cauchy:
+        \[
+        t_1 \sim \text{Cauchy}(0,1)
+        \]
+        (<a href="#ref4">Ross, 2014</a>).
+    </li>
+    <li>
+        A distribuição \( T^2 \) segue uma distribuição F de Snedecor com parâmetros (1, \( \nu \)):
+        \[
+        T^2 \sim F_{1, \nu}
+        \]
+        (<a href="#ref2">Hogg & Craig, 2013</a>).
+    </li>
+    <li>
+        Para \( \nu \to \infty \), a distribuição <em>t</em> converge para a distribuição normal padrão:
+        \[
+        t_{\nu} \xrightarrow{d} N(0,1)
+        \]
+        (<a href="#ref4">Ross, 2014</a>).
+    </li>
+</ul>
+
+<h2>Aplicações</h2>
+
+<h3>Intervalos de Confiança</h3>
+<p>
+    Ao estimar a média \( \mu \) de uma população normalmente distribuída com variância desconhecida, o intervalo de confiança de nível \( (1 - \alpha) \) é dado por:
+</p>
+<p>
+    \[
+    \bar{X} \pm t_{ \alpha / 2, \nu } \left( \dfrac{ S }{ \sqrt{ n } } \right)
+    \]
+</p>
+<p>
+    onde \( t_{ \alpha / 2, \nu } \) é o quantil superior da distribuição <em>t</em> com \( \nu \) graus de liberdade (<a href="#ref1">Casella & Berger, 2002</a>).
+</p>
+<p>
+    O erro padrão da média é:
+</p>
+<p>
+    \[
+    \text{Erro Padrão} = \dfrac{ S }{ \sqrt{ n } }
+    \]
+</p>
+<p>
+    (<a href="#ref5">Spiegel et al., 2009</a>).
+</p>
+
+<h3>Teste de Hipóteses</h3>
+<p>
+    Para testar a hipótese nula \( H_0: \mu = \mu_0 \) contra a alternativa \( H_a: \mu \ne \mu_0 \), a estatística de teste é:
+</p>
+<p>
+    \[
+    T = \dfrac{ \bar{X} - \mu_0 }{ S / \sqrt{ n } }
+    \]
+</p>
+<p>
+    Rejeita-se \( H_0 \) se \( |T| > t_{ \alpha / 2, \nu } \) (<a href="#ref2">Hogg & Craig, 2013</a>).
+</p>
+<p>
+    O valor-\( p \) pode ser calculado como:
+</p>
+<p>
+    \[
+    p\text{-valor} = 2 \left( 1 - F(|T|) \right)
+    \]
+</p>
+<p>
+    (<a href="#ref5">Spiegel et al., 2009</a>).
+</p>
+
+<h2>Exemplos</h2>
+
+<h3>Exemplo 1: Intervalo de Confiança</h3>
+<p>
+    Uma amostra de tamanho \( n = 15 \) tem média \( \bar{X} = 20 \) e desvio padrão \( S = 4 \). Construir um intervalo de confiança de 95% para \( \mu \).
+</p>
+<p>
+    Graus de liberdade: \( \nu = 15 - 1 = 14 \). Valor crítico: \( t_{ 0.025, 14 } = 2.145 \) (<a href="#ref5">Spiegel et al., 2009</a>).
+</p>
+<p>
+    Intervalo de confiança:
+</p>
+<p>
+    \[
+    20 \pm 2.145 \left( \dfrac{ 4 }{ \sqrt{ 15 } } \right) = 20 \pm 2.215
+    \]
+</p>
+<p>
+    Portanto, o intervalo é \( [17.785, 22.215] \).
+</p>
+
+<h3>Exemplo 2: Teste de Hipóteses</h3>
+<p>
+    Testar \( H_0: \mu = 50 \) contra \( H_a: \mu > 50 \) com \( \alpha = 0.05 \), usando uma amostra de \( n = 10 \), \( \bar{X} = 53 \), \( S = 5 \).
+</p>
+<p>
+    Estatística de teste:
+</p>
+<p>
+    \[
+    T = \dfrac{ 53 - 50 }{ 5 / \sqrt{ 10 } } = \dfrac{ 3 }{ 1.581 } = 1.897
+    \]
+</p>
+<p>
+    Valor crítico: \( t_{ 0.05, 9 } = 1.833 \) (<a href="#ref5">Spiegel et al., 2009</a>).
+</p>
+<p>
+    Como \( T = 1.897 > 1.833 \), rejeitamos \( H_0 \).
+</p>
+<p>
+    O valor-\( p \) é:
+</p>
+<p>
+    \[
+    p\text{-valor} = 1 - F(1.897) = 0.043
+    \]
+</p>
+<p>
+    (<a href="#ref5">Spiegel et al., 2009</a>).
+</p>
+
+<h2>Integrais Relacionadas</h2>
+<p>
+    A função distribuição acumulada (f.d.a.) é:
+</p>
+<p>
+    \[
+    F(t) = \int_{ -\infty }^{ t } f(u) \, du
+    \]
+</p>
+<p>
+    Outra forma de expressar \( F(t) \) é utilizando a função regularizada \( I_x(a,b) \):
+</p>
+<p>
+    \[
+    F(t) = \dfrac{1}{2} + t \dfrac{ \Gamma\left( \dfrac{\nu + 1}{2} \right) }{ \sqrt{ \nu \pi } \Gamma\left( \dfrac{\nu}{2} \right) } \int_0^{ x } u^{ (\nu - 1)/2 } (1 - u )^{ -1/2 } du
+    \]
+</p>
+<p>
+    onde \( x = \dfrac{ t^2 }{ \nu + t^2 } \) (<a href="#ref1">Casella & Berger, 2002</a>).
+</p>
+<p>
+    A integral de momentos:
+</p>
+<p>
+    \[
+    E[T^k] = \int_{ -\infty }^{ \infty } t^k f(t) \, dt
+    \]
+</p>
+<p>
+    é finita para \( k < \nu \) (<a href="#ref2">Hogg & Craig, 2013</a>).
+</p>
+
+<h2>Plotagem da Distribuição</h2>
+<div class="chart-container">
+    <canvas id="tDistributionChart"></canvas>
+</div>
+
+<script>
+    // Certifique-se de que as bibliotecas estão carregadas antes de executar o script
+    window.onload = function() {
+        // Definir os graus de liberdade
+        const degreesOfFreedom = [1, 5, 10, 30];
+
+        // Gerar valores de t
+        const tValues = [];
+        for (let t = -5; t <= 5; t += 0.1) {
+            tValues.push(t);
+        }
+
+        // Função f.d.p da distribuição t de Student
+        function tDistributionPDF(t, nu) {
+            const gamma = (n) => math.gamma(n);
+            const numerator = gamma((nu + 1) / 2);
+            const denominator = Math.sqrt(nu * Math.PI) * gamma(nu / 2);
+            return (numerator / denominator) * Math.pow(1 + (t * t) / nu, -(nu + 1) / 2);
+        }
+
+        // Preparar dados para o gráfico
+        const datasets = degreesOfFreedom.map((nu, index) => {
+            const pdfValues = tValues.map(t => tDistributionPDF(t, nu));
+            return {
+                label: `ν = ${nu}`,
+                data: pdfValues,
+                borderColor: `hsl(${index * 90}, 70%, 50%)`,
+                fill: false,
+                pointRadius: 0,
+                borderWidth: 2
+            };
+        });
+
+        // Configurar e renderizar o gráfico
+        const ctx = document.getElementById('tDistributionChart').getContext('2d');
+        const tChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: tValues,
+                datasets: datasets
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Distribuição t de Student para Diferentes Graus de Liberdade'
+                    },
+                    legend: {
+                        position: 'top',
+                    },
+                },
+                scales: {
+                    x: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 't'
+                        }
+                    },
+                    y: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'f(t)'
+                        }
+                    }
+                }
+            }
+        });
+    }
+</script>
+
+<h2>Conclusão</h2>
+<p>
+    A distribuição <em>t</em> de Student é essencial na estatística inferencial, permitindo análises precisas quando se trabalha com amostras pequenas e variância populacional desconhecida. Sua compreensão é vital para a correta aplicação de testes de hipóteses e construção de intervalos de confiança, garantindo a validade dos resultados estatísticos.
+</p>
+
+<h2>Referências Bibliográficas</h2>
+<ol>
+    <li id="ref1">Casella, G., & Berger, R. L. (2002). <em>Statistical Inference</em>. Duxbury.</li>
+    <li id="ref2">Hogg, R. V., McKean, J. W., & Craig, A. T. (2013). <em>Introduction to Mathematical Statistics</em>. Pearson.</li>
+    <li id="ref3">Student (1908). "The Probable Error of a Mean". <em>Biometrika</em>, 6(1), 1–25.</li>
+    <li id="ref4">Ross, S. M. (2014). <em>Introduction to Probability and Statistics for Engineers and Scientists</em>. Academic Press.</li>
+    <li id="ref5">Spiegel, M. R., Schiller, J., & Srinivasan, R. A. (2009). <em>Estatística</em>. Bookman.</li>
+</ol>
+
+</body>
+</html>
+
+

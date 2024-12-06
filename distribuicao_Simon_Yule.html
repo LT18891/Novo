@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Distribuição Yule-Simon</title>
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.8;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+
+        h1, h2 {
+            color: #333;
+        }
+
+        .formula {
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin: 20px 0;
+            font-size: 1.2em;
+            border: 2px solid #333;
+        }
+
+        p {
+            margin: 15px 0;
+        }
+
+        canvas {
+            display: block;
+            margin: 20px auto;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                margin: 10px;
+            }
+
+            canvas {
+                width: 100%;
+            }
+
+            .formula {
+                font-size: 1.1em;
+            }
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        nav ul li {
+            display: inline;
+            margin-right: 10px;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: #007BFF;
+        }
+
+        nav ul li a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>Distribuição Yule-Simon</h1>
+    <h2>Autor: Luiz Tiago Wilcke</h2>
+
+    <nav>
+        <ul>
+            <li><a href="#funcao-probabilidade">Função de Probabilidade</a></li>
+            <li><a href="#massa-probabilidade">Função Massa de Probabilidade</a></li>
+            <li><a href="#serie-probabilidade">Série de Probabilidade</a></li>
+            <li><a href="#media">Média</a></li>
+            <li><a href="#variancia">Variância</a></li>
+            <li><a href="#funcoes-geradoras">Função Geradora de Momentos</a></li>
+        </ul>
+    </nav>
+
+    <section id="funcao-probabilidade">
+        <h2>Função de Probabilidade</h2>
+        <p>
+            A função de probabilidade para \( k \geq 1 \) é definida pela seguinte equação:
+        </p>
+        <div class="formula">
+            $$ P(k) = \alpha \cdot B(k, \alpha + 1) = \alpha \cdot \int_0^1 t^{k-1} (1 - t)^{\alpha} dt $$
+        </div>
+        <p>
+            Onde \( \alpha \) é o parâmetro da distribuição e \( B(k, \alpha + 1) \) é a função Beta.
+        </p>
+    </section>
+
+    <section id="massa-probabilidade">
+        <h2>Função Massa de Probabilidade</h2>
+        <p>
+            A função massa de probabilidade pode ser reescrita usando a função Gama \( \Gamma(x) \), que é uma extensão do fatorial para o domínio dos números reais.
+        </p>
+        <div class="formula">
+            $$ P(k) = \alpha \cdot \frac{\Gamma(\alpha + 1) \Gamma(k)}{\Gamma(k + \alpha + 1)} $$
+        </div>
+    </section>
+
+    <section id="serie-probabilidade">
+        <h2>Série de Probabilidade</h2>
+        <p>
+            A probabilidade cumulativa pode ser expressa como uma série infinita envolvendo a função Beta incompleta regularizada:
+        </p>
+        <div class="formula">
+            $$ F(k) = \sum_{i=1}^{k} \alpha \cdot \int_0^1 t^{i-1} (1 - t)^{\alpha} dt $$
+        </div>
+    </section>
+
+    <section id="media">
+        <h2>Média</h2>
+        <p>
+            A média da distribuição Yule-Simon é dada pela fórmula:
+        </p>
+        <div class="formula">
+            $$ \mathbb{E}(X) = \frac{\alpha}{\alpha - 1} \quad \text{para} \quad \alpha > 1 $$
+        </div>
+    </section>
+
+    <section id="variancia">
+        <h2>Variância</h2>
+        <p>
+            A variância da distribuição Yule-Simon é dada pela fórmula:
+        </p>
+        <div class="formula">
+            $$ Var(X) = \frac{\alpha^2}{(\alpha - 1)^2 (\alpha - 2)} \quad \text{para} \quad \alpha > 2 $$
+        </div>
+    </section>
+
+    <section id="funcoes-geradoras">
+        <h2>Função Geradora de Momentos</h2>
+        <p>
+            A função geradora de momentos (MGF) da distribuição é usada para calcular todos os momentos da distribuição.
+        </p>
+        <div class="formula">
+            $$ M_X(t) = \mathbb{E}[e^{tX}] = \sum_{k=1}^{\infty} e^{tk} P(k) $$
+        </div>
+    </section>
+
+    <h2>Exemplo de Plotagem</h2>
+    <canvas id="yuleSimonChart" width="600" height="400"></canvas>
+
+    <script>
+        // Função de probabilidade da distribuição Yule-Simon
+        function yuleSimon(alpha, k) {
+            const beta = (n, a) => {
+                let sum = 0;
+                const step = 0.001;
+                for (let t = step; t < 1; t += step) {
+                    sum += Math.pow(t, n - 1) * Math.pow(1 - t, a) * step;
+                }
+                return sum;
+            };
+            return alpha * beta(k, alpha + 1);
+        }
+
+        // Geração de dados
+        const maxK = 50;
+        const alphaValues = [1.2, 2, 3, 4, 5];
+        const datasets = alphaValues.map((alpha, idx) => {
+            const values = [];
+            for (let k = 1; k <= maxK; k++) {
+                values.push(yuleSimon(alpha, k));
+            }
+            return {
+                label: `Alpha = ${alpha}`,
+                data: values,
+                borderColor: `hsl(${idx * 72}, 70%, 50%)`,
+                backgroundColor: `hsl(${idx * 72}, 70%, 70%)`,
+                fill: false,
+                borderWidth: 2,
+                pointRadius: 4,
+                pointStyle: 'circle'
+            };
+        });
+
+        // Configuração da plotagem
+        const ctx = document.getElementById('yuleSimonChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: Array.from({ length: maxK }, (_, i) => i + 1),
+                datasets: datasets
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'k (Eventos)',
+                            font: {
+                                size: 16
+                            }
+                        }
+                    },
+                    y: {
+                        type: 'logarithmic',
+                        title: {
+                            display: true,
+                            text: 'Probabilidade P(k)',
+                            font: {
+                                size: 16
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            font: {
+                                size: 14
+                            }
+                        }
+                    }
+                },
+                elements: {
+                    line: {
+                        tension: 0.3 // Linhas mais suaves
+                    }
+                }
+            }
+        });
+    </script>
+
+</body>
+</html>

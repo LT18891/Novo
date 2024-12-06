@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Exercícios sobre Distribuição Normal em Genética</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Inclusão do MathJax -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+    </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .exercicio {
+            margin-bottom: 50px;
+        }
+        .solucao {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-left: 4px solid #4CAF50;
+        }
+        canvas {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Exercícios sobre Distribuição Normal em Genética</h1>
+    <p><strong>Autor:</strong> Luiz Tiago Wilcke</p>
+
+    <!-- Fórmula Geral da Distribuição Normal -->
+    <div class="exercicio">
+        <h2>Fórmula da Distribuição Normal</h2>
+        <p>A função de densidade de probabilidade da distribuição normal é dada por:</p>
+        <p style="text-align: center;">
+            $$f(x) = \frac{1}{\sigma \sqrt{2\pi}} e^{-\frac{1}{2}\left(\frac{x - \mu}{\sigma}\right)^2}$$
+        </p>
+        <p>Onde:</p>
+        <ul>
+            <li>\(\mu\) é a média</li>
+            <li>\(\sigma\) é o desvio padrão</li>
+        </ul>
+        <p>A distribuição normal padrão, onde \(\mu = 0\) e \(\sigma = 1\), é representada por:</p>
+        <p style="text-align: center;">
+            $$\phi(z) = \frac{1}{\sqrt{2\pi}} e^{-\frac{z^2}{2}}$$
+        </p>
+    </div>
+
+    <!-- Exercício 1 -->
+    <div class="exercicio">
+        <h2>Exercício 1</h2>
+        <p>Em uma população de plantas, a altura segue uma distribuição normal com média de 50 cm e desvio padrão de 5 cm. Qual a probabilidade de uma planta escolhida ao acaso ter altura entre 45 cm e 55 cm?</p>
+        <canvas id="chart1"></canvas>
+        <div class="solucao">
+            <h3>Solução:</h3>
+            <p>Dados:</p>
+            <ul>
+                <li>Média (\(\mu\)) = 50 cm</li>
+                <li>Desvio padrão (\(\sigma\)) = 5 cm</li>
+            </ul>
+            <p>Queremos calcular \(P(45 \leq X \leq 55)\).</p>
+            <p>Primeiro, padronizamos os valores:</p>
+            <p>
+                $$Z_1 = \frac{45 - 50}{5} = -1$$
+                <br>
+                $$Z_2 = \frac{55 - 50}{5} = 1$$
+            </p>
+            <p>Usando a tabela da distribuição normal padrão:</p>
+            <p>
+                $$P(-1 \leq Z \leq 1) \approx 68\%$$
+            </p>
+            <p>Portanto, a probabilidade é de aproximadamente 68%.</p>
+        </div>
+    </div>
+
+    <!-- Exercício 2 -->
+    <div class="exercicio">
+        <h2>Exercício 2</h2>
+        <p>Em um estudo genético, o peso de um certo fruto é normalmente distribuído com média de 200g e desvio padrão de 20g. Qual a probabilidade de encontrar um fruto com peso superior a 240g?</p>
+        <canvas id="chart2"></canvas>
+        <div class="solucao">
+            <h3>Solução:</h3>
+            <p>Dados:</p>
+            <ul>
+                <li>Média (\(\mu\)) = 200g</li>
+                <li>Desvio padrão (\(\sigma\)) = 20g</li>
+            </ul>
+            <p>Queremos calcular \(P(X > 240)\).</p>
+            <p>Padronizamos:</p>
+            <p>
+                $$Z = \frac{240 - 200}{20} = 2$$
+            </p>
+            <p>Usando a tabela:</p>
+            <p>
+                $$P(Z > 2) \approx 2,5\%$$
+            </p>
+            <p>Portanto, a probabilidade é de aproximadamente 2,5%.</p>
+        </div>
+    </div>
+
+    <!-- Exercício 3 -->
+    <div class="exercicio">
+        <h2>Exercício 3</h2>
+        <p>Em uma pesquisa genética, a concentração de um determinado marcador genético segue uma distribuição normal com média de 30 unidades e desvio padrão de 4 unidades. Qual a probabilidade de um indivíduo ter uma concentração abaixo de 25 unidades?</p>
+        <canvas id="chart3"></canvas>
+        <div class="solucao">
+            <h3>Solução:</h3>
+            <p>Dados:</p>
+            <ul>
+                <li>Média (\(\mu\)) = 30 unidades</li>
+                <li>Desvio padrão (\(\sigma\)) = 4 unidades</li>
+            </ul>
+            <p>Queremos calcular \(P(X < 25)\).</p>
+            <p>Padronizamos:</p>
+            <p>
+                $$Z = \frac{25 - 30}{4} = -1,25$$
+            </p>
+            <p>Usando a tabela:</p>
+            <p>
+                $$P(Z < -1,25) \approx 10,56\%$$
+            </p>
+            <p>Portanto, a probabilidade é de aproximadamente 10,56%.</p>
+        </div>
+    </div>
+
+    <!-- Exercício 4 -->
+    <div class="exercicio">
+        <h2>Exercício 4</h2>
+        <p>Em uma população de camundongos, o tempo de gestação segue uma distribuição normal com média de 21 dias e desvio padrão de 2 dias. Qual a probabilidade de uma gestação durar entre 19 e 23 dias?</p>
+        <canvas id="chart4"></canvas>
+        <div class="solucao">
+            <h3>Solução:</h3>
+            <p>Dados:</p>
+            <ul>
+                <li>Média (\(\mu\)) = 21 dias</li>
+                <li>Desvio padrão (\(\sigma\)) = 2 dias</li>
+            </ul>
+            <p>Queremos calcular \(P(19 \leq X \leq 23)\).</p>
+            <p>Padronizamos:</p>
+            <p>
+                $$Z_1 = \frac{19 - 21}{2} = -1$$
+                <br>
+                $$Z_2 = \frac{23 - 21}{2} = 1$$
+            </p>
+            <p>Usando a tabela:</p>
+            <p>
+                $$P(-1 \leq Z \leq 1) \approx 68\%$$
+            </p>
+            <p>Portanto, a probabilidade é de aproximadamente 68%.</p>
+        </div>
+    </div>
+
+    <!-- Exercício 5 -->
+    <div class="exercicio">
+        <h2>Exercício 5</h2>
+        <p>O comprimento dos fios de cabelo de uma população feminina segue uma distribuição normal com média de 30 cm e desvio padrão de 3 cm. Qual a probabilidade de uma mulher ter cabelo com comprimento entre 27 cm e 33 cm?</p>
+        <canvas id="chart5"></canvas>
+        <div class="solucao">
+            <h3>Solução:</h3>
+            <p>Dados:</p>
+            <ul>
+                <li>Média (\(\mu\)) = 30 cm</li>
+                <li>Desvio padrão (\(\sigma\)) = 3 cm</li>
+            </ul>
+            <p>Queremos calcular \(P(27 \leq X \leq 33)\).</p>
+            <p>Padronizamos:</p>
+            <p>
+                $$Z_1 = \frac{27 - 30}{3} = -1$$
+                <br>
+                $$Z_2 = \frac{33 - 30}{3} = 1$$
+            </p>
+            <p>Usando a tabela:</p>
+            <p>
+                $$P(-1 \leq Z \leq 1) \approx 68\%$$
+            </p>
+            <p>Portanto, a probabilidade é de aproximadamente 68%.</p>
+        </div>
+    </div>
+
+    <!-- Exercício 6 -->
+    <div class="exercicio">
+        <h2>Exercício 6</h2>
+        <p>Em uma espécie de peixes, o comprimento da nadadeira dorsal segue uma distribuição normal com média de 15 cm e desvio padrão de 1,5 cm. Qual a probabilidade de um peixe ter nadadeira dorsal com comprimento superior a 18 cm?</p>
+        <canvas id="chart6"></canvas>
+        <div class="solucao">
+            <h3>Solução:</h3>
+            <p>Dados:</p>
+            <ul>
+                <li>Média (\(\mu\)) = 15 cm</li>
+                <li>Desvio padrão (\(\sigma\)) = 1,5 cm</li>
+            </ul>
+            <p>Queremos calcular \(P(X > 18)\).</p>
+            <p>Padronizamos:</p>
+            <p>
+                $$Z = \frac{18 - 15}{1,5} = 2$$
+            </p>
+            <p>Usando a tabela:</p>
+            <p>
+                $$P(Z > 2) \approx 2,5\%$$
+            </p>
+            <p>Portanto, a probabilidade é de aproximadamente 2,5%.</p>
+        </div>
+    </div>
+
+    <!-- Exercício 7 -->
+    <div class="exercicio">
+        <h2>Exercício 7</h2>
+        <p>Em um laboratório de genética, a expressão de um gene específico segue uma distribuição normal com média de 100 unidades e desvio padrão de 10 unidades. Qual a probabilidade de um indivíduo apresentar uma expressão entre 90 e 110 unidades?</p>
+        <canvas id="chart7"></canvas>
+        <div class="solucao">
+            <h3>Solução:</h3>
+            <p>Dados:</p>
+            <ul>
+                <li>Média (\(\mu\)) = 100 unidades</li>
+                <li>Desvio padrão (\(\sigma\)) = 10 unidades</li>
+            </ul>
+            <p>Queremos calcular \(P(90 \leq X \leq 110)\).</p>
+            <p>Padronizamos:</p>
+            <p>
+                $$Z_1 = \frac{90 - 100}{10} = -1$$
+                <br>
+                $$Z_2 = \frac{110 - 100}{10} = 1$$
+            </p>
+            <p>Usando a tabela:</p>
+            <p>
+                $$P(-1 \leq Z \leq 1) \approx 68\%$$
+            </p>
+            <p>Portanto, a probabilidade é de aproximadamente 68%.</p>
+        </div>
+    </div>
+
+    <!-- Exercício 8 -->
+    <div class="exercicio">
+        <h2>Exercício 8</h2>
+        <p>O diâmetro de sementes de uma planta segue uma distribuição normal com média de 5 mm e desvio padrão de 0,5 mm. Qual a probabilidade de uma semente ter diâmetro entre 4,5 mm e 5,5 mm?</p>
+        <canvas id="chart8"></canvas>
+        <div class="solucao">
+            <h3>Solução:</h3>
+            <p>Dados:</p>
+            <ul>
+                <li>Média (\(\mu\)) = 5 mm</li>
+                <li>Desvio padrão (\(\sigma\)) = 0,5 mm</li>
+            </ul>
+            <p>Queremos calcular \(P(4,5 \leq X \leq 5,5)\).</p>
+            <p>Padronizamos:</p>
+            <p>
+                $$Z_1 = \frac{4,5 - 5}{0,5} = -1$$
+                <br>
+                $$Z_2 = \frac{5,5 - 5}{0,5} = 1$$
+            </p>
+            <p>Usando a tabela:</p>
+            <p>
+                $$P(-1 \leq Z \leq 1) \approx 68\%$$
+            </p>
+            <p>Portanto, a probabilidade é de aproximadamente 68%.</p>
+        </div>
+    </div>
+
+    <!-- Exercício 9 -->
+    <div class="exercicio">
+        <h2>Exercício 9</h2>
+        <p>Em um estudo de genética de plantas, o número de sementes por fruto segue uma distribuição normal com média de 50 sementes e desvio padrão de 5 sementes. Qual a probabilidade de um fruto ter mais de 60 sementes?</p>
+        <canvas id="chart9"></canvas>
+        <div class="solucao">
+            <h3>Solução:</h3>
+            <p>Dados:</p>
+            <ul>
+                <li>Média (\(\mu\)) = 50 sementes</li>
+                <li>Desvio padrão (\(\sigma\)) = 5 sementes</li>
+            </ul>
+            <p>Queremos calcular \(P(X > 60)\).</p>
+            <p>Padronizamos:</p>
+            <p>
+                $$Z = \frac{60 - 50}{5} = 2$$
+            </p>
+            <p>Usando a tabela:</p>
+            <p>
+                $$P(Z > 2) \approx 2,5\%$$
+            </p>
+            <p>Portanto, a probabilidade é de aproximadamente 2,5%.</p>
+        </div>
+    </div>
+
+    <!-- Exercício 10 -->
+    <div class="exercicio">
+        <h2>Exercício 10</h2>
+        <p>O tempo de maturação de uma fruta geneticamente modificada segue uma distribuição normal com média de 30 dias e desvio padrão de 3 dias. Qual a probabilidade de uma fruta amadurecer entre 27 e 33 dias?</p>
+        <canvas id="chart10"></canvas>
+        <div class="solucao">
+            <h3>Solução:</h3>
+            <p>Dados:</p>
+            <ul>
+                <li>Média (\(\mu\)) = 30 dias</li>
+                <li>Desvio padrão (\(\sigma\)) = 3 dias</li>
+            </ul>
+            <p>Queremos calcular \(P(27 \leq X \leq 33)\).</p>
+            <p>Padronizamos:</p>
+            <p>
+                $$Z_1 = \frac{27 - 30}{3} = -1$$
+                <br>
+                $$Z_2 = \frac{33 - 30}{3} = 1$$
+            </p>
+            <p>Usando a tabela:</p>
+            <p>
+                $$P(-1 \leq Z \leq 1) \approx 68\%$$
+            </p>
+            <p>Portanto, a probabilidade é de aproximadamente 68%.</p>
+        </div>
+    </div>
+
+    <script>
+        // Função para gerar dados da distribuição normal
+        function gerarDadosNormal(mu, sigma, pontos = 100) {
+            const dados = [];
+            const inicio = mu - 4 * sigma;
+            const fim = mu + 4 * sigma;
+            const passo = (fim - inicio) / pontos;
+            for(let x = inicio; x <= fim; x += passo){
+                const y = (1 / (sigma * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * Math.pow((x - mu)/sigma, 2));
+                dados.push({x: x, y: y});
+            }
+            return dados;
+        }
+
+        // Configurações dos gráficos
+        const exercicios = [
+            {id: 'chart1', mu: 50, sigma: 5, titulo: 'Exercício 1'},
+            {id: 'chart2', mu: 200, sigma: 20, titulo: 'Exercício 2'},
+            {id: 'chart3', mu: 30, sigma: 4, titulo: 'Exercício 3'},
+            {id: 'chart4', mu: 21, sigma: 2, titulo: 'Exercício 4'},
+            {id: 'chart5', mu: 30, sigma: 3, titulo: 'Exercício 5'},
+            {id: 'chart6', mu: 15, sigma: 1.5, titulo: 'Exercício 6'},
+            {id: 'chart7', mu: 100, sigma: 10, titulo: 'Exercício 7'},
+            {id: 'chart8', mu: 5, sigma: 0.5, titulo: 'Exercício 8'},
+            {id: 'chart9', mu: 50, sigma: 5, titulo: 'Exercício 9'},
+            {id: 'chart10', mu: 30, sigma: 3, titulo: 'Exercício 10'},
+        ];
+
+        exercicios.forEach(ex => {
+            const ctx = document.getElementById(ex.id).getContext('2d');
+            const dados = gerarDadosNormal(ex.mu, ex.sigma);
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    datasets: [{
+                        label: 'Distribuição Normal',
+                        data: dados,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 2,
+                        fill: false,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: ex.titulo
+                        },
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            title: {
+                                display: true,
+                                text: 'Valor'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Densidade de Probabilidade'
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+
+

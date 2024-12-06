@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Aplicações de Distribuições Probabilísticas</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async
+            src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .exercicio {
+            margin-bottom: 50px;
+        }
+        h1, h2 {
+            text-align: center;
+        }
+        canvas {
+            display: block;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Aplicações de Distribuições Probabilísticas</h1>
+    <h2>Autor: Luiz Tiago Wilcke</h2>
+
+    <!-- Exercício 1 -->
+    <div class="exercicio">
+        <h3>Exercício 1: Distribuição Binomial</h3>
+        <p>Uma moeda equilibrada é lançada 10 vezes. Qual é a probabilidade de obter exatamente 6 caras?</p>
+        <p>Solução: A probabilidade de obter exatamente 6 caras é 0.2051.</p>
+        <canvas id="grafico1" width="600" height="400"></canvas>
+    </div>
+
+    <!-- Exercício 2 -->
+    <div class="exercicio">
+        <h3>Exercício 2: Distribuição de Poisson</h3>
+        <p>Uma central de atendimento recebe em média 5 chamadas por minuto. Qual é a probabilidade de receber exatamente 8 chamadas em um minuto?</p>
+        <p>Solução: A probabilidade de receber 8 chamadas é 0.0653.</p>
+        <canvas id="grafico2" width="600" height="400"></canvas>
+    </div>
+
+    <!-- Exercício 3 -->
+    <div class="exercicio">
+        <h3>Exercício 3: Distribuição Normal</h3>
+        <p>As alturas dos alunos em uma escola seguem uma distribuição normal com média de 1,70 m e desvio padrão de 0,1 m. Qual é a probabilidade de um aluno ter altura entre 1,60 m e 1,80 m?</p>
+        <p>Solução: A probabilidade é aproximadamente 0.6826.</p>
+        <canvas id="grafico3" width="600" height="400"></canvas>
+    </div>
+
+    <!-- Exercício 4 -->
+    <div class="exercicio">
+        <h3>Exercício 4: Distribuição Exponencial</h3>
+        <p>O tempo de vida de um componente eletrônico segue uma distribuição exponencial com taxa de falha de 0,5 por hora. Qual é a probabilidade do componente durar mais de 3 horas?</p>
+        <p>Solução: A probabilidade do componente durar mais de 3 horas é aproximadamente 0.2231.</p>
+        <canvas id="grafico4" width="600" height="400"></canvas>
+    </div>
+
+    <!-- Exercício 5 -->
+    <div class="exercicio">
+        <h3>Exercício 5: Distribuição Uniforme</h3>
+        <p>Um número é escolhido aleatoriamente entre 0 e 1. Qual é a probabilidade de que esse número seja menor que 0,3?</p>
+        <p>Solução: A probabilidade é 0.3.</p>
+        <canvas id="grafico5" width="600" height="400"></canvas>
+    </div>
+
+    <!-- Exercício 6 -->
+    <div class="exercicio">
+        <h3>Exercício 6: Distribuição Geométrica</h3>
+        <p>Em um jogo, a probabilidade de ganhar em cada tentativa é de 0,2. Qual é a probabilidade de que a primeira vitória ocorra na quinta tentativa?</p>
+        <p>Solução: A probabilidade de vencer na quinta tentativa é 0.08192.</p>
+        <canvas id="grafico6" width="600" height="400"></canvas>
+    </div>
+
+    <!-- Exercício 7 -->
+    <div class="exercicio">
+        <h3>Exercício 7: Distribuição de Weibull</h3>
+        <p>O tempo até a falha de um equipamento é modelado por uma distribuição de Weibull com parâmetros \( k = 1.5 \) e \( \lambda = 500 \) horas. Qual é a probabilidade do equipamento falhar antes de 400 horas?</p>
+        <p>Solução: A probabilidade de falha antes de 400 horas é aproximadamente 0.3555.</p>
+        <canvas id="grafico7" width="600" height="400"></canvas>
+    </div>
+
+    <!-- Exercício 8 -->
+    <div class="exercicio">
+        <h3>Exercício 8: Distribuição Hipergeométrica</h3>
+        <p>Em uma urna com 10 bolas vermelhas e 5 azuis, são retiradas 4 bolas sem reposição. Qual é a probabilidade de exatamente 3 serem vermelhas?</p>
+        <p>Solução: A probabilidade de 3 bolas vermelhas é 0.4286.</p>
+        <canvas id="grafico8" width="600" height="400"></canvas>
+    </div>
+
+    <!-- Exercício 9 -->
+    <div class="exercicio">
+        <h3>Exercício 9: Distribuição Beta</h3>
+        <p>A proporção de sucesso em um experimento segue uma distribuição Beta com parâmetros \( \alpha = 2 \) e \( \beta = 5 \). Qual é a probabilidade dessa proporção ser menor que 0,4?</p>
+        <p>Solução: A probabilidade é aproximadamente 0.5942.</p>
+        <canvas id="grafico9" width="600" height="400"></canvas>
+    </div>
+
+    <!-- Exercício 10 -->
+    <div class="exercicio">
+        <h3>Exercício 10: Distribuição Log-Normal</h3>
+        <p>Os salários em uma empresa seguem uma distribuição log-normal com parâmetros \( \mu = 10 \) e \( \sigma = 0,5 \). Qual é a probabilidade de um funcionário ganhar mais que R\$30.000?</p>
+        <p>Solução: A probabilidade de um salário maior que R\$30.000 é aproximadamente 0.0228.</p>
+        <canvas id="grafico10" width="600" height="400"></canvas>
+    </div>
+
+    <!-- Scripts JavaScript para plotar as distribuições -->
+    <script>
+        // Função para plotar gráficos simples
+        function plotarDistribuicao(idCanvas, dadosX, dadosY, titulo) {
+            const ctx = document.getElementById(idCanvas).getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dadosX,
+                    datasets: [{
+                        label: titulo,
+                        data: dadosY,
+                        borderColor: 'blue',
+                        borderWidth: 2,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'x'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'f(x)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Carregar o Chart.js
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/chart.js';
+        script.onload = function() {
+            // Gráfico 1: Distribuição Binomial
+            (function() {
+                const n = 10;
+                const p = 0.5;
+                const kValores = [...Array(n + 1).keys()];
+                const probabilidades = kValores.map(k => {
+                    return (factorial(n) / (factorial(k) * factorial(n - k))) * Math.pow(p, k) * Math.pow(1 - p, n - k);
+                });
+                plotarDistribuicao('grafico1', kValores, probabilidades, 'Distribuição Binomial');
+            })();
+
+            // Gráfico 2: Distribuição de Poisson
+            (function() {
+                const lambda = 5;
+                const kValores = [...Array(16).keys()];
+                const probabilidades = kValores.map(k => {
+                    return (Math.pow(lambda, k) * Math.exp(-lambda)) / factorial(k);
+                });
+                plotarDistribuicao('grafico2', kValores, probabilidades, 'Distribuição de Poisson');
+            })();
+
+            // Gráfico 3: Distribuição Normal
+            (function() {
+                const mu = 1.7;
+                const sigma = 0.1;
+                const xValores = [];
+                const yValores = [];
+                for (let x = 1.4; x <= 2.0; x += 0.01) {
+                    const y = (1 / (sigma * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * Math.pow((x - mu) / sigma, 2));
+                    xValores.push(x.toFixed(2));
+                    yValores.push(y);
+                }
+                plotarDistribuicao('grafico3', xValores, yValores, 'Distribuição Normal');
+            })();
+
+            // Gráfico 4: Distribuição Exponencial
+            (function() {
+                const lambda = 0.5;
+                const xValores = [];
+                const yValores = [];
+                for (let x = 0; x <= 10; x += 0.1) {
+                    const y = lambda * Math.exp(-lambda * x);
+                    xValores.push(x.toFixed(1));
+                    yValores.push(y);
+                }
+                plotarDistribuicao('grafico4', xValores, yValores, 'Distribuição Exponencial');
+            })();
+
+            // Gráfico 5: Distribuição Uniforme
+            (function() {
+                const a = 0;
+                const b = 1;
+                const xValores = [a, b];
+                const yValores = [1 / (b - a), 1 / (b - a)];
+                plotarDistribuicao('grafico5', xValores, yValores, 'Distribuição Uniforme');
+            })();
+
+            // Gráfico 6: Distribuição Geométrica
+            (function() {
+                const p = 0.2;
+                const kValores = [...Array(10).keys()].map(k => k + 1);
+                const probabilidades = kValores.map(k => {
+                    return Math.pow(1 - p, k - 1) * p;
+                });
+                plotarDistribuicao('grafico6', kValores, probabilidades, 'Distribuição Geométrica');
+            })();
+
+            // Gráfico 7: Distribuição de Weibull
+            (function() {
+                const k = 1.5;
+                const lambda = 500;
+                const xValores = [];
+                const yValores = [];
+                for (let x = 0; x <= 1000; x += 10) {
+                    const y = (k / lambda) * Math.pow(x / lambda, k - 1) * Math.exp(-Math.pow(x / lambda, k));
+                    xValores.push(x);
+                    yValores.push(y);
+                }
+                plotarDistribuicao('grafico7', xValores, yValores, 'Distribuição de Weibull');
+            })();
+
+            // Gráfico 8: Distribuição Hipergeométrica
+            (function() {
+                const N = 15;
+                const K = 10;
+                const n = 4;
+                const kValores = [...Array(n + 1).keys()];
+                const probabilidades = kValores.map(k => {
+                    const numerador = combinacao(K, k) * combinacao(N - K, n - k);
+                    const denominador = combinacao(N, n);
+                    return numerador / denominador;
+                });
+                plotarDistribuicao('grafico8', kValores, probabilidades, 'Distribuição Hipergeométrica');
+            })();
+
+            // Gráfico 9: Distribuição Beta
+            (function() {
+                const alpha = 2;
+                const beta = 5;
+                const B = (gamma(alpha) * gamma(beta)) / gamma(alpha + beta);
+                const xValores = [];
+                const yValores = [];
+                for (let x = 0; x <= 1; x += 0.01) {
+                    const y = (Math.pow(x, alpha - 1) * Math.pow(1 - x, beta - 1)) / B;
+                    xValores.push(x.toFixed(2));
+                    yValores.push(y);
+                }
+                plotarDistribuicao('grafico9', xValores, yValores, 'Distribuição Beta');
+            })();
+
+            // Gráfico 10: Distribuição Log-Normal
+            (function() {
+                const mu = 10;
+                const sigma = 0.5;
+                const xValores = [];
+                const yValores = [];
+                for (let x = 10000; x <= 60000; x += 500) {
+                    const y = (1 / (x * sigma * Math.sqrt(2 * Math.PI))) * Math.exp(-Math.pow(Math.log(x) - mu, 2) / (2 * sigma * sigma));
+                    xValores.push(x);
+                    yValores.push(y);
+                }
+                plotarDistribuicao('grafico10', xValores, yValores, 'Distribuição Log-Normal');
+            })();
+        };
+        document.head.appendChild(script);
+
+        // Funções auxiliares
+        function factorial(n) {
+            return n ? n * factorial(n - 1) : 1;
+        }
+
+        function combinacao(n, k) {
+            return factorial(n) / (factorial(k) * factorial(n - k));
+        }
+
+        function gamma(z) {
+            // Aproximação de Lanczos para a função Gama
+            const g = 7;
+            const p = [
+                0.99999999999980993,
+                676.5203681218851,
+                -1259.1392167224028,
+                771.32342877765313,
+                -176.61502916214059,
+                12.507343278686905,
+                -0.13857109526572012,
+                9.9843695780195716e-6,
+                1.5056327351493116e-7
+            ];
+            if (z < 0.5) {
+                return Math.PI / (Math.sin(Math.PI * z) * gamma(1 - z));
+            } else {
+                z -= 1;
+                let x = p[0];
+                for (let i = 1; i < g + 2; i++) {
+                    x += p[i] / (z + i);
+                }
+                const t = z + g + 0.5;
+                return Math.sqrt(2 * Math.PI) * Math.pow(t, z + 0.5) * Math.exp(-t) * x;
+            }
+        }
+    </script>
+
+</body>
+</html>

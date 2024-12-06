@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Distribuições Probabilísticas: Conceitos, Propriedades e Aplicações</title>
+    <!-- MathJax para renderizar fórmulas matemáticas -->
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <!-- Chart.js para plotagem de distribuições -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Estilo inspirado no Terminator do futuro */
+        body {
+            background-color: #0d0d0d;
+            color: #e0e0e0;
+            font-family: 'Orbitron', sans-serif;
+            margin: 40px;
+            line-height: 1.6;
+        }
+        h1, h2, h3, h4 {
+            color: #00ff99;
+            text-shadow: 0 0 10px #00ff99, 0 0 20px #00ff99, 0 0 30px #00ff99;
+        }
+        a {
+            color: #00ff99;
+        }
+        .chart-container {
+            width: 80%;
+            margin: 20px auto;
+            background-color: rgba(20, 20, 20, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px #00ff99;
+        }
+        pre {
+            background-color: #1a1a1a;
+            padding: 15px;
+            overflow-x: auto;
+            border-left: 5px solid #00ff99;
+            border-radius: 5px;
+        }
+        ul {
+            list-style-type: square;
+            padding-left: 20px;
+        }
+        footer {
+            margin-top: 50px;
+            text-align: center;
+            color: #7f8c8d;
+            border-top: 1px solid #444;
+            padding-top: 20px;
+        }
+        /* Adicionando fontes futuristas */
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+    </style>
+</head>
+<body>
+    <h1>Distribuições Probabilísticas: Conceitos, Propriedades e Aplicações</h1>
+    <p><strong>Autor:</strong> Luiz Tiago Wilcke</p>
+
+    <h2>Resumo</h2>
+    <p>
+        As distribuições probabilísticas desempenham um papel fundamental na teoria das probabilidades e estatísticas, sendo utilizadas para modelar o comportamento de fenômenos incertos. Este artigo apresenta uma revisão abrangente das principais distribuições probabilísticas, suas propriedades, casos de uso e aplicações em problemas práticos. As distribuições mais comuns, como a normal, binomial, Poisson, exponencial e outras, são abordadas de forma detalhada, incluindo suas funções de probabilidade, momentos e o uso em inferência estatística.
+    </p>
+
+    <h2>Introdução</h2>
+    <p>
+        As distribuições probabilísticas são descrições matemáticas de eventos aleatórios, usadas para calcular as probabilidades associadas a diferentes resultados de um experimento. Elas permitem prever a ocorrência de eventos com base na variação observada e esperada. O estudo de distribuições é fundamental para a análise estatística, modelagem preditiva e aprendizado de máquina, sendo aplicáveis em uma ampla gama de áreas, como engenharia, ciências sociais, economia e medicina.
+    </p>
+
+    <h2>Tipos de Distribuições Probabilísticas</h2>
+
+    <h3>Distribuições Discretas</h3>
+
+    <h4>Distribuição Binomial</h4>
+    <p>
+        A distribuição binomial modela o número de sucessos em uma série de <em>n</em> experimentos de Bernoulli, cada um com probabilidade de sucesso <em>p</em>.
+    </p>
+    <p>
+        <strong>Função de Massa de Probabilidade (PMF):</strong>
+        $$ P(X = k) = \binom{n}{k} p^k (1-p)^{n-k} $$
+    </p>
+    <p>
+        <strong>Exemplo Numérico:</strong> Suponha que uma moeda justa (p = 0.5) seja lançada 10 vezes. A probabilidade de obter exatamente 5 caras é:
+    </p>
+    <pre>
+P(X = 5) = C(10,5) * (0.5)^5 * (0.5)^5 = 252 * 0.03125 * 0.03125 ≈ 0.246
+    </pre>
+    <div class="chart-container">
+        <canvas id="binomialChart"></canvas>
+    </div>
+
+    <h4>Distribuição de Poisson</h4>
+    <p>
+        A distribuição de Poisson descreve o número de eventos que ocorrem em um intervalo fixo de tempo ou espaço, com a taxa média de ocorrência <em>λ</em>.
+    </p>
+    <p>
+        <strong>Função de Massa de Probabilidade (PMF):</strong>
+        $$ P(X = k) = \frac{e^{-\lambda} \lambda^k}{k!} $$
+    </p>
+    <p>
+        <strong>Exemplo Numérico:</strong> Se uma central de atendimento recebe, em média, 3 chamadas por hora, a probabilidade de receber exatamente 5 chamadas em uma hora é:
+    </p>
+    <pre>
+P(X = 5) = (e^{-3} * 3^5) / 5! ≈ 0.1008
+    </pre>
+    <div class="chart-container">
+        <canvas id="poissonChart"></canvas>
+    </div>
+
+    <h4>Distribuição Geométrica</h4>
+    <p>
+        A distribuição geométrica modela o número de tentativas até o primeiro sucesso em uma sequência de experimentos de Bernoulli.
+    </p>
+    <p>
+        <strong>Função de Massa de Probabilidade (PMF):</strong>
+        $$ P(X = k) = (1-p)^{k-1} p $$
+    </p>
+    <p>
+        <strong>Exemplo Numérico:</strong> Se a probabilidade de sucesso em cada tentativa é 0.2, a probabilidade de obter o primeiro sucesso na 4ª tentativa é:
+    </p>
+    <pre>
+P(X = 4) = (0.8)^3 * 0.2 = 0.1024
+    </pre>
+    <div class="chart-container">
+        <canvas id="geometricChart"></canvas>
+    </div>
+
+    <h4>Distribuição Bernoulli</h4>
+    <p>
+        A distribuição de Bernoulli é a mais simples das distribuições discretas, modelando um único experimento de Bernoulli com dois resultados possíveis: sucesso (1) ou falha (0).
+    </p>
+    <p>
+        <strong>Função de Massa de Probabilidade (PMF):</strong>
+        $$ P(X = 1) = p $$
+        $$ P(X = 0) = 1 - p $$
+    </p>
+    <p>
+        <strong>Exemplo Numérico:</strong> Em um único lançamento de uma moeda justa (p = 0.5), a probabilidade de obter cara é 0.5.
+    </p>
+    <pre>
+P(X = 1) = 0.5
+P(X = 0) = 1 - 0.5 = 0.5
+    </pre>
+    <div class="chart-container">
+        <canvas id="bernoulliChart"></canvas>
+    </div>
+
+    <h3>Distribuições Contínuas</h3>
+
+    <h4>Distribuição Normal (Gaussiana)</h4>
+    <p>
+        A distribuição normal é uma das mais importantes na estatística, utilizada para descrever variáveis com distribuição simétrica ao redor da média.
+    </p>
+    <p>
+        <strong>Função de Densidade de Probabilidade (PDF):</strong>
+        $$ f(x) = \frac{1}{\sigma \sqrt{2\pi}} e^{ -\frac{(x-\mu)^2}{2\sigma^2} } $$
+    </p>
+    <p>
+        <strong>Exemplo Numérico:</strong> Considerando uma variável com média <em>μ</em> = 0 e desvio padrão <em>σ</em> = 1, a probabilidade de observar um valor entre -1 e 1 é aproximadamente 68%.
+    </p>
+    <div class="chart-container">
+        <canvas id="normalChart"></canvas>
+    </div>
+
+    <h4>Distribuição Exponencial</h4>
+    <p>
+        A distribuição exponencial é utilizada para modelar o tempo entre eventos em um processo de Poisson.
+    </p>
+    <p>
+        <strong>Função de Densidade de Probabilidade (PDF):</strong>
+        $$ f(x) = \lambda e^{-\lambda x}, \quad x \geq 0 $$
+    </p>
+    <p>
+        <strong>Exemplo Numérico:</strong> Se o tempo médio entre falhas de um equipamento é 5 horas (<em>λ</em> = 0.2), a probabilidade de a próxima falha ocorrer nas próximas 3 horas é:
+    </p>
+    <pre>
+P(X ≤ 3) = 1 - e^{-0.2 * 3} ≈ 0.4512
+    </pre>
+    <div class="chart-container">
+        <canvas id="exponentialChart"></canvas>
+    </div>
+
+    <h4>Distribuição t de Student</h4>
+    <p>
+        A distribuição t de Student é usada para estimar médias populacionais quando o tamanho da amostra é pequeno e a variância populacional é desconhecida.
+    </p>
+    <p>
+        <strong>Função de Densidade de Probabilidade (PDF):</strong>
+        $$ f(t) = \frac{\Gamma\left(\frac{\nu+1}{2}\right)}{\sqrt{\nu\pi} \Gamma\left(\frac{\nu}{2}\right)} \left(1 + \frac{t^2}{\nu}\right)^{-\frac{\nu+1}{2}} $$
+        onde <em>ν</em> é o grau de liberdade e <em>Γ</em> é a função gama.
+    </p>
+    <p>
+        <strong>Exemplo Numérico:</strong> Para uma amostra de tamanho 10 (ν = 9), a probabilidade de o valor t ser menor que 2.262 é aproximadamente 0.975.
+    </p>
+    <div class="chart-container">
+        <canvas id="studentTChart"></canvas>
+    </div>
+
+    <h4>Distribuição Uniforme</h4>
+    <p>
+        A distribuição uniforme contínua descreve uma variável aleatória que tem a mesma probabilidade de assumir qualquer valor dentro de um intervalo definido.
+    </p>
+    <p>
+        <strong>Função de Densidade de Probabilidade (PDF):</strong>
+        $$ f(x) = \begin{cases}
+        \frac{1}{b - a} & \text{se } a \leq x \leq b \\
+        0 & \text{caso contrário}
+        \end{cases} $$
+    </p>
+    <p>
+        <strong>Exemplo Numérico:</strong> Se uma variável está uniformemente distribuída entre 0 e 10, a probabilidade de ela assumir um valor entre 3 e 7 é:
+    </p>
+    <pre>
+P(3 ≤ X ≤ 7) = \frac{7 - 3}{10 - 0} = 0.4
+    </pre>
+    <div class="chart-container">
+        <canvas id="uniformChart"></canvas>
+    </div>
+
+    <h4>Distribuição Gamma</h4>
+    <p>
+        A distribuição Gamma é uma distribuição contínua que generaliza a distribuição exponencial. É frequentemente usada para modelar tempos de espera até o <em>k</em>-ésimo evento em um processo de Poisson.
+    </p>
+    <p>
+        <strong>Função de Densidade de Probabilidade (PDF):</strong>
+        $$ f(x) = \frac{\lambda^\alpha x^{\alpha-1} e^{-\lambda x}}{\Gamma(\alpha)}, \quad x > 0 $$
+        onde <em>α</em> é o parâmetro de forma e <em>λ</em> é o parâmetro de taxa.
+    </p>
+    <p>
+        <strong>Exemplo Numérico:</strong> Se <em>α</em> = 2 e <em>λ</em> = 1, a probabilidade de X estar entre 1 e 3 é:
+    </p>
+    <pre>
+P(1 ≤ X ≤ 3) = \int_{1}^{3} \frac{1^2 x^{2-1} e^{-1 * x}}{\Gamma(2)} dx ≈ 0.593
+    </pre>
+    <div class="chart-container">
+        <canvas id="gammaChart"></canvas>
+    </div>
+
+    <h4>Distribuição Chi-Quadrado</h4>
+    <p>
+        A distribuição chi-quadrado é uma distribuição especial da distribuição Gamma, utilizada principalmente em testes de hipóteses e análise de variância.
+    </p>
+    <p>
+        <strong>Função de Densidade de Probabilidade (PDF):</strong>
+        $$ f(x) = \frac{1}{2^{k/2} \Gamma(k/2)} x^{(k/2)-1} e^{-x/2}, \quad x > 0 $$
+        onde <em>k</em> é o grau de liberdade.
+    </p>
+    <p>
+        <strong>Exemplo Numérico:</strong> Para k = 4, a probabilidade de X estar entre 2 e 6 é:
+    </p>
+    <pre>
+P(2 ≤ X ≤ 6) = \int_{2}^{6} \frac{1}{2^{2} \Gamma(2)} x^{1} e^{-x/2} dx ≈ 0.682
+    </pre>
+    <div class="chart-container">
+        <canvas id="chiSquareChart"></canvas>
+    </div>
+
+    <h2>Propriedades das Distribuições</h2>
+    <p>
+        As distribuições probabilísticas possuem características-chave, como:
+    </p>
+    <ul>
+        <li><strong>Função de Densidade de Probabilidade (PDF):</strong> Para distribuições contínuas, descreve a probabilidade de uma variável aleatória assumir um determinado valor.</li>
+        <li><strong>Função de Massa de Probabilidade (PMF):</strong> Para distribuições discretas, representa a probabilidade de a variável aleatória assumir valores específicos.</li>
+        <li><strong>Função Cumulativa de Distribuição (CDF):</strong> Indica a probabilidade acumulada de uma variável aleatória ser menor ou igual a um valor específico.</li>
+        <li><strong>Esperança e Variância:</strong> A esperança é o valor médio esperado de uma distribuição, enquanto a variância mede a dispersão dos valores em torno da média.</li>
+    </ul>
+
+    <h2>Aplicações Práticas</h2>
+
+    <h3>Distribuição Binomial</h3>
+    <p>
+        Utilizada em estudos sobre o número de sucessos em experimentos como testes de produtos, lançamentos de moeda, e sucesso/falha em sistemas binários.
+    </p>
+    <p>
+        <strong>Aplicação:</strong> Determinar a probabilidade de aprovação em um teste com múltiplas questões, onde cada questão tem duas opções de resposta.
+    </p>
+
+    <h3>Distribuição Normal</h3>
+    <p>
+        Amplamente usada na análise de processos industriais, qualidade de produtos, e em hipóteses estatísticas.
+    </p>
+    <p>
+        <strong>Aplicação:</strong> Controlar a qualidade de produção, onde as medidas dos produtos seguem uma distribuição normal.
+    </p>
+
+    <h3>Distribuição Exponencial</h3>
+    <p>
+        Aplicada em confiabilidade de sistemas e análise de vida útil de produtos.
+    </p>
+    <p>
+        <strong>Aplicação:</strong> Estimar o tempo até a falha de componentes eletrônicos.
+    </p>
+
+    <h3>Distribuição de Poisson</h3>
+    <p>
+        Utilizada para modelar a chegada de clientes em uma fila, ou ocorrências de eventos raros, como falhas em um sistema de produção.
+    </p>
+    <p>
+        <strong>Aplicação:</strong> Prever o número de chamadas recebidas por um call center em um determinado período.
+    </p>
+
+    <h3>Distribuição Bernoulli</h3>
+    <p>
+        Utilizada para modelar experimentos de sucesso/falha, como aprovação em um teste, lançamento de moeda, entre outros.
+    </p>
+    <p>
+        <strong>Aplicação:</strong> Determinar a probabilidade de um produto ser aprovado ou rejeitado em um teste de qualidade.
+    </p>
+
+    <h3>Distribuição Uniforme</h3>
+    <p>
+        Utilizada quando todas as ocorrências dentro de um intervalo são igualmente prováveis.
+    </p>
+    <p>
+        <strong>Aplicação:</strong> Simular resultados de sorteios ou gerar números aleatórios dentro de um intervalo específico.
+    </p>
+
+    <h3>Distribuição Gamma</h3>
+    <p>
+        Aplicada em modelagem de tempos de espera e em processos onde a variabilidade é alta.
+    </p>
+    <p>
+        <strong>Aplicação:</strong> Modelar o tempo total até a ocorrência de <em>k</em> eventos em um processo de Poisson.
+    </p>
+
+    <h3>Distribuição Chi-Quadrado</h3>
+    <p>
+        Utilizada em testes de hipóteses, especialmente em testes de independência e adequação.
+    </p>
+    <p>
+        <strong>Aplicação:</strong> Realizar o teste de independência em tabelas de contingência para verificar se duas variáveis são independentes.
+    </p>
+
+    <h2>Distribuições Compostas e Aproximações</h2>
+
+    <h3>Distribuição Normal Padrão</h3>
+    <p>
+        Caso particular da distribuição normal com média zero e variância igual a 1. Muitas distribuições podem ser aproximadas por uma normal conforme o Teorema Central do Limite.
+    </p>
+    <p>
+        <strong>Função de Densidade de Probabilidade (PDF):</strong>
+        $$ f(z) = \frac{1}{\sqrt{2\pi}} e^{-\frac{z^2}{2}} $$
+    </p>
+    <p>
+        <strong>Aplicação:</strong> Facilita cálculos de probabilidades em estatísticas inferenciais.
+    </p>
+    <div class="chart-container">
+        <canvas id="standardNormalChart"></canvas>
+    </div>
+
+    <h3>Distribuição Log-Normal</h3>
+    <p>
+        Modela fenômenos onde os valores são o produto de muitos fatores pequenos, como salários ou crescimento populacional.
+    </p>
+    <p>
+        <strong>Função de Densidade de Probabilidade (PDF):</strong>
+        $$ f(x) = \frac{1}{x \sigma \sqrt{2\pi}} e^{ -\frac{(\ln x - \mu)^2}{2\sigma^2} }, \quad x > 0 $$
+    </p>
+    <p>
+        <strong>Exemplo Numérico:</strong> Se o logaritmo dos salários segue uma distribuição normal com <em>μ</em> = 3 e <em>σ</em> = 0.5, a probabilidade de um salário estar entre \$20,000 e \$50,000 é calculada usando a distribuição log-normal.
+    </p>
+    <div class="chart-container">
+        <canvas id="logNormalChart"></canvas>
+    </div>
+
+    <h3>Distribuição Beta</h3>
+    <p>
+        A distribuição Beta é uma distribuição contínua definida no intervalo [0,1], frequentemente usada em modelagem de probabilidades a priori em estatísticas bayesianas.
+    </p>
+    <p>
+        <strong>Função de Densidade de Probabilidade (PDF):</strong>
+        $$ f(x) = \frac{x^{\alpha-1} (1-x)^{\beta-1}}{B(\alpha, \beta)}, \quad 0 \leq x \leq 1 $$
+        onde <em>α</em> e <em>β</em> são parâmetros de forma e <em>B</em> é a função Beta.
+    </p>
+    <p>
+        <strong>Exemplo Numérico:</strong> Com <em>α</em> = 2 e <em>β</em> = 5, a probabilidade de X estar entre 0.2 e 0.4 é:
+    </p>
+    <pre>
+P(0.2 ≤ X ≤ 0.4) = \int_{0.2}^{0.4} \frac{x^{1} (1-x)^{4}}{B(2,5)} dx ≈ 0.231
+    </pre>
+    <div class="chart-container">
+        <canvas id="betaChart"></canvas>
+    </div>
+
+    <h2>Conclusão</h2>
+    <p>
+        As distribuições probabilísticas fornecem uma estrutura essencial para a modelagem e a análise de dados incertos. Elas permitem uma compreensão mais aprofundada dos fenômenos, facilitando a tomada de decisões em situações incertas. Dominar os conceitos e propriedades das principais distribuições é crucial para profissionais de diversas áreas, incluindo ciência de dados, estatística e engenharia.
+    </p>
+
+    <h2>Referências</h2>
+    <ul>
+        <li>Jaynes, E. T. (2003). <em>Probability Theory: The Logic of Science</em>. Cambridge University Press.</li>
+        <li>Gut, Allan (2005). <em>Probability: A Graduate Course</em>. Springer.</li>
+        <li>Devore, J. L., & Berk, K. N. (2012). <em>Modern Mathematical Statistics with Applications</em>. Springer.</li>
+    </ul>
+
+    <footer>
+        &copy; 2024 Luiz Tiago Wilcke
+    </footer>
+
+    <script>
+        // Função auxiliar para calcular fatorial
+        function factorial(n){
+            if(n === 0 || n ===1){
+                return 1;
+            }
+            return n * factorial(n -1);
+        }
+
+        // Função auxiliar para calcular a função Gamma usando aproximação de Lanczos
+        function gammaFunction(z) {
+            // Aproximação de Lanczos para a função Gamma
+            var p = [
+                0.99999999999980993,
+                676.5203681218851,
+                -1259.1392167224028,
+                771.32342877765313,
+                -176.61502916214059,
+                12.507343278686905,
+                -0.13857109526572012,
+                9.9843695780195716e-6,
+                1.5056327351493116e-7
+            ];
+            var g = 7;
+            if(z < 0.5){
+                return Math.PI / (Math.sin(Math.PI * z) * gammaFunction(1 - z));
+            }
+            z -= 1;
+            var x = p[0];
+            for(var i =1; i < p.length; i++){
+                x += p[i] / (z + i);
+            }
+            var t = z + g + 0.5;
+            return Math.sqrt(2 * Math.PI) * Math.pow(t, z + 0.5) * Math.exp(-t) * x;
+        }
+
+        // Função para calcular a PDF da distribuição t de Student
+        function studentTPDF(t, df){
+            return (gammaFunction((df +1)/2)) / (Math.sqrt(df*Math.PI) * gammaFunction(df/2)) * Math.pow(1 + (Math.pow(t,2)/df), -(df+1)/2);
+        }
+
+        // Função para calcular a PDF da distribuição Beta
+        function betaPDF(x, alpha, beta){
+            return Math.pow(x, alpha -1) * Math.pow(1 - x, beta -1) / gammaFunction(alpha) / gammaFunction(beta) * gammaFunction(alpha + beta);
+        }
+
+        // Binomial Distribution Chart
+        const binomialCtx = document.getElementById('binomialChart').getContext('2d');
+        const binomialData = {
+            labels: Array.from({length: 11}, (_, i) => i),
+            datasets: [{
+                label: 'Distribuição Binomial (n=10, p=0.5)',
+                data: Array.from({length: 11}, (_, k) => {
+                    const n = 10;
+                    const p = 0.5;
+                    const comb = factorial(n) / (factorial(k) * factorial(n - k));
+                    return comb * Math.pow(p, k) * Math.pow(1 - p, n - k);
+                }),
+                backgroundColor: 'rgba(0, 255, 153, 0.6)',
+                borderColor: 'rgba(0, 255, 153, 1)',
+                borderWidth: 1
+            }]
+        };
+        new Chart(binomialCtx, {
+            type: 'bar',
+            data: binomialData,
+            options: {
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#e0e0e0'
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            color: '#e0e0e0'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Número de Sucessos',
+                            color: '#00ff99'
+                        }
+                    },
+                    y: { 
+                        beginAtZero: true,
+                        ticks: {
+                            color: '#e0e0e0'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Probabilidade',
+                            color: '#00ff99'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Poisson Distribution Chart
+        const poissonCtx = document.getElementById('poissonChart').getContext('2d');
+        const poissonLambda = 3;
+        const poissonData = {
+            labels: Array.from({length: 11}, (_, i) => i),
+            datasets: [{
+                label: `Distribuição de Poisson (λ=${poissonLambda})`,
+                data: Array.from({length: 11}, (_, k) => {
+                    return (Math.exp(-poissonLambda) * Math.pow(poissonLambda, k)) / factorial(k);
+                }),
+                backgroundColor: 'rgba(255, 0, 102, 0.6)',
+                borderColor: 'rgba(255,0,102,1)',
+                borderWidth: 1
+            }]
+        };
+        new Chart(poissonCtx, {
+            type: 'bar',
+            data: poissonData,
+            options: {
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#e0e0e0'
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            color: '#e0e0e0'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Número de Eventos',
+                            color: '#00ff99'
+                        }
+                    },
+                    y: { 
+                        beginAtZero: true,
+                        ticks: {
+                            color: '#e0e0e0'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Probabilidade',
+                            color: '#00ff99'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Geometric Distribution Chart
+        const geometricCtx = document.getElementById('geometricChart').getContext('2d');
+        const geometricP = 0.2;
+        const geometricData = {
+            labels: Array.from({length: 10}, (_, i) => i + 1),
+            datasets: [{
+                label: `Distribuição Geométrica (p=${geometricP})`,
+                data: Array.from({length: 10}, (_, k) => {
+                    return Math.pow(1 - geometricP, k) * geometricP;
+                }),
+                backgroundColor: 'rgba(255, 255, 51, 0.6)',
+                borderColor: 'rgba(255, 255, 51, 1)',
+                borderWidth: 1
+            }]
+        };
+        new Chart(geometricCtx, {
+            type: 'bar',
+            data: geometricData,
+            options: {
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#e0e0e0'
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            color: '#e0e0e0'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Número de Tentativas',
+                            color: '#00ff99'
+                        }
+                    },
+                    y: { 
+                        beginAtZero: true,
+                        ticks: {
+                            color: '#e0e0e0'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Probabilidade',
+                            color: '#00ff99'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Bernoulli Distribution Chart
+        const bernoulliCtx = document.getElementById('bernoulliChart').getContext('2d');
+        const bernoulliP = 0.5;
+        const bernoulliData = {
+            labels: ['0', '1'],
+            datasets: [{
+                label: `Distribuição Bernoulli (p=${bernoulliP})`,
+                data: [1 - bernoulliP, bernoulliP],
+                backgroundColor: ['rgba(255, 153, 51, 0.6)', 'rgba(0, 255, 153, 0.6)'],
+                borderColor: ['rgba(255, 153, 51, 1)', 'rgba(0, 255, 153, 1)'],
+                borderWidth: 1
+            }]
+        };
+        new Chart(bernoulliCtx, {
+            type: 'bar',
+            data: bernoulliData,
+            options: {
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#e0e0e0'
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            color: '#e0e0e0'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Resultado',
+                            color: '#00ff99'
+                        }
+                    },
+                    y: { 
+                        beginAtZero: true,
+                        max: 1,
+                        ticks: {
+                            color: '#e0e0e0'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Probabilidade',
+                            color: '#00ff99'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Uniform Distribution Chart
+        const uniformCtx = document.getElementById('uniformChart').getContext('2d');
+        const uniformA = 0;
+        const uniformB = 10;
+        const uniformLabels = Array.from({length: 11}, (_, i) => uniformA + i);
+        const uniformData = {
+            labels: uniformLabels,
+            datasets: [{
+                label: `Distribuição Uniforme (${uniformA} ≤ X ≤ ${uniformB})`,
+                data: uniformLabels.map(x => 1 / (uniformB - uniformA)),
+                backgroundColor: 'rgba(0, 102, 204, 0.6)',
+                borderColor: 'rgba(0, 102, 204, 1)',
+                borderWidth: 1
+            }]
+        };
+        new Chart(uniformCtx, {
+            type: 'bar',
+            data: uniformData,
+            options: {
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#e0e0e0'
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            color: '#e0e0e0'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Intervalo',
+                            color: '#00ff99'
+                        }
+                    },
+                    y: { 
+                        beginAtZero: true,
+                        max: 0.2,
+                        ticks: {
+                            color: '#e0e0e0'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Densidade',
+                            color: '#00ff99'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Gamma Distribution Chart
+        const gammaCtx = document.getElementById('gammaChart').getContext('2d');
+        const gammaAlpha = 2;
+        const gammaLambda = 1;
+        const gammaLabels = [];
+        const gammaValues = [];
+        for(let x = 0.1; x <= 10; x += 0.1){
+            gammaLabels.push(x.toFixed(1));
+            gammaValues.push((Math.pow(gammaLambda, gammaAlpha) * Math.pow(x, gammaAlpha -1) * Math.exp(-gammaLambda * x)) / gammaFunction(gammaAlpha));
+        }
+        const gammaData = {
+            labels: gammaLabels,
+            datasets: [{
+                label: `Distribuição Gamma (α=${gammaAlpha}, λ=${gammaLambda})`,
+                data: gammaValues,
+                fill: false,
+                borderColor: 'rgba(255, 102, 255, 1)',
+                backgroundColor: 'rgba(255, 102, 255, 0.6)',
+                tension: 0.1
+            }]
+        };
+        new Chart(gammaCtx, {
+            type: 'line',
+            data: gammaData,
+            options: {
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#e0e0e0'
+                        }
+                    }
+                },
+                scales: {
+                    x: { 
+                        title: { display: true, text: 'x', color: '#00ff99' },
+                        ticks: {
+                            color: '#e0e0e0'
+                        }
+                    },
+                    y: { 
+                        title: { display: true, text: 'f(x)', color: '#00ff99' },
+                        ticks: {
+                            color: '#e0e0e0'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Chi-Square Distribution Chart
+        const chiSquareCtx = document.getElementById('chiSquareChart').getContext('2d');
+        const chiSquareDf = 4;
+        const chiSquareLabels = [];
+        const chiSquareValues = [];
+        for(let x = 0.1; x <= 15; x += 0.1){
+            chiSquareLabels.push(x.toFixed(1));
+            chiSquareValues.push((Math.pow(0.5, chiSquareDf / 2) * Math.pow(x, (chiSquareDf / 2) -1) * Math.exp(-x / 2)) / gammaFunction(chiSquareDf / 2));
+        }
+        const chiSquareData = {
+            labels: chiSquareLabels,
+            datasets: [{
+                label: `Distribuição Chi-Quadrado (df=${chiSquareDf})`,
+                data: chiSquareValues,
+                fill: false,
+                borderColor: 'rgba(255, 153, 51, 1)',
+                backgroundColor: 'rgba(255, 153, 51, 0.6)',
+                tension: 0.1
+            }]
+        };
+        new Chart(chiSquareCtx, {
+            type: 'line',
+            data: chiSquareData,
+            options: {
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#e0e0e0'
+                        }
+                    }
+                },
+                scales: {
+                    x: { 
+                        title: { display: true, text: 'x', color: '#00ff99' },
+                        ticks: {
+                            color: '#e0e0e0'
+                        }
+                    },
+                    y: { 
+                        title: { display: true, text: 'f(x)', color: '#00ff99' },
+                        ticks: {
+                            color: '#e0e0e0'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Normal Distribution Chart
+        const normalCtx = document.getElementById('normalChart').getContext('2d');
+        const normalMu = 0;
+        const normalSigma = 1;
+        const normalLabels = [];
+        const normalValues = [];
+        for(let x = normalMu - 4*normalSigma; x <= normalMu + 4*normalSigma; x += 0.1){
+            normalLabels.push(x.toFixed(1));
+            normalValues.push((1/(normalSigma * Math.sqrt(2 * Math.PI))) * Math.exp(-Math.pow(x - normalMu, 2)/(2 * Math.pow(normalSigma,2))));
+        }
+        const normalData = {
+            labels: normalLabels,
+            datasets: [{
+                label: 'Distribuição Normal (μ=0, σ=1)',
+                data: normalValues,
+                fill: false,
+                borderColor: 'rgba(0, 255, 153, 1)',
+                backgroundColor: 'rgba(0, 255, 153, 0.6)',
+                tension: 0.1
+            }]
+        };
+        new Chart(normalCtx, {
+            type: 'line',
+            data: normalData,
+            options: {
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#e0e0e0'
+                        }
+                    }
+                },
+                scales: {
+                    x: { 
+                        title: { display: true, text: 'x', color: '#00ff99' },
+                        ticks: {
+                            color: '#e0e0e0'
+                        }
+                    },
+                    y: { 
+                        title: { display: true, text: 'f(x)', color: '#00ff99' },
+                        ticks: {
+                            color: '#e0e0e0'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Exponential Distribution Chart
+        const exponentialCtx = document.getElementById('exponentialChart').getContext('2d');
+        const exponentialLambda = 0.2;
+        const exponentialLabels = [];
+        const exponentialValues = [];
+        for(let x = 0; x <= 20; x += 0.1){
+            exponentialLabels.push(x.toFixed(1));
+            exponentialValues.push(exponentialLambda * Math.exp(-exponentialLambda * x));
+        }
+        const exponentialData = {
+            labels: exponentialLabels,
+            datasets: [{
+                label: `Distribuição Exponencial (λ=${exponentialLambda})`,
+                data: exponentialValues,
+                fill: false,
+                borderColor: 'rgba(0, 102, 204, 1)',
+                backgroundColor: 'rgba(0, 102, 204, 0.6)',
+                tension: 0.1
+            }]
+        };
+        new Chart(exponentialCtx, {
+            type: 'line',
+            data: exponentialData,
+            options: {
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#e0e0e0'
+                        }
+                    }
+                },
+                scales: {
+                    x: { 
+                        title: { display: true, text: 'x', color: '#00ff99' },
+                        ticks: {
+                            color: '#e0e0e0'
+                        }
+                    },
+                    y: { 
+                        title: { display: true, text: 'f(x)', color: '#00ff99' },
+                        ticks: {
+                            color: '#e0e0e0'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Student's t-Distribution Chart
+        const studentTCtx = document.getElementById('studentTChart').getContext('2d');
+        const degreesOfFreedom = 9;
+        const studentTLabels = [];
+        const studentTValues = [];
+        for(let t = -4; t <= 4; t += 0.1){
+            studentTLabels.push(t.toFixed(1));
+            studentTValues.push(studentTPDF(t, degreesOfFreedom));
+        }
+        const studentTData = {
+            labels: studentTLabels,
+            datasets: [{
+                label: `Distribuição t de Student (ν=${degreesOfFreedom})`,
+                data: studentTValues,
+                fill: false,
+                borderColor: 'rgba(255, 165, 0, 1)',
+                backgroundColor: 'rgba(255, 165, 0, 0.6)',
+                tension: 0.1
+            }]
+        };
+        new Chart(studentTCtx, {
+            type: 'line',
+            data: studentTData,
+            options: {
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#e0e0e0'
+                        }
+                    }
+                },
+                scales: {
+                    x: { 
+                        title: { display: true, text: 't', color: '#00ff99' },
+                        ticks: {
+                            color: '#e0e0e0'
+                        }
+                    },
+                    y: { 
+                        title: { display: true, text: 'f(t)', color: '#00ff99' },
+                        ticks: {
+                            color: '#e0e0e0'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Standard Normal Distribution Chart
+        const standardNormalCtx = document.getElementById('standardNormalChart').getContext('2d');
+        const standardNormalLabels = [];
+        const standardNormalValues = [];
+        for(let z = -4; z <= 4; z += 0.1){
+            standardNormalLabels.push(z.toFixed(1));
+            standardNormalValues.push((1 / Math.sqrt(2 * Math.PI)) * Math.exp(-Math.pow(z,2)/2));
+        }
+        const standardNormalData = {
+            labels: standardNormalLabels,
+            datasets: [{
+                label: 'Distribuição Normal Padrão',
+                data: standardNormalValues,
+                fill: false,
+                borderColor: 'rgba(0, 255, 255, 1)',
+                backgroundColor: 'rgba(0, 255, 255, 0.6)',
+                tension: 0.1
+            }]
+        };
+        new Chart(standardNormalCtx, {
+            type: 'line',
+            data: standardNormalData,
+            options: {
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#e0e0e0'
+                        }
+                    }
+                },
+                scales: {
+                    x: { 
+                        title: { display: true, text: 'z', color: '#00ff99' },
+                        ticks: {
+                            color: '#e0e0e0'
+                        }
+                    },
+                    y: { 
+                        title: { display: true, text: 'f(z)', color: '#00ff99' },
+                        ticks: {
+                            color: '#e0e0e0'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Log-Normal Distribution Chart
+        const logNormalCtx = document.getElementById('logNormalChart').getContext('2d');
+        const logNormalMu = 3;
+        const logNormalSigma = 0.5;
+        const logNormalLabels = [];
+        const logNormalValues = [];
+        for(let x = 0.1; x <= 1000; x += 10){
+            logNormalLabels.push(x);
+            logNormalValues.push((1 / (x * logNormalSigma * Math.sqrt(2 * Math.PI))) * Math.exp(-Math.pow(Math.log(x) - logNormalMu, 2)/(2 * Math.pow(logNormalSigma,2))));
+        }
+        const logNormalData = {
+            labels: logNormalLabels,
+            datasets: [{
+                label: `Distribuição Log-Normal (μ=${logNormalMu}, σ=${logNormalSigma})`,
+                data: logNormalValues,
+                fill: false,
+                borderColor: 'rgba(255, 0, 255, 1)',
+                backgroundColor: 'rgba(255, 0, 255, 0.6)',
+                tension: 0.1
+            }]
+        };
+        new Chart(logNormalCtx, {
+            type: 'line',
+            data: logNormalData,
+            options: {
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#e0e0e0'
+                        }
+                    }
+                },
+                scales: {
+                    x: { 
+                        type: 'linear',
+                        title: { display: true, text: 'x', color: '#00ff99' },
+                        ticks: {
+                            color: '#e0e0e0'
+                        },
+                        beginAtZero: true
+                    },
+                    y: { 
+                        title: { display: true, text: 'f(x)', color: '#00ff99' },
+                        ticks: {
+                            color: '#e0e0e0'
+                        }
+                    }
+                }
+            }
+        };
+
+        // Beta Distribution Chart
+        const betaCtx = document.getElementById('betaChart').getContext('2d');
+        const betaAlpha = 2;
+        const betaBeta = 5;
+        const betaLabels = [];
+        const betaValues = [];
+        for(let x = 0; x <= 1; x += 0.01){
+            betaLabels.push(x.toFixed(2));
+            betaValues.push(betaPDF(x, betaAlpha, betaBeta));
+        }
+        const betaData = {
+            labels: betaLabels,
+            datasets: [{
+                label: `Distribuição Beta (α=${betaAlpha}, β=${betaBeta})`,
+                data: betaValues,
+                fill: false,
+                borderColor: 'rgba(0, 255, 51, 1)',
+                backgroundColor: 'rgba(0, 255, 51, 0.6)',
+                tension: 0.1
+            }]
+        };
+        new Chart(betaCtx, {
+            type: 'line',
+            data: betaData,
+            options: {
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#e0e0e0'
+                        }
+                    }
+                },
+                scales: {
+                    x: { 
+                        title: { display: true, text: 'x', color: '#00ff99' },
+                        ticks: {
+                            color: '#e0e0e0'
+                        },
+                        min: 0,
+                        max: 1
+                    },
+                    y: { 
+                        title: { display: true, text: 'f(x)', color: '#00ff99' },
+                        ticks: {
+                            color: '#e0e0e0'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

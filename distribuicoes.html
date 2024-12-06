@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Distribuições Probabilísticas</title>
+    <!-- Incluir MathJax para renderização de fórmulas -->
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <!-- Incluir Chart.js para plotagens -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .distribution {
+            margin-bottom: 50px;
+        }
+        canvas {
+            max-width: 600px;
+            margin-top: 20px;
+        }
+        .exercise {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-left: 4px solid #007BFF;
+            margin-top: 20px;
+        }
+        .solution {
+            background-color: #e9ffe9;
+            padding: 15px;
+            border-left: 4px solid #28a745;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Distribuições Probabilísticas</h1>
+    <p><strong>Autor:</strong> Luiz Tiago Wilcke</p>
+
+    <h2>Axiomas Básicos da Probabilidade</h2>
+    <ol>
+        <li>Para qualquer evento \( A \), a probabilidade de \( A \) é não-negativa: \( P(A) \geq 0 \).</li>
+        <li>A probabilidade do espaço amostral \( S \) é 1: \( P(S) = 1 \).</li>
+        <li>Para qualquer sequência de eventos mutuamente exclusivos \( A_1, A_2, A_3, \ldots \), a probabilidade da união desses eventos é igual à soma das probabilidades individuais: 
+            \[
+            P\left(\bigcup_{i=1}^{\infty} A_i\right) = \sum_{i=1}^{\infty} P(A_i)
+            \]
+        </li>
+    </ol>
+
+    <h2>Distribuições Discretas</h2>
+
+    <div class="distribution" id="binomial">
+        <h3>Distribuição Binomial</h3>
+        <p>A distribuição binomial modela o número de sucessos em uma sequência de \( n \) ensaios independentes de Bernoulli, cada um com probabilidade de sucesso \( p \).</p>
+        <p>Função de probabilidade:
+            \[
+            P(X = k) = \binom{n}{k} p^k (1 - p)^{n - k}, \quad k = 0, 1, 2, \ldots, n
+            \]
+        </p>
+        <canvas id="binomialChart"></canvas>
+        <div class="exercise">
+            <strong>Exercício:</strong> Em uma moeda justa (\( p = 0.5 \)), qual é a probabilidade de obter exatamente 3 caras em 5 lançamentos?
+        </div>
+        <div class="solution">
+            <strong>Solução:</strong>
+            Aplicando a fórmula binomial:
+            \[
+            P(X = 3) = \binom{5}{3} (0.5)^3 (1 - 0.5)^{5 - 3} = 10 \times 0.125 \times 0.25 = 0.3125
+            \]
+            Portanto, a probabilidade é de 31,25%.
+        </div>
+    </div>
+
+    <div class="distribution" id="poisson">
+        <h3>Distribuição de Poisson</h3>
+        <p>A distribuição de Poisson modela o número de eventos que ocorrem em um intervalo de tempo fixo ou espaço, com taxa média \( \lambda \).</p>
+        <p>Função de probabilidade:
+            \[
+            P(X = k) = \frac{\lambda^k e^{-\lambda}}{k!}, \quad k = 0, 1, 2, \ldots
+            \]
+        </p>
+        <canvas id="poissonChart"></canvas>
+        <div class="exercise">
+            <strong>Exercício:</strong> Uma central de atendimento recebe, em média, 4 chamadas por hora. Qual a probabilidade de receber exatamente 2 chamadas em uma hora?
+        </div>
+        <div class="solution">
+            <strong>Solução:</strong>
+            Aplicando a fórmula de Poisson:
+            \[
+            P(X = 2) = \frac{4^2 e^{-4}}{2!} = \frac{16 \times 0.0183}{2} \approx 0.1465
+            \]
+            Portanto, a probabilidade é de aproximadamente 14,65%.
+        </div>
+    </div>
+
+    <div class="distribution" id="geometric">
+        <h3>Distribuição Geométrica</h3>
+        <p>A distribuição geométrica modela o número de ensaios necessários para obter o primeiro sucesso em uma sequência de ensaios de Bernoulli independentes, cada um com probabilidade de sucesso \( p \).</p>
+        <p>Função de probabilidade:
+            \[
+            P(X = k) = (1 - p)^{k-1} p, \quad k = 1, 2, 3, \ldots
+            \]
+        </p>
+        <canvas id="geometricChart"></canvas>
+        <div class="exercise">
+            <strong>Exercício:</strong> Qual é a probabilidade de que o primeiro sucesso ocorra exatamente no terceiro ensaio, se a probabilidade de sucesso em cada ensaio é \( p = 0.3 \)?
+        </div>
+        <div class="solution">
+            <strong>Solução:</strong>
+            Aplicando a fórmula geométrica:
+            \[
+            P(X = 3) = (1 - 0.3)^{3-1} \times 0.3 = (0.7)^2 \times 0.3 = 0.49 \times 0.3 = 0.147
+            \]
+            Portanto, a probabilidade é de 14,7%.
+        </div>
+    </div>
+
+    <div class="distribution" id="hypergeometric">
+        <h3>Distribuição Hipergeométrica</h3>
+        <p>A distribuição hipergeométrica modela a probabilidade de obter \( k \) sucessos em \( n \) extrações sem reposição de uma população finita que contém exatamente \( K \) sucessos.</p>
+        <p>Função de probabilidade:
+            \[
+            P(X = k) = \frac{\binom{K}{k} \binom{N - K}{n - k}}{\binom{N}{n}}, \quad \max(0, n - (N - K)) \leq k \leq \min(n, K)
+            \]
+        </p>
+        <canvas id="hypergeometricChart"></canvas>
+        <div class="exercise">
+            <strong>Exercício:</strong> Em uma urna com 10 bolas vermelhas e 20 bolas azuis, qual é a probabilidade de, ao retirar 5 bolas sem reposição, exatamente 2 sejam vermelhas?
+        </div>
+        <div class="solution">
+            <strong>Solução:</strong>
+            Aplicando a fórmula hipergeométrica:
+            \[
+            P(X = 2) = \frac{\binom{10}{2} \binom{20}{3}}{\binom{30}{5}} = \frac{45 \times 1140}{142506} \approx 0.359
+            \]
+            Portanto, a probabilidade é de aproximadamente 35,9%.
+        </div>
+    </div>
+
+    <div class="distribution" id="uniform">
+        <h3>Distribuição Uniforme Discreta</h3>
+        <p>A distribuição uniforme discreta atribui a mesma probabilidade a cada um dos \( n \) resultados possíveis.</p>
+        <p>Função de probabilidade:
+            \[
+            P(X = k) = \frac{1}{n}, \quad k = 1, 2, \ldots, n
+            \]
+        </p>
+        <canvas id="uniformDiscreteChart"></canvas>
+        <div class="exercise">
+            <strong>Exercício:</strong> Um dado justo de 6 faces é lançado. Qual é a probabilidade de obter um número maior que 4?
+        </div>
+        <div class="solution">
+            <strong>Solução:</strong>
+            Existem 2 resultados favoráveis (5 e 6) em um total de 6 possíveis.
+            \[
+            P(X > 4) = \frac{2}{6} = \frac{1}{3} \approx 0.333
+            \]
+            Portanto, a probabilidade é de aproximadamente 33,3%.
+        </div>
+    </div>
+
+    <div class="distribution" id="negativeBinomial">
+        <h3>Distribuição Binomial Negativa</h3>
+        <p>A distribuição binomial negativa generaliza a distribuição geométrica, modelando o número de ensaios necessários para obter um número fixo de sucessos \( r \).</p>
+        <p>Função de probabilidade:
+            \[
+            P(X = k) = \binom{k-1}{r-1} p^r (1 - p)^{k - r}, \quad k = r, r+1, r+2, \ldots
+            \]
+        </p>
+        <canvas id="negativeBinomialChart"></canvas>
+        <div class="exercise">
+            <strong>Exercício:</strong> Qual é a probabilidade de que o terceiro sucesso ocorra exatamente no quinto ensaio, com \( p = 0.4 \)?
+        </div>
+        <div class="solution">
+            <strong>Solução:</strong>
+            Aplicando a fórmula binomial negativa:
+            \[
+            P(X = 5) = \binom{5-1}{3-1} (0.4)^3 (0.6)^{5 - 3} = \binom{4}{2} \times 0.064 \times 0.36 = 6 \times 0.064 \times 0.36 \approx 0.138
+            \]
+            Portanto, a probabilidade é de aproximadamente 13,8%.
+        </div>
+    </div>
+
+    <div class="distribution" id="gamma">
+        <h3>Distribuição Gamma</h3>
+        <p>A distribuição Gamma é uma distribuição contínua que generaliza a distribuição exponencial, parametrizada por uma forma \( \alpha \) e uma taxa \( \beta \).</p>
+        <p>Função de densidade:
+            \[
+            f(x) = \frac{\beta^\alpha}{\Gamma(\alpha)} x^{\alpha - 1} e^{-\beta x}, \quad x \geq 0
+            \]
+        </p>
+        <canvas id="gammaChart"></canvas>
+        <div class="exercise">
+            <strong>Exercício:</strong> Se o tempo para completar uma tarefa segue uma distribuição Gamma com \( \alpha = 2 \) e \( \beta = 1 \), qual é a densidade em \( x = 3 \)?
+        </div>
+        <div class="solution">
+            <strong>Solução:</strong>
+            Primeiro, calculamos \( \Gamma(2) = 1! = 1 \).
+            \[
+            f(3) = \frac{1^2}{1} \times 3^{2 - 1} \times e^{-1 \times 3} = 3 \times e^{-3} \approx 3 \times 0.0498 = 0.1494
+            \]
+            Portanto, a densidade em \( x = 3 \) é aproximadamente 0,1494.
+        </div>
+    </div>
+
+    <div class="distribution" id="beta">
+        <h3>Distribuição Beta</h3>
+        <p>A distribuição Beta é uma distribuição contínua definida no intervalo \([0, 1]\), parametrizada por dois parâmetros \( \alpha \) e \( \beta \).</p>
+        <p>Função de densidade:
+            \[
+            f(x) = \frac{x^{\alpha - 1} (1 - x)^{\beta - 1}}{B(\alpha, \beta)}, \quad 0 \leq x \leq 1
+            \]
+        </p>
+        <canvas id="betaChart"></canvas>
+        <div class="exercise">
+            <strong>Exercício:</strong> Qual é a densidade da distribuição Beta com \( \alpha = 2 \) e \( \beta = 3 \) em \( x = 0.5 \)?
+        </div>
+        <div class="solution">
+            <strong>Solução:</strong>
+            Primeiro, calculamos a função Beta \( B(2, 3) = \frac{\Gamma(2) \Gamma(3)}{\Gamma(5)} = \frac{1 \times 2}{24} = \frac{2}{24} = \frac{1}{12} \).
+            \[
+            f(0.5) = \frac{0.5^{2 - 1} \times (1 - 0.5)^{3 - 1}}{\frac{1}{12}} = \frac{0.5 \times 0.25}{\frac{1}{12}} = \frac{0.125}{\frac{1}{12}} = 1.5
+            \]
+            Portanto, a densidade em \( x = 0.5 \) é 1,5.
+        </div>
+    </div>
+
+    <div class="distribution" id="bernoulli">
+        <h3>Distribuição de Bernoulli</h3>
+        <p>A distribuição de Bernoulli é a distribuição mais simples, modelando um único ensaio de Bernoulli com dois resultados possíveis: sucesso (1) ou fracasso (0).</p>
+        <p>Função de probabilidade:
+            \[
+            P(X = 1) = p, \quad P(X = 0) = 1 - p
+            \]
+        </p>
+        <canvas id="bernoulliChart"></canvas>
+        <div class="exercise">
+            <strong>Exercício:</strong> Se a probabilidade de sucesso em um ensaio é \( p = 0.7 \), qual é a probabilidade de obter sucesso?
+        </div>
+        <div class="solution">
+            <strong>Solução:</strong>
+            \[
+            P(X = 1) = p = 0.7
+            \]
+            Portanto, a probabilidade de obter sucesso é de 70%.
+        </div>
+    </div>
+
+    <div class="distribution" id="multinomial">
+        <h3>Distribuição Multinomial</h3>
+        <p>A distribuição multinomial generaliza a distribuição binomial para mais de duas categorias de resultados em cada ensaio.</p>
+        <p>Função de probabilidade:
+            \[
+            P(X_1 = k_1, \ldots, X_m = k_m) = \frac{n!}{k_1! \cdots k_m!} p_1^{k_1} \cdots p_m^{k_m}, \quad \sum_{i=1}^m k_i = n
+            \]
+        </p>
+        <canvas id="multinomialChart"></canvas>
+        <div class="exercise">
+            <strong>Exercício:</strong> Em um lançamento de um dado justo de 6 faces lançado 10 vezes, qual é a probabilidade de obter exatamente 2 de cada face?
+        </div>
+        <div class="solution">
+            <strong>Solução:</strong>
+            Aplicando a fórmula multinomial:
+            \[
+            P(X_1 = 2, X_2 = 2, \ldots, X_6 = 2) = \frac{10!}{(2!)^6} \left(\frac{1}{6}\right)^{10} \approx \frac{3628800}{64} \times 1.6538 \times 10^{-8} \approx 0.000938
+            \]
+            Portanto, a probabilidade é de aproximadamente 0,0938%.
+        </div>
+    </div>
+
+    <div class="distribution" id="pareto">
+        <h3>Distribuição de Pareto</h3>
+        <p>A distribuição de Pareto é uma distribuição contínua usada para modelar fenômenos com uma grande variação de valores, frequentemente utilizada em economia e ciências sociais.</p>
+        <p>Função de densidade:
+            \[
+            f(x) = \frac{\alpha x_m^\alpha}{x^{\alpha + 1}}, \quad x \geq x_m
+            \]
+        </p>
+        <canvas id="paretoChart"></canvas>
+        <div class="exercise">
+            <strong>Exercício:</strong> Suponha que a renda de uma população siga uma distribuição de Pareto com \( \alpha = 3 \) e \( x_m = 20.000 \). Qual é a densidade em \( x = 30.000 \)?
+        </div>
+        <div class="solution">
+            <strong>Solução:</strong>
+            \[
+            f(30000) = \frac{3 \times 20000^3}{30000^{4}} = \frac{3 \times 8 \times 10^{12}}{8.1 \times 10^{16}} = \frac{24 \times 10^{12}}{8.1 \times 10^{16}} \approx 2.96 \times 10^{-4}
+            \]
+            Portanto, a densidade em \( x = 30.000 \) é aproximadamente \( 0,000296 \).
+        </div>
+    </div>
+
+    <div class="distribution" id="student_t">
+        <h3>Distribuição t de Student</h3>
+        <p>A distribuição t de Student é uma distribuição contínua usada principalmente em inferência estatística para estimar a média de uma população quando o tamanho da amostra é pequeno e a variância populacional é desconhecida.</p>
+        <p>Função de densidade:
+            \[
+            f(t) = \frac{\Gamma\left(\frac{\nu + 1}{2}\right)}{\sqrt{\nu \pi} \Gamma\left(\frac{\nu}{2}\right)} \left(1 + \frac{t^2}{\nu}\right)^{-\frac{\nu + 1}{2}}, \quad -\infty < t < \infty
+            \]
+        \]
+        </p>
+        <canvas id="studentTChart"></canvas>
+        <div class="exercise">
+            <strong>Exercício:</strong> Para \( \nu = 10 \) graus de liberdade, qual é a densidade em \( t = 1.5 \)?
+        </div>
+        <div class="solution">
+            <strong>Solução:</strong>
+            Utilizando a fórmula da distribuição t de Student:
+            \[
+            f(1.5) = \frac{\Gamma(5.5)}{\sqrt{10 \pi} \Gamma(5)} \left(1 + \frac{(1.5)^2}{10}\right)^{-5.5/2}
+            \]
+            Calculando os valores:
+            \[
+            \Gamma(5) = 24, \quad \Gamma(5.5) \approx 52.3428
+            \]
+            \[
+            f(1.5) \approx \frac{52.3428}{\sqrt{31.4159} \times 24} \left(1 + \frac{2.25}{10}\right)^{-2.75} \approx \frac{52.3428}{5.604 \times 24} \times 0.7071 \approx 0.311
+            \]
+            Portanto, a densidade em \( t = 1.5 \) é aproximadamente 0,311.
+        </div>
+    </div>
+
+    <div class="distribution" id="chi_square">
+        <h3>Distribuição Qui-Quadrado</h3>
+        <p>A distribuição qui-quadrado é uma distribuição contínua amplamente utilizada em testes de hipóteses, especialmente para testar a independência em tabelas de contingência e a aderência de dados a uma distribuição teórica.</p>
+        <p>Função de densidade:
+            \[
+            f(x) = \frac{1}{2^{\frac{k}{2}} \Gamma\left(\frac{k}{2}\right)} x^{\frac{k}{2} - 1} e^{-\frac{x}{2}}, \quad x \geq 0
+            \]
+        \]
+        </p>
+        <canvas id="chiSquareChart"></canvas>
+        <div class="exercise">
+            <strong>Exercício:</strong> Qual é a densidade da distribuição qui-quadrado com \( k = 4 \) graus de liberdade em \( x = 3 \)?
+        </div>
+        <div class="solution">
+            <strong>Solução:</strong>
+            Primeiro, calculamos \( \Gamma(2) = 1! = 1 \).
+            \[
+            f(3) = \frac{1}{2^2 \times 1} \times 3^{2 - 1} \times e^{-3/2} = \frac{1}{4} \times 3 \times e^{-1.5} \approx 0.25 \times 3 \times 0.2231 \approx 0.1673
+            \]
+            Portanto, a densidade em \( x = 3 \) é aproximadamente 0,1673.
+        </div>
+    </div>
+
+    <div class="distribution" id="f_distribution">
+        <h3>Distribuição F</h3>
+        <p>A distribuição F é uma distribuição contínua utilizada principalmente em análise de variância (ANOVA) e na comparação de duas variâncias amostrais.</p>
+        <p>Função de densidade:
+            \[
+            f(x) = \frac{\left(\frac{d_1}{d_2}\right)^{\frac{d_1}{2}} x^{\frac{d_1}{2} - 1}}{B\left(\frac{d_1}{2}, \frac{d_2}{2}\right)} \left(1 + \frac{d_1}{d_2} x\right)^{-\frac{d_1 + d_2}{2}}, \quad x \geq 0
+            \]
+        \]
+        </p>
+        <canvas id="fDistributionChart"></canvas>
+        <div class="exercise">
+            <strong>Exercício:</strong> Para \( d_1 = 5 \) e \( d_2 = 10 \), qual é a densidade da distribuição F em \( x = 2 \)?
+        </div>
+        <div class="solution">
+            <strong>Solução:</strong>
+            Primeiro, calculamos a função Beta:
+            \[
+            B\left(\frac{5}{2}, \frac{10}{2}\right) = B(2.5, 5) \approx 0.0095238
+            \]
+            \[
+            f(2) = \frac{\left(\frac{5}{10}\right)^{2.5} \times 2^{2.5 - 1}}{0.0095238} \times \left(1 + \frac{5}{10} \times 2\right)^{-\frac{5 + 10}{2}}
+            \]
+            Calculando cada termo:
+            \[
+            \left(\frac{5}{10}\right)^{2.5} = 0.5^{2.5} \approx 0.1768
+            \]
+            \[
+            2^{1.5} \approx 2.8284
+            \]
+            \[
+            \left(1 + 1\right)^{-7.5} = 2^{-7.5} \approx 0.0055
+            \]
+            \[
+            f(2) \approx \frac{0.1768 \times 2.8284}{0.0095238} \times 0.0055 \approx \frac{0.5000}{0.0095238} \times 0.0055 \approx 26.32 \times 0.0055 \approx 0.1443
+            \]
+            Portanto, a densidade em \( x = 2 \) é aproximadamente 0,1443.
+        </div>
+    </div>
+
+    <div class="distribution" id="uniform_continuous">
+        <h3>Distribuição Uniforme Contínua</h3>
+        <p>A distribuição uniforme contínua atribui a mesma densidade a todos os valores em um intervalo \([a, b]\).</p>
+        <p>Função de densidade:
+            \[
+            f(x) = \begin{cases}
+            \frac{1}{b - a} & \text{se } a \leq x \leq b, \\
+            0 & \text{caso contrário}.
+            \end{cases}
+            \]
+        \]
+        </p>
+        <canvas id="uniformContinuousChart"></canvas>
+        <div class="exercise">
+            <strong>Exercício:</strong> Qual é a densidade da distribuição uniforme contínua no intervalo \([0, 10]\) em \( x = 5 \)?
+        </div>
+        <div class="solution">
+            <strong>Solução:</strong>
+            \[
+            f(5) = \frac{1}{10 - 0} = \frac{1}{10} = 0.1
+            \]
+            Portanto, a densidade em \( x = 5 \) é 0,1.
+        </div>
+    </div>
+
+    <!-- Adicionar mais distribuições conforme necessário -->
+
+    <script>
+        // Função para gerar gráficos usando Chart.js
+        function gerarGrafico(id, labels, dados, tipo, titulo, eixoX, eixoY) {
+            var ctx = document.getElementById(id).getContext('2d');
+            new Chart(ctx, {
+                type: tipo,
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: titulo,
+                        data: dados,
+                        backgroundColor: tipo === 'bar' ? 'rgba(54, 162, 235, 0.6)' : 'rgba(255, 99, 132, 0.6)',
+                        borderColor: tipo === 'bar' ? 'rgba(54, 162, 235, 1)' : 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1,
+                        fill: tipo === 'line' || tipo === 'scatter' ? false : true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: false,
+                            text: titulo
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: eixoX
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: eixoY
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Função fatorial usando memoização para otimização
+        const fatorial = (function(){
+            const cache = {};
+            function calcFatorial(n){
+                if(n in cache){
+                    return cache[n];
+                }
+                if(n === 0 || n ===1){
+                    cache[n] = 1;
+                    return 1;
+                }
+                cache[n] = n * calcFatorial(n-1);
+                return cache[n];
+            }
+            return calcFatorial;
+        })();
+
+        // Função Gamma aproximada usando a fórmula de Lanczos
+        function gamma(n) {
+            // Para inteiros, Gamma(n) = (n-1)!
+            if(Number.isInteger(n)) {
+                return fatorial(n - 1);
+            }
+            // Aproximação de Lanczos para Gamma(n)
+            const p = [
+                0.99999999999980993,
+                676.5203681218851,
+                -1259.1392167224028,
+                771.32342877765313,
+                -176.61502916214059,
+                12.507343278686905,
+                -0.13857109526572012,
+                9.9843695780195716e-6,
+                1.5056327351493116e-7
+            ];
+            if(n < 0.5) {
+                return Math.PI / (Math.sin(Math.PI * n) * gamma(1 - n));
+            }
+            n -= 1;
+            let x = p[0];
+            for(let i = 1; i < p.length; i++) {
+                x += p[i] / (n + i);
+            }
+            const t = n + p.length - 0.5;
+            return Math.sqrt(2 * Math.PI) * Math.pow(t, n + 0.5) * Math.exp(-t) * x;
+        }
+
+        // Gráfico Binomial
+        (function(){
+            const n = 5;
+            const p = 0.5;
+            const labels = Array.from({length: n+1}, (_, k) => k);
+            const dados = labels.map(k => {
+                const combinacao = fatorial(n) / (fatorial(k) * fatorial(n - k));
+                return combinacao * Math.pow(p, k) * Math.pow(1 - p, n - k);
+            });
+            gerarGrafico('binomialChart', labels, dados, 'bar', 'Distribuição Binomial (n=5, p=0.5)', 'k', 'P(X=k)');
+        })();
+
+        // Gráfico Poisson
+        (function(){
+            const lambda = 4;
+            const kMax = 15;
+            const labels = Array.from({length: kMax+1}, (_, k) => k);
+            const dados = labels.map(k => {
+                return (Math.pow(lambda, k) * Math.exp(-lambda)) / fatorial(k);
+            });
+            gerarGrafico('poissonChart', labels, dados, 'bar', 'Distribuição de Poisson (λ=4)', 'k', 'P(X=k)');
+        })();
+
+        // Gráfico Geométrico
+        (function(){
+            const p = 0.3;
+            const kMax = 10;
+            const labels = Array.from({length: kMax}, (_, k) => k + 1);
+            const dados = labels.map(k => {
+                return Math.pow(1 - p, k - 1) * p;
+            });
+            gerarGrafico('geometricChart', labels, dados, 'bar', 'Distribuição Geométrica (p=0.3)', 'k', 'P(X=k)');
+        })();
+
+        // Gráfico Hipergeométrica
+        (function(){
+            const N = 30; // População total
+            const K = 10; // Sucessos na população
+            const n = 5;  // Tamanho da amostra
+            const labels = Array.from({length: Math.min(n, K)+1}, (_, k) => k);
+            const dados = labels.map(k => {
+                if(k > K || k > n) return 0;
+                const combinacao1 = fatorial(K) / (fatorial(k) * fatorial(K - k));
+                const combinacao2 = fatorial(N - K) / (fatorial(n - k) * fatorial(N - K - (n - k)));
+                const combinacaoTotal = fatorial(N) / (fatorial(n) * fatorial(N - n));
+                return (combinacao1 * combinacao2) / combinacaoTotal;
+            });
+            gerarGrafico('hypergeometricChart', labels, dados, 'bar', 'Distribuição Hipergeométrica (N=30, K=10, n=5)', 'k', 'P(X=k)');
+        })();
+
+        // Gráfico Normal
+        (function(){
+            const mu = 175;
+            const sigma = 7;
+            const valores = [];
+            const probabilidades = [];
+            for(let x = mu - 4*sigma; x <= mu + 4*sigma; x += 1){
+                const fx = (1 / (sigma * Math.sqrt(2 * Math.PI))) * Math.exp(-Math.pow(x - mu,2)/(2 * Math.pow(sigma,2)));
+                valores.push(x);
+                probabilidades.push(fx);
+            }
+            gerarGrafico('normalChart', valores, probabilidades, 'line', 'Distribuição Normal (μ=175, σ=7)', 'x', 'f(x)');
+        })();
+
+        // Gráfico Exponencial
+        (function(){
+            const lambda = 2;
+            const xMax = 3;
+            const passos = 100;
+            const labels = [];
+            const dados = [];
+            for(let i=0; i<=passos; i++){
+                const x = i * xMax / passos;
+                labels.push(x.toFixed(2));
+                dados.push(lambda * Math.exp(-lambda * x));
+            }
+            gerarGrafico('exponentialChart', labels, dados, 'line', 'Distribuição Exponencial (λ=2)', 'x', 'f(x)');
+        })();
+
+        // Gráfico Uniforme Discreta
+        (function(){
+            const n = 6;
+            const labels = Array.from({length: n}, (_, k) => k + 1);
+            const dados = labels.map(k => 1/n);
+            gerarGrafico('uniformDiscreteChart', labels, dados, 'bar', 'Distribuição Uniforme Discreta (n=6)', 'k', 'P(X=k)');
+        })();
+
+        // Gráfico Binomial Negativa
+        (function(){
+            const r = 3;
+            const p = 0.4;
+            const kMax = 10;
+            const labels = Array.from({length: kMax - r +1}, (_, k) => k + r);
+            const dados = labels.map(k => {
+                const combinacao = fatorial(k -1) / (fatorial(r -1) * fatorial(k - r));
+                return combinacao * Math.pow(p, r) * Math.pow(1 - p, k - r);
+            });
+            gerarGrafico('negativeBinomialChart', labels, dados, 'bar', 'Distribuição Binomial Negativa (r=3, p=0.4)', 'k', 'P(X=k)');
+        })();
+
+        // Gráfico Gamma
+        (function(){
+            const alpha = 2;
+            const beta = 1;
+            const xMax = 10;
+            const passos = 100;
+            const labels = [];
+            const dados = [];
+            for(let i=0; i<=passos; i++){
+                const x = i * xMax / passos;
+                labels.push(x.toFixed(2));
+                dados.push((Math.pow(beta, alpha) / gamma(alpha)) * Math.pow(x, alpha -1) * Math.exp(-beta * x));
+            }
+            gerarGrafico('gammaChart', labels, dados, 'line', 'Distribuição Gamma (α=2, β=1)', 'x', 'f(x)');
+        })();
+
+        // Gráfico Beta
+        (function(){
+            const alpha = 2;
+            const betaParam = 3;
+            const xMax = 1;
+            const passos = 100;
+            const labels = [];
+            const dados = [];
+            for(let i=0; i<=passos; i++){
+                const x = i / passos;
+                labels.push(x.toFixed(2));
+                // Correção na fórmula da Distribuição Beta
+                dados.push((Math.pow(x, alpha -1) * Math.pow(1 - x, betaParam -1)) * gamma(alpha + betaParam) / (gamma(alpha) * gamma(betaParam)));
+            }
+            gerarGrafico('betaChart', labels, dados, 'line', 'Distribuição Beta (α=2, β=3)', 'x', 'f(x)');
+        })();
+
+        // Gráfico Bernoulli
+        (function(){
+            const p = 0.7;
+            const labels = [0, 1];
+            const dados = [1 - p, p];
+            gerarGrafico('bernoulliChart', labels, dados, 'bar', 'Distribuição de Bernoulli (p=0.7)', 'x', 'P(X=x)');
+        })();
+
+        // Gráfico Multinomial
+        (function(){
+            // Exemplo simplificado para 3 categorias
+            const n = 10;
+            const p1 = 0.2, p2 = 0.3, p3 = 0.5;
+            // Apenas uma combinação para simplificação
+            const labels = ['Categoria 1', 'Categoria 2', 'Categoria 3'];
+            const dados = [n * p1, n * p2, n * p3];
+            gerarGrafico('multinomialChart', labels, dados, 'bar', 'Distribuição Multinomial (n=10, p1=0.2, p2=0.3, p3=0.5)', 'Categoria', 'Frequência Esperada');
+        })();
+
+        // Gráfico Pareto
+        (function(){
+            const alpha = 3;
+            const xm = 20000;
+            const xMax = 50000;
+            const passos = 100;
+            const labels = [];
+            const dados = [];
+            for(let i=0; i<=passos; i++){
+                const x = i * xMax / passos;
+                labels.push(x.toFixed(2));
+                if(x < xm) {
+                    dados.push(0); // Adiciona 0 em vez de null para manter o comprimento
+                } else {
+                    dados.push((alpha * Math.pow(xm, alpha)) / Math.pow(x, alpha + 1));
+                }
+            }
+            gerarGrafico('paretoChart', labels, dados, 'line', 'Distribuição de Pareto (α=3, xm=20.000)', 'x', 'f(x)');
+        })();
+
+        // Gráfico t de Student
+        (function(){
+            const nu = 10;
+            const passos = 100;
+            const xMax = 5;
+            const labels = [];
+            const dados = [];
+            for(let i=0; i<=passos; i++){
+                const t = -xMax + (2 * xMax * i / passos);
+                const fx = (gamma((nu + 1)/2) / (Math.sqrt(nu * Math.PI) * gamma(nu / 2))) * Math.pow(1 + (t*t)/nu, -(nu +1)/2);
+                labels.push(t.toFixed(2));
+                dados.push(fx);
+            }
+            gerarGrafico('studentTChart', labels, dados, 'line', 'Distribuição t de Student (ν=10)', 't', 'f(t)');
+        })();
+
+        // Gráfico Qui-Quadrado
+        (function(){
+            const k = 4;
+            const passos = 100;
+            const xMax = 15;
+            const labels = [];
+            const dados = [];
+            for(let i=0; i<=passos; i++){
+                const x = i * xMax / passos;
+                const fx = (Math.pow(x, (k/2) -1) * Math.exp(-x/2)) / (Math.pow(2, k/2) * gamma(k/2));
+                labels.push(x.toFixed(2));
+                dados.push(fx);
+            }
+            gerarGrafico('chiSquareChart', labels, dados, 'line', 'Distribuição Qui-Quadrado (k=4)', 'x', 'f(x)');
+        })();
+
+        // Gráfico F
+        (function(){
+            const d1 = 5;
+            const d2 = 10;
+            const passos = 100;
+            const xMax = 5;
+            const labels = [];
+            const dados = [];
+            for(let i=0; i<=passos; i++){
+                const x = i * xMax / passos;
+                labels.push(x.toFixed(2));
+                const fx = (Math.pow(d1/d2, d1/2) * Math.pow(x, d1/2 -1)) / (gamma(d1/2) * Math.pow(1 + (d1/d2)*x, (d1 + d2)/2));
+                dados.push(fx);
+            }
+            gerarGrafico('fDistributionChart', labels, dados, 'line', 'Distribuição F (d1=5, d2=10)', 'x', 'f(x)');
+        })();
+
+        // Gráfico Uniforme Contínua
+        (function(){
+            const a = 0;
+            const b = 10;
+            const passos = 100;
+            const labels = [];
+            const dados = [];
+            for(let i=0; i<=passos; i++){
+                const x = a + (b - a) * i / passos;
+                labels.push(x.toFixed(2));
+                dados.push((x >= a && x <= b) ? 1 / (b - a) : 0);
+            }
+            gerarGrafico('uniformContinuousChart', labels, dados, 'line', 'Distribuição Uniforme Contínua (a=0, b=10)', 'x', 'f(x)');
+        })();
+
+    </script>
+</body>
+</html>
+
+

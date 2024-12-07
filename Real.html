@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Modelo Matemático Avançado de Câmbio Real/Dólar</title>
+    <!-- Carregar MathJax para renderização de fórmulas matemáticas -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async 
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+    </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f4f4f4;
+            line-height: 1.6;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px 40px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            max-width: 1000px;
+            margin: auto;
+        }
+        .calculator {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #e9ecef;
+            border-radius: 8px;
+        }
+        .calculator input {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .calculator button {
+            padding: 12px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .calculator button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 4px;
+        }
+        footer {
+            margin-top: 50px;
+            text-align: center;
+            color: #777;
+        }
+        ul {
+            list-style-type: disc;
+            margin-left: 20px;
+        }
+        pre {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Modelo Matemático Avançado de Câmbio Real/Dólar</h1>
+        <p>Autor: Luiz Tiago Wilcke</p>
+        <p>Publicado em: 07 de dezembro de 2024</p>
+        
+        <h2>Introdução ao Modelo</h2>
+        <p>
+            O mercado cambial é influenciado por múltiplos fatores econômicos, incluindo oferta e demanda de moeda, taxas de juros, inflação, políticas monetárias e estabilidade política. Para capturar essa complexidade, desenvolvemos um modelo matemático que utiliza equações diferenciais para descrever a dinâmica da taxa de câmbio real \( R(t) \) em relação ao dólar. Este modelo de segunda ordem considera interações adicionais, proporcionando uma análise mais abrangente das forças que afetam a taxa de câmbio.
+        </p>
+        
+        <h2>Equações do Modelo</h2>
+        <p>
+            O modelo é composto por um sistema de duas equações diferenciais de primeira ordem interligadas:
+        </p>
+        <p>
+            \[
+            \begin{cases}
+            \frac{dR}{dt} = a_1 (S - D) + a_2 I - b R + c G \\
+            \frac{dG}{dt} = d_1 R - d_2 G + e P
+            \end{cases}
+            \]
+        </p>
+        <p><strong>Onde:</strong></p>
+        <ul>
+            <li>\( R(t) \): Taxa de câmbio real (Real por Dólar) no tempo \( t \).</li>
+            <li>\( S \): Oferta de moeda real.</li>
+            <li>\( D \): Demanda por moeda real.</li>
+            <li>\( I \): Taxa de juros diferencial (diferença entre as taxas de juros doméstica e estrangeira).</li>
+            <li>\( G(t) \): Índice de crescimento econômico no tempo \( t \).</li>
+            <li>\( P \): Índice de estabilidade política.</li>
+            <li>\( a_1, a_2, b, c, d_1, d_2, e \): Coeficientes que determinam a sensibilidade das variáveis.</li>
+        </ul>
+        
+        <h3>Interpretação das Equações:</h3>
+        <ol>
+            <li>
+                <strong>Primeira Equação (\( \frac{dR}{dt} \)):</strong>
+                <ul>
+                    <li><strong>\( a_1 (S - D) \)</strong>: Representa a influência da diferença entre oferta e demanda de moeda real na taxa de câmbio.</li>
+                    <li><strong>\( a_2 I \)</strong>: Captura o impacto da taxa de juros diferencial, refletindo como as diferenças nas taxas de juros entre países afetam a atratividade do investimento em cada moeda.</li>
+                    <li><strong>\( -b R \)</strong>: Representa um fator de amortecimento que estabiliza a taxa de câmbio.</li>
+                    <li><strong>\( +c G \)</strong>: Incorpora o efeito do crescimento econômico na taxa de câmbio, assumindo que um maior crescimento pode fortalecer a moeda.</li>
+                </ul>
+            </li>
+            <li>
+                <strong>Segunda Equação (\( \frac{dG}{dt} \)):</strong>
+                <ul>
+                    <li><strong>\( d_1 R \)</strong>: Reflete como a taxa de câmbio pode influenciar o crescimento econômico, por exemplo, através das exportações.</li>
+                    <li><strong>\( -d_2 G \)</strong>: Representa um amortecimento no crescimento econômico.</li>
+                    <li><strong>\( +e P \)</strong>: Considera o impacto da estabilidade política no crescimento econômico.</li>
+                </ul>
+            </li>
+        </ol>
+        
+        <h2>Análise do Modelo</h2>
+        <p>
+            Este modelo de sistema de equações diferenciais permite analisar como a taxa de câmbio e o crescimento econômico interagem ao longo do tempo, influenciados por fatores como oferta/demanda de moeda, taxas de juros, e estabilidade política. A inclusão de \( G(t) \) como uma variável dinâmica adiciona uma camada de realismo, permitindo observar como mudanças na taxa de câmbio podem retroalimentar o crescimento econômico, e vice-versa.
+        </p>
+        
+        <h2>Implementação da Calculadora no HTML e JavaScript</h2>
+        <p>
+            A seguir, apresentamos uma versão expandida da calculadora que incorpora as novas variáveis e equações do modelo. A calculadora permitirá inserir valores para todas as variáveis envolvidas e calcular as derivadas \( \frac{dR}{dt} \) e \( \frac{dG}{dt} \).
+        </p>
+        
+        <div class="calculator">
+            <h2>Calculadora do Modelo Avançado</h2>
+            <label for="a1">Coeficiente \( a_1 \):</label>
+            <input type="number" id="a1" placeholder="Ex: 0.5" value="0.5" step="any">
+            
+            <label for="a2">Coeficiente \( a_2 \):</label>
+            <input type="number" id="a2" placeholder="Ex: 0.3" value="0.3" step="any">
+            
+            <label for="b">Coeficiente \( b \):</label>
+            <input type="number" id="b" placeholder="Ex: 0.1" value="0.1" step="any">
+            
+            <label for="c">Coeficiente \( c \):</label>
+            <input type="number" id="c" placeholder="Ex: 0.2" value="0.2" step="any">
+            
+            <label for="d1">Coeficiente \( d_1 \):</label>
+            <input type="number" id="d1" placeholder="Ex: 0.4" value="0.4" step="any">
+            
+            <label for="d2">Coeficiente \( d_2 \):</label>
+            <input type="number" id="d2" placeholder="Ex: 0.05" value="0.05" step="any">
+            
+            <label for="e">Coeficiente \( e \):</label>
+            <input type="number" id="e" placeholder="Ex: 0.1" value="0.1" step="any">
+            
+            <label for="S">Oferta \( S \):</label>
+            <input type="number" id="S" placeholder="Ex: 1000" value="1000" step="any">
+            
+            <label for="D">Demanda \( D \):</label>
+            <input type="number" id="D" placeholder="Ex: 800" value="800" step="any">
+            
+            <label for="I">Taxa de Juros Diferencial \( I \):</label>
+            <input type="number" id="I" placeholder="Ex: 2.0" value="2.0" step="any">
+            
+            <label for="P">Índice de Estabilidade Política \( P \):</label>
+            <input type="number" id="P" placeholder="Ex: 75" value="75" step="any">
+            
+            <label for="R">Taxa Atual \( R(t) \):</label>
+            <input type="number" id="R" placeholder="Ex: 5.0" value="5.0" step="any">
+            
+            <label for="G">Índice Atual de Crescimento Econômico \( G(t) \):</label>
+            <input type="number" id="G" placeholder="Ex: 3.0" value="3.0" step="any">
+            
+            <button onclick="calculate()">Calcular \(\frac{dR}{dt}\) e \(\frac{dG}{dt}\)</button>
+            
+            <div class="result" id="result"></div>
+        </div>
+        
+        <h2>Explicação Detalhada do Código</h2>
+        <p>
+            O código abaixo implementa a calculadora interativa descrita acima. Ele permite que os usuários insiram valores para os coeficientes e variáveis do modelo e calcule as derivadas \( \frac{dR}{dt} \) e \( \frac{dG}{dt} \).
+        </p>
+        <pre>
+&lt;!DOCTYPE html&gt;
+&lt;html lang="pt-BR"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;title&gt;Calculadora de Modelo Avançado de Câmbio Real/Dólar&lt;/title&gt;
+    &lt;script src="https://polyfill.io/v3/polyfill.min.js?features=es6"&gt;&lt;/script&gt;
+    &lt;script id="MathJax-script" async 
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"&gt;
+    &lt;/script&gt;
+    &lt;style&gt;
+        /* Estilos CSS conforme descrito acima */
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div class="container"&gt;
+        &lt;!-- Conteúdo do artigo e calculadora --&gt;
+        &lt;script&gt;
+            function calculate() {
+                // Obter valores das entradas
+                const a1 = parseFloat(document.getElementById('a1').value);
+                const a2 = parseFloat(document.getElementById('a2').value);
+                const b = parseFloat(document.getElementById('b').value);
+                const c = parseFloat(document.getElementById('c').value);
+                const d1 = parseFloat(document.getElementById('d1').value);
+                const d2 = parseFloat(document.getElementById('d2').value);
+                const e = parseFloat(document.getElementById('e').value);
+                const S = parseFloat(document.getElementById('S').value);
+                const D = parseFloat(document.getElementById('D').value);
+                const I = parseFloat(document.getElementById('I').value);
+                const P = parseFloat(document.getElementById('P').value);
+                const R = parseFloat(document.getElementById('R').value);
+                const G = parseFloat(document.getElementById('G').value);
+                
+                // Validar entradas
+                if ([a1, a2, b, c, d1, d2, e, S, D, I, P, R, G].some(isNaN)) {
+                    document.getElementById('result').innerHTML = "&lt;span style='color: red;'&gt;Por favor, insira valores válidos para todas as variáveis.&lt;/span&gt;";
+                    return;
+                }
+                
+                // Calcular dR/dt e dG/dt
+                const dRdt = a1 * (S - D) + a2 * I - b * R + c * G;
+                const dGdt = d1 * R - d2 * G + e * P;
+                
+                // Exibir resultados com MathJax
+                const resultHTML = `
+                    &lt;h3&gt;Resultados:&lt;/h3&gt;
+                    &lt;p&gt;
+                        \[
+                        \frac{dR}{dt} = ${a1} \times (${S} - ${D}) + ${a2} \times ${I} - ${b} \times ${R} + ${c} \times ${G} = ${dRdt.toFixed(4)}
+                        \]
+                    &lt;/p&gt;
+                    &lt;p&gt;
+                        \[
+                        \frac{dG}{dt} = ${d1} \times ${R} - ${d2} \times ${G} + ${e} \times ${P} = ${dGdt.toFixed(4)}
+                        \]
+                    &lt;/p&gt;
+                    &lt;p&gt;&lt;strong&gt;Interpretação:&lt;/strong&gt;&lt;/p&gt;
+                    &lt;ul&gt;
+                        &lt;li&gt;A taxa de variação da taxa de câmbio real \( \frac{dR}{dt} \) é igual a <strong>${dRdt.toFixed(4)}</strong>.&lt;/li&gt;
+                        &lt;li&gt;A taxa de variação do índice de crescimento econômico \( \frac{dG}{dt} \) é igual a <strong>${dGdt.toFixed(4)}</strong>.&lt;/li&gt;
+                    &lt;/ul&gt;
+                `;
+                document.getElementById('result').innerHTML = resultHTML;
+                MathJax.typeset();
+            }
+        &lt;/script&gt;
+    &lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+        </pre>
+        
+        <h2>Como Utilizar a Calculadora</h2>
+        <ol>
+            <li><strong>Inserir Valores:</strong> Preencha os campos com os valores desejados para os coeficientes \( a_1, a_2, b, c, d_1, d_2, e \), oferta \( S \), demanda \( D \), taxa de juros diferencial \( I \), índice de estabilidade política \( P \), taxa atual \( R(t) \) e índice de crescimento econômico \( G(t) \).</li>
+            <li><strong>Calcular:</strong> Clique no botão "Calcular \(\frac{dR}{dt}\) e \(\frac{dG}{dt}\)".</li>
+            <li><strong>Visualizar Resultado:</strong> As derivadas \( \frac{dR}{dt} \) e \( \frac{dG}{dt} \) serão exibidas abaixo do botão, juntamente com a fórmula utilizada para o cálculo.</li>
+        </ol>
+        
+        <h2>Exemplo de Cálculo</h2>
+        <p>
+            Vamos considerar um exemplo prático para ilustrar o funcionamento do modelo avançado.
+        </p>
+        <p><strong>Valores Inseridos:</strong></p>
+        <ul>
+            <li>\( a_1 = 0.5 \)</li>
+            <li>\( a_2 = 0.3 \)</li>
+            <li>\( b = 0.1 \)</li>
+            <li>\( c = 0.2 \)</li>
+            <li>\( d_1 = 0.4 \)</li>
+            <li>\( d_2 = 0.05 \)</li>
+            <li>\( e = 0.1 \)</li>
+            <li>\( S = 1000 \)</li>
+            <li>\( D = 800 \)</li>
+            <li>\( I = 2.0 \)</li>
+            <li>\( P = 75 \)</li>
+            <li>\( R(t) = 5.0 \)</li>
+            <li>\( G(t) = 3.0 \)</li>
+        </ul>
+        <p><strong>Cálculos:</strong></p>
+        <ol>
+            <li>
+                <strong>Para \( \frac{dR}{dt} \):</strong>
+                <br>
+                \[
+                \frac{dR}{dt} = 0.5 \times (1000 - 800) + 0.3 \times 2.0 - 0.1 \times 5.0 + 0.2 \times 3.0 = 0.5 \times 200 + 0.6 - 0.5 + 0.6 = 100 + 0.6 - 0.5 + 0.6 = 101.7
+                \]
+            </li>
+            <li>
+                <strong>Para \( \frac{dG}{dt} \):</strong>
+                <br>
+                \[
+                \frac{dG}{dt} = 0.4 \times 5.0 - 0.05 \times 3.0 + 0.1 \times 75 = 2.0 - 0.15 + 7.5 = 9.35
+                \]
+            </li>
+        </ol>
+        <p><strong>Interpretação:</strong></p>
+        <ul>
+            <li>A taxa de câmbio real \( R(t) \) está aumentando a uma taxa de \( 101.7 \) unidades por período de tempo, indicando uma rápida apreciação da moeda real em relação ao dólar.</li>
+            <li>O índice de crescimento econômico \( G(t) \) está aumentando a uma taxa de \( 9.35 \) unidades por período de tempo, refletindo um crescimento econômico robusto influenciado pela taxa de câmbio, estabilidade política e outros fatores.</li>
+        </ul>
+        
+        <h2>Aplicações do Modelo</h2>
+        <p>
+            Este modelo avançado pode ser utilizado para diversas análises econômicas, tais como:
+        </p>
+        <ul>
+            <li><strong>Previsão da Taxa de Câmbio:</strong> Estimando como a taxa de câmbio pode evoluir ao longo do tempo com base em diferentes cenários de oferta/demanda, taxas de juros e crescimento econômico.</li>
+            <li><strong>Análise de Política Econômica:</strong> Avaliando o impacto de mudanças na política monetária (como ajustes na taxa de juros) sobre a taxa de câmbio e o crescimento econômico.</li>
+            <li><strong>Estudos de Estabilidade Econômica:</strong> Investigando como a estabilidade política influencia o crescimento econômico e, consequentemente, a taxa de câmbio.</li>
+        </ul>
+        
+        <h2>Considerações sobre os Coeficientes</h2>
+        <p>
+            Os coeficientes \( a_1, a_2, b, c, d_1, d_2, e \) são parâmetros cruciais que determinam a sensibilidade das variáveis do modelo. Sua determinação pode ser feita através de métodos de calibração baseados em dados históricos ou técnicas de estimação econométrica. A interpretação adequada desses coeficientes permite entender a força e a direção das relações entre as variáveis.
+        </p>
+        
+        <h2>Limitações do Modelo</h2>
+        <p>
+            Embora o modelo seja mais sofisticado, ainda apresenta algumas limitações:
+        </p>
+        <ul>
+            <li><strong>Simplicidade das Equações:</strong> O modelo assume relações lineares entre as variáveis, o que pode não capturar todas as complexidades do mercado cambial.</li>
+            <li><strong>Constância dos Coeficientes:</strong> Os coeficientes são assumidos constantes ao longo do tempo, ignorando possíveis mudanças estruturais na economia.</li>
+            <li><strong>Fatores Omitidos:</strong> Aspectos como políticas fiscais, eventos geopolíticos ou choques externos não são considerados diretamente no modelo.</li>
+        </ul>
+        
+        <h2>Possíveis Extensões</h2>
+        <p>
+            Para aumentar ainda mais a sofisticação do modelo, podemos considerar:
+        </p>
+        <ul>
+            <li><strong>Equações Não-Lineares:</strong> Introduzir termos quadráticos ou exponenciais para capturar efeitos mais complexos.</li>
+            <li><strong>Modelagem Estocástica:</strong> Incorporar componentes aleatórios para representar incertezas e choques econômicos.</li>
+            <li><strong>Múltiplas Moedas:</strong> Expandir o modelo para incluir interações entre várias moedas, analisando, por exemplo, pares cambiais múltiplos simultaneamente.</li>
+            <li><strong>Feedback de Longo Prazo:</strong> Considerar efeitos de longo prazo onde as variáveis atuais influenciam não apenas o presente, mas também o futuro de forma mais complexa.</li>
+        </ul>
+        
+        <h2>Validação do Modelo</h2>
+        <p>
+            Para garantir a validade do modelo, é essencial realizar a seguinte análise:
+        </p>
+        <ol>
+            <li><strong>Calibração com Dados Históricos:</strong> Ajustar os coeficientes do modelo para que as previsões se alinhem com dados históricos observados.</li>
+            <li><strong>Teste de Sensibilidade:</strong> Avaliar como pequenas mudanças nos parâmetros afetam os resultados, identificando quais coeficientes têm maior impacto.</li>
+            <li><strong>Validação Cruzada:</strong> Dividir os dados em conjuntos de treinamento e teste para verificar a capacidade preditiva do modelo.</li>
+        </ol>
+        
+        <h2>Implementação Prática</h2>
+        <p>
+            Para aplicar este modelo na prática, siga os passos abaixo:
+        </p>
+        <ol>
+            <li><strong>Coleta de Dados:</strong> Reúna dados históricos sobre taxa de câmbio real/dólar, oferta e demanda de moeda real, taxas de juros, crescimento econômico e índices de estabilidade política.</li>
+            <li><strong>Estimação dos Coeficientes:</strong> Utilize técnicas econométricas para estimar os valores dos coeficientes \( a_1, a_2, b, c, d_1, d_2, e \) com base nos dados coletados.</li>
+            <li><strong>Simulação e Previsão:</strong> Utilize a calculadora fornecida para simular diferentes cenários e prever como a taxa de câmbio e o crescimento econômico podem evoluir sob diferentes condições.</li>
+            <li><strong>Análise de Resultados:</strong> Interprete os resultados para tomar decisões informadas sobre políticas econômicas ou estratégias de investimento.</li>
+        </ol>
+        
+        <h2>Exemplo de Cálculo</h2>
+        <p>
+            Vamos considerar um exemplo prático para ilustrar o funcionamento do modelo avançado.
+        </p>
+        <p><strong>Valores Inseridos:</strong></p>
+        <ul>
+            <li>\( a_1 = 0.5 \)</li>
+            <li>\( a_2 = 0.3 \)</li>
+            <li>\( b = 0.1 \)</li>
+            <li>\( c = 0.2 \)</li>
+            <li>\( d_1 = 0.4 \)</li>
+            <li>\( d_2 = 0.05 \)</li>
+            <li>\( e = 0.1 \)</li>
+            <li>\( S = 1000 \)</li>
+            <li>\( D = 800 \)</li>
+            <li>\( I = 2.0 \)</li>
+            <li>\( P = 75 \)</li>
+            <li>\( R(t) = 5.0 \)</li>
+            <li>\( G(t) = 3.0 \)</li>
+        </ul>
+        <p><strong>Cálculos:</strong></p>
+        <ol>
+            <li>
+                <strong>Para \( \frac{dR}{dt} \):</strong>
+                <br>
+                \[
+                \frac{dR}{dt} = 0.5 \times (1000 - 800) + 0.3 \times 2.0 - 0.1 \times 5.0 + 0.2 \times 3.0 = 0.5 \times 200 + 0.6 - 0.5 + 0.6 = 100 + 0.6 - 0.5 + 0.6 = 101.7
+                \]
+            </li>
+            <li>
+                <strong>Para \( \frac{dG}{dt} \):</strong>
+                <br>
+                \[
+                \frac{dG}{dt} = 0.4 \times 5.0 - 0.05 \times 3.0 + 0.1 \times 75 = 2.0 - 0.15 + 7.5 = 9.35
+                \]
+            </li>
+        </ol>
+        <p><strong>Interpretação:</strong></p>
+        <ul>
+            <li>A taxa de câmbio real \( R(t) \) está aumentando a uma taxa de \( 101.7 \) unidades por período de tempo, indicando uma rápida apreciação da moeda real em relação ao dólar.</li>
+            <li>O índice de crescimento econômico \( G(t) \) está aumentando a uma taxa de \( 9.35 \) unidades por período de tempo, refletindo um crescimento econômico robusto influenciado pela taxa de câmbio, estabilidade política e outros fatores.</li>
+        </ul>
+        
+        <h2>Conclusão</h2>
+        <p>
+            O modelo matemático avançado desenvolvido fornece uma ferramenta poderosa para analisar a dinâmica da taxa de câmbio real/dólar, incorporando múltiplos fatores econômicos interrelacionados. A calculadora interativa permite aos usuários inserir diferentes valores para os coeficientes e variáveis, facilitando a simulação de diversos cenários econômicos. Esta abordagem oferece insights valiosos para formuladores de políticas, economistas e investidores interessados em compreender e prever as flutuações cambiais em um contexto mais abrangente.
+        </p>
+        <p>
+            Se precisar de mais ajustes ou tiver dúvidas adicionais sobre o modelo, sinta-se à vontade para perguntar!
+        </p>
+        
+        <footer>
+            <p>© 2024 Luiz Tiago Wilcke</p>
+        </footer>
+    </div>
+    
+    <script>
+        function calculate() {
+            // Obter valores das entradas
+            const a1 = parseFloat(document.getElementById('a1').value);
+            const a2 = parseFloat(document.getElementById('a2').value);
+            const b = parseFloat(document.getElementById('b').value);
+            const c = parseFloat(document.getElementById('c').value);
+            const d1 = parseFloat(document.getElementById('d1').value);
+            const d2 = parseFloat(document.getElementById('d2').value);
+            const e = parseFloat(document.getElementById('e').value);
+            const S = parseFloat(document.getElementById('S').value);
+            const D = parseFloat(document.getElementById('D').value);
+            const I = parseFloat(document.getElementById('I').value);
+            const P = parseFloat(document.getElementById('P').value);
+            const R = parseFloat(document.getElementById('R').value);
+            const G = parseFloat(document.getElementById('G').value);
+            
+            // Validar entradas
+            if ([a1, a2, b, c, d1, d2, e, S, D, I, P, R, G].some(isNaN)) {
+                document.getElementById('result').innerHTML = "<span style='color: red;'>Por favor, insira valores válidos para todas as variáveis.</span>";
+                return;
+            }
+            
+            // Calcular dR/dt e dG/dt
+            const dRdt = a1 * (S - D) + a2 * I - b * R + c * G;
+            const dGdt = d1 * R - d2 * G + e * P;
+            
+            // Exibir resultados com MathJax
+            const resultHTML = `
+                <h3>Resultados:</h3>
+                <p>
+                    \[
+                    \frac{dR}{dt} = ${a1} \times (${S} - ${D}) + ${a2} \times ${I} - ${b} \times ${R} + ${c} \times ${G} = ${dRdt.toFixed(4)}
+                    \]
+                </p>
+                <p>
+                    \[
+                    \frac{dG}{dt} = ${d1} \times ${R} - ${d2} \times ${G} + ${e} \times ${P} = ${dGdt.toFixed(4)}
+                    \]
+                </p>
+                <p><strong>Interpretação:</strong></p>
+                <ul>
+                    <li>A taxa de variação da taxa de câmbio real \( \frac{dR}{dt} \) é igual a <strong>${dRdt.toFixed(4)}</strong>.</li>
+                    <li>A taxa de variação do índice de crescimento econômico \( \frac{dG}{dt} \) é igual a <strong>${dGdt.toFixed(4)}</strong>.</li>
+                </ul>
+            `;
+            document.getElementById('result').innerHTML = resultHTML;
+            MathJax.typeset();
+        }
+    </script>
+</body>
+</html>

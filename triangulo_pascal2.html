@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Análise Combinatória com Triângulo de Pascal</title>
+    <!-- Inclusão do MathJax para renderização das fórmulas -->
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        body {
+            font-family: 'Georgia', serif;
+            margin: 40px;
+            background-color: #fdfdfd;
+            color: #333;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+        header p {
+            font-size: 1.2em;
+            color: #555;
+        }
+        section {
+            margin-bottom: 50px;
+            line-height: 1.6;
+        }
+        h2 {
+            border-bottom: 3px solid #2c3e50;
+            padding-bottom: 10px;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        /* Estilos para os exercícios */
+        .exercise {
+            margin-bottom: 60px;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #e1e1e1;
+            border-radius: 8px;
+            box-shadow: 2px 2px 12px rgba(0,0,0,0.05);
+        }
+        .exercise h3 {
+            color: #34495e;
+            margin-bottom: 15px;
+        }
+        .solution {
+            background-color: #f0f8ff;
+            padding: 15px;
+            border-left: 5px solid #3498db;
+            margin-top: 10px;
+            border-radius: 4px;
+        }
+        /* Estilos para o Triângulo de Pascal */
+        .pascal-triangle {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 30px 0;
+        }
+        .pascal-triangle .row {
+            display: flex;
+            justify-content: center;
+        }
+        .pascal-triangle .row div {
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            margin: 2px;
+            background-color: #ecf0f1;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1em;
+        }
+        .pascal-triangle .row div.highlight {
+            background-color: #f39c12;
+            color: #fff;
+            border: 2px solid #e67e22;
+        }
+        .pascal-triangle .row div.empty {
+            background-color: transparent;
+            border: none;
+        }
+        footer {
+            text-align: center;
+            color: #777;
+            margin-top: 50px;
+            font-size: 0.9em;
+        }
+        /* Responsividade */
+        @media (max-width: 600px) {
+            .pascal-triangle .row div {
+                width: 30px;
+                height: 30px;
+                line-height: 30px;
+                font-size: 0.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Análise Combinatória com Triângulo de Pascal</h1>
+        <p>Autor: Luiz Tiago Wilcke</p>
+    </header>
+
+    <section id="introducao">
+        <h2>Introdução</h2>
+        <p>
+            A análise combinatória é uma área fundamental da matemática que estuda as contagens de maneiras diferentes de se organizar ou selecionar elementos. Um dos instrumentos mais poderosos nessa área é o Triângulo de Pascal, que não só facilita o cálculo de combinações, mas também revela inúmeras propriedades matemáticas.
+        </p>
+    </section>
+
+    <section id="exercicios">
+        <h2>Exercícios de Análise Combinatória</h2>
+
+        <!-- Exercício 1 -->
+        <div class="exercise">
+            <h3>Exercício 1</h3>
+            <p>
+                Quantas combinações de 3 elementos podem ser formadas a partir de um conjunto de 5 elementos?
+            </p>
+            <div class="solution">
+                <strong>Solução:</strong><br>
+                Utilizamos a combinação \( C(n, k) \), onde \( n = 5 \) e \( k = 3 \).<br>
+                A fórmula é: $$ C(5, 3) = \frac{5!}{3!(5-3)!} = 10. $$<br><br>
+                <em>Observação:</em> No Triângulo de Pascal, o valor de \( C(5, 3) \) está na 6ª linha e 4ª posição, que é igual a 10.
+            </div>
+            <div class="pascal-triangle" id="triangle-ex1"></div>
+        </div>
+
+        <!-- Exercício 2 -->
+        <div class="exercise">
+            <h3>Exercício 2</h3>
+            <p>
+                De quantas maneiras diferentes podemos escolher 4 cartas de um baralho padrão de 52 cartas?
+            </p>
+            <div class="solution">
+                <strong>Solução:</strong><br>
+                Usamos a combinação \( C(52, 4) \).<br>
+                A fórmula é: $$ C(52, 4) = \frac{52!}{4! \times 48!} = 270{,}725 \text{ maneiras}. $$<br><br>
+                <em>Observação:</em> No Triângulo de Pascal, esse cálculo não está diretamente representado, mas o princípio das combinações é fundamental para entender a estrutura do triângulo.
+            </div>
+            <div class="pascal-triangle" id="triangle-ex2"></div>
+        </div>
+
+        <!-- Exercício 3 -->
+        <div class="exercise">
+            <h3>Exercício 3</h3>
+            <p>
+                Em uma eleição com 10 candidatos, de quantas formas podemos eleger 2 representantes?
+            </p>
+            <div class="solution">
+                <strong>Solução:</strong><br>
+                Calculamos \( C(10, 2) \).<br>
+                A fórmula é: $$ C(10, 2) = \frac{10!}{2! \times 8!} = 45 \text{ formas}. $$<br><br>
+                <em>Observação:</em> Esse valor está na 11ª linha e 3ª posição do Triângulo de Pascal.
+            </div>
+            <div class="pascal-triangle" id="triangle-ex3"></div>
+        </div>
+
+        <!-- Exercício 4 -->
+        <div class="exercise">
+            <h3>Exercício 4</h3>
+            <p>
+                Quantas senhas diferentes de 6 dígitos podem ser formadas utilizando os dígitos de 0 a 9, sem repetição?
+            </p>
+            <div class="solution">
+                <strong>Solução:</strong><br>
+                Aqui, usamos arranjos, mas também pode ser relacionado ao Triângulo de Pascal para selecionar combinações.<br>
+                A quantidade é: $$ P(10, 6) = \frac{10!}{(10-6)!} = 151{,}200 \text{ senhas}. $$<br><br>
+                <em>Observação:</em> Embora os arranjos não estejam diretamente representados no Triângulo de Pascal, o entendimento das combinações auxilia na compreensão dos arranjos.
+            </div>
+            <div class="pascal-triangle" id="triangle-ex4"></div>
+        </div>
+
+        <!-- Exercício 5 -->
+        <div class="exercise">
+            <h3>Exercício 5</h3>
+            <p>
+                Em uma sala com 8 alunos, de quantas maneiras podemos formar um grupo de 3 para apresentar um projeto?
+            </p>
+            <div class="solution">
+                <strong>Solução:</strong><br>
+                Calculamos \( C(8, 3) \).<br>
+                A fórmula é: $$ C(8, 3) = \frac{8!}{3! \times 5!} = 56 \text{ maneiras}. $$<br><br>
+                <em>Observação:</em> Esse valor pode ser encontrado na 9ª linha e 4ª posição do Triângulo de Pascal.
+            </div>
+            <div class="pascal-triangle" id="triangle-ex5"></div>
+        </div>
+
+        <!-- Exercício 6 -->
+        <div class="exercise">
+            <h3>Exercício 6</h3>
+            <p>
+                Quantas maneiras existem para distribuir 5 prêmios distintos entre 20 participantes, sem que um participante receba mais de um prêmio?
+            </p>
+            <div class="solution">
+                <strong>Solução:</strong><br>
+                Utilizamos arranjos: $$ A(20, 5) = \frac{20!}{(20-5)!} = 1{,}860{,}480 \text{ maneiras}. $$<br><br>
+                <em>Observação:</em> Os arranjos consideram a ordem, diferente das combinações representadas no Triângulo de Pascal.
+            </div>
+            <div class="pascal-triangle" id="triangle-ex6"></div>
+        </div>
+
+        <!-- Exercício 7 -->
+        <div class="exercise">
+            <h3>Exercício 7</h3>
+            <p>
+                De quantas formas podemos selecionar uma equipe de 5 pessoas dentre 12, onde duas pessoas não podem estar juntas?
+            </p>
+            <div class="solution">
+                <strong>Solução:</strong><br>
+                Primeiro, calculamos \( C(12, 5) = 792 \).<br>
+                Em seguida, subtraímos as combinações onde as duas pessoas indesejadas estão juntas: \( C(10, 3) = 120 \).<br>
+                Total: $$ 792 - 120 = 672 \text{ formas}. $$<br><br>
+                <em>Observação:</em> Utilizamos o Triângulo de Pascal para encontrar ambos os valores de combinação.
+            </div>
+            <div class="pascal-triangle" id="triangle-ex7"></div>
+        </div>
+
+        <!-- Exercício 8 -->
+        <div class="exercise">
+            <h3>Exercício 8</h3>
+            <p>
+                Quantos subconjuntos de 4 elementos podem ser formados a partir de um conjunto de 9 elementos?
+            </p>
+            <div class="solution">
+                <strong>Solução:</strong><br>
+                Calculamos \( C(9, 4) \).<br>
+                A fórmula é: $$ C(9, 4) = \frac{9!}{4! \times 5!} = 126 \text{ subconjuntos}. $$<br><br>
+                <em>Observação:</em> Esse valor está na 10ª linha e 5ª posição do Triângulo de Pascal.
+            </div>
+            <div class="pascal-triangle" id="triangle-ex8"></div>
+        </div>
+
+        <!-- Exercício 9 -->
+        <div class="exercise">
+            <h3>Exercício 9</h3>
+            <p>
+                Em um concurso, 3 vagas são oferecidas. De um grupo de 15 candidatos, de quantas maneiras podemos selecionar os vencedores?
+            </p>
+            <div class="solution">
+                <strong>Solução:</strong><br>
+                Se a ordem importa (vencedores distintos), usamos arranjos: $$ A(15, 3) = \frac{15!}{(15-3)!} = 2730 \text{ maneiras}. $$<br><br>
+                <em>Observação:</em> Os arranjos consideram a ordem dos vencedores, diferente das combinações do Triângulo de Pascal.
+            </div>
+            <div class="pascal-triangle" id="triangle-ex9"></div>
+        </div>
+
+        <!-- Exercício 10 -->
+        <div class="exercise">
+            <h3>Exercício 10</h3>
+            <p>
+                Quantas maneiras diferentes podemos formar uma comissão de 4 pessoas a partir de 10 candidatos, onde uma pessoa específica deve estar na comissão?
+            </p>
+            <div class="solution">
+                <strong>Solução:</strong><br>
+                Como uma pessoa já está na comissão, precisamos escolher 3 a partir das restantes 9.<br>
+                A fórmula é: $$ C(9, 3) = \frac{9!}{3! \times 6!} = 84 \text{ maneiras}. $$<br><br>
+                <em>Observação:</em> Esse valor está na 10ª linha e 4ª posição do Triângulo de Pascal.
+            </div>
+            <div class="pascal-triangle" id="triangle-ex10"></div>
+        </div>
+
+    </section>
+
+    <footer>
+        &copy; 2024 Luiz Tiago Wilcke. Todos os direitos reservados.
+    </footer>
+
+    <script>
+        // Função para gerar o Triângulo de Pascal
+        function generatePascalTriangle(n) {
+            let triangle = [];
+            for (let i = 0; i < n; i++) {
+                triangle[i] = [];
+                triangle[i][0] = triangle[i][i] = 1;
+                for (let j = 1; j < i; j++) {
+                    triangle[i][j] = triangle[i-1][j-1] + triangle[i-1][j];
+                }
+            }
+            return triangle;
+        }
+
+        // Função para desenhar o Triângulo de Pascal usando divs
+        function drawPascalTriangle(triangle, containerId, highlightRow = null, highlightCol = null) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = ''; // Limpa o conteúdo anterior
+            triangle.forEach((row, rowIndex) => {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'row';
+                // Adiciona espaços vazios para centralizar
+                const emptyCells = triangle.length - row.length;
+                for(let i = 0; i < emptyCells; i++) {
+                    const emptyDiv = document.createElement('div');
+                    emptyDiv.className = 'empty';
+                    rowDiv.appendChild(emptyDiv);
+                }
+                // Adiciona os números
+                row.forEach((num, colIndex) => {
+                    const numDiv = document.createElement('div');
+                    numDiv.textContent = num;
+                    // Verifica se a célula deve ser destacada
+                    if(rowIndex === highlightRow && colIndex === highlightCol) {
+                        numDiv.classList.add('highlight');
+                    }
+                    rowDiv.appendChild(numDiv);
+                });
+                container.appendChild(rowDiv);
+            });
+        }
+
+        // Função para determinar a posição do C(n, k) no triângulo (linha e coluna)
+        function getCombinationPosition(n, k) {
+            // No Triângulo de Pascal, a primeira linha é linha 0
+            // e a primeira coluna é coluna 0
+            return { row: n, col: k };
+        }
+
+        // Definição dos exercícios com suas combinações a destacar
+        const exercicios = [
+            { id: 'ex1', n: 5, k: 3 },
+            { id: 'ex2', n: 52, k: 4 }, // Não está diretamente no triângulo, mas será desenhado para referência
+            { id: 'ex3', n: 10, k: 2 },
+            { id: 'ex4', n: 10, k: 6 }, // Não está diretamente no triângulo
+            { id: 'ex5', n: 8, k: 3 },
+            { id: 'ex6', n: 20, k: 5 }, // Não está diretamente no triângulo
+            { id: 'ex7', n: 12, k: 5 },
+            { id: 'ex8', n: 9, k: 4 },
+            { id: 'ex9', n: 15, k: 3 }, // Não está diretamente no triângulo
+            { id: 'ex10', n: 9, k: 3 },
+        ];
+
+        // Gerar triângulos para cada exercício
+        exercicios.forEach(ex => {
+            const containerId = `triangle-${ex.id}`;
+            const triangleSize = ex.n <= 20 ? ex.n + 1 : 20; // Limitar o tamanho do triângulo para evitar sobrecarga
+            const triangle = generatePascalTriangle(triangleSize);
+            // Determinar se a combinação está dentro do triângulo gerado
+            if(ex.n < triangleSize && ex.k <= ex.n) {
+                const pos = getCombinationPosition(ex.n, ex.k);
+                drawPascalTriangle(triangle, containerId, pos.row, pos.col);
+            } else {
+                // Se a combinação não está diretamente no triângulo (n > triangleSize ou k > n)
+                drawPascalTriangle(triangle, containerId); // Desenha sem destaque
+            }
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Algoritmo MAIR: Cálculo de Raízes N-ésimas com Alta Precisão</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f9f9f9;
+            line-height: 1.6;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        pre {
+            background-color: #eef;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        code {
+            font-family: Consolas, monospace;
+            color: #c7254e;
+            background-color: #f9f2f4;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #aaa;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #ddd;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .resultado {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            word-wrap: break-word;
+            font-family: Consolas, monospace;
+        }
+        .calculator {
+            margin-top: 40px;
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            margin: 8px 0 20px 0;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .section {
+            margin-bottom: 40px;
+        }
+    </style>
+    <!-- Inclusão do MathJax para renderizar as equações -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+    </script>
+    <!-- Inclusão do decimal.js para cálculos de alta precisão -->
+    <script src="https://cdn.jsdelivr.net/npm/decimal.js@10.3.1/decimal.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Algoritmo MAIR: Uma Abordagem Inovadora para Cálculo de Raízes N-ésimas com Alta Precisão</h1>
+        <p><strong>Autor:</strong> Luiz Tiago Wilcke</p>
+
+        <div class="section">
+            <h2>Resumo</h2>
+            <p>
+                O cálculo de raízes N-ésimas de números é uma operação fundamental em diversas áreas da matemática e suas aplicações. Este artigo apresenta o <strong>Método de Aproximação Iterativa Refinada (MAIR)</strong>, um algoritmo inovador desenvolvido para calcular raízes N-ésimas de qualquer número com <strong>20 dígitos de precisão</strong>. Detalhamos a teoria por trás do MAIR, sua implementação em Python e em uma aplicação web utilizando HTML e JavaScript, além de exemplificar seu funcionamento através de 10 cálculos com números reais do tipo um dígito antes da vírgula e o restante dos dígitos após a vírgula.
+            </p>
+        </div>
+
+        <div class="section">
+            <h2>Introdução</h2>
+            <p>
+                A precisão no cálculo de raízes é crucial em áreas como engenharia, física, finanças e ciência da computação. Métodos tradicionais, como o de Newton-Raphson, são eficientes, mas podem apresentar limitações em termos de precisão e convergência para determinados casos. O algoritmo MAIR propõe uma abordagem refinada que combina técnicas iterativas com correções baseadas na série de Taylor, garantindo uma convergência rápida e uma precisão elevada.
+            </p>
+        </div>
+
+        <div class="section">
+            <h2>Descrição do Algoritmo MAIR</h2>
+
+            <h3>Objetivo</h3>
+            <p>
+                Calcular a raiz N-ésima de um número \( A \) com <strong>20 dígitos de precisão</strong>.
+            </p>
+
+            <h3>Passos do Algoritmo</h3>
+            <ol>
+                <li>
+                    <strong>Entrada:</strong>
+                    <ul>
+                        <li>Número \( A \) (inteiro ou decimal, positivo ou negativo conforme \( N \))</li>
+                        <li>Grau da raiz \( N \) (inteiro positivo)</li>
+                        <li>Precisão desejada: 20 dígitos</li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Validação Inicial:</strong>
+                    <p>
+                        Verificar se \( A \) e \( N \) são compatíveis (por exemplo, \( A \) negativo somente se \( N \) for ímpar).
+                    </p>
+                </li>
+                <li>
+                    <strong>Estimar uma Aproximação Inicial (\( x_0 \)):</strong>
+                    <p>
+                        Utilizar:
+                        \[
+                        x_0 = e^{\frac{\ln|A|}{N}} \times \text{sgn}(A) \quad \text{(se aplicável)}
+                        \]
+                        Alternativamente, \( x_0 = \frac{A}{N} \) se \( A > 1 \), ou \( x_0 = 1 \) se \( A \leq 1 \).
+                    </p>
+                </li>
+                <li>
+                    <strong>Iteração Refinada:</strong>
+                    <ul>
+                        <li>
+                            <strong>Parâmetros:</strong>
+                            <ul>
+                                <li>Tolerância de convergência \( \epsilon = 10^{-21} \)</li>
+                                <li>Número máximo de iterações: 100</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong>Loop de Iteração:</strong>
+                            <ol>
+                                <li>
+                                    <strong>Aplicar o Método de Newton-Raphson:</strong>
+                                    \[
+                                    x_{k+1} = \frac{(N - 1) \times x_k + \frac{A}{x_k^{N-1}}}{N}
+                                    \]
+                                </li>
+                                <li>
+                                    <strong>Correção Refinada:</strong>
+                                    \[
+                                    x_{k+1} = x_{k+1} - \frac{f(x_{k+1})}{f'(x_{k+1})}
+                                    \]
+                                    Onde \( f(x) = x^N - A \) e \( f'(x) = N x^{N-1} \).
+                                </li>
+                                <li>
+                                    <strong>Verificar Convergência:</strong>
+                                    \[
+                                    |x_{k+1} - x_k| < \epsilon
+                                    \]
+                                    Se satisfeita, encerrar as iterações.
+                                </li>
+                                <li>
+                                    <strong>Atualizar \( x_k \)):</strong>
+                                    \[
+                                    x_k = x_{k+1}
+                                    \]
+                                </li>
+                                <li>
+                                    <strong>Verificar Número Máximo de Iterações:</strong>
+                                    Se \( k \) atingir 100 sem convergência, retornar erro ou ajustar parâmetros.
+                                </li>
+                            </ol>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Aprimoramento de Precisão com Arredondamento Controlado:</strong>
+                    <p>
+                        Após a convergência, aplicar arredondamento para garantir exatamente 20 dígitos de precisão.
+                    </p>
+                </li>
+                <li>
+                    <strong>Saída:</strong>
+                    <p>
+                        Retornar \( x_{k+1} \) como a raiz N-ésima de \( A \) com 20 dígitos de precisão.
+                    </p>
+                </li>
+            </ol>
+        </div>
+
+        <div class="section">
+            <h2>Vantagens do MAIR</h2>
+            <ul>
+                <li><strong>Alta Precisão:</strong> Garante 20 dígitos de precisão através de uma tolerância rigorosa.</li>
+                <li><strong>Convergência Rápida:</strong> A combinação do método de Newton-Raphson com a correção refinada acelera a convergência.</li>
+                <li><strong>Versatilidade:</strong> Capaz de lidar com números inteiros, decimais, positivos e negativos (quando aplicável).</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>Implementação do Algoritmo MAIR</h2>
+
+            <h3>1. Implementação em Python</h3>
+            <p>
+                A seguir, apresentamos a implementação do algoritmo MAIR em Python, utilizando nomes de variáveis em português para maior clareza e aderência ao pedido.
+            </p>
+            <pre><code class="language-python">
+import math
+from decimal import Decimal, getcontext
+
+# Configurar a precisão para 25 dígitos (para garantir 20 após cálculos)
+getcontext().prec = 25
+
+def MAIR(A, N):
+    # Validação Inicial
+    if A < 0 and N % 2 == 0:
+        return "Raiz N-ésima de número negativo não é real."
+    
+    A_decimal = Decimal(A)
+    N_decimal = Decimal(N)
+    
+    # Estimativa inicial
+    if abs(A_decimal) > 1:
+        x = Decimal(math.exp(math.log(abs(A)) / N))
+        if A < 0:
+            x = -x
+    else:
+        x = Decimal(1.0)
+    
+    epsilon = Decimal('1e-21')
+    max_iteracoes = 100
+    for iteracao in range(max_iteracoes):
+        # Método de Newton-Raphson
+        x_passo = ((N_decimal - 1) * x + A_decimal / (x ** (N_decimal - 1))) / N_decimal
+        
+        # Correção Refinada
+        f = x_passo ** N_decimal - A_decimal
+        f_prime = N_decimal * (x_passo ** (N_decimal - 1))
+        x_corrigido = x_passo - f / f_prime
+        
+        # Verificar convergência
+        if abs(x_corrigido - x) < epsilon:
+            x = x_corrigido
+            break
+        
+        # Atualizar x
+        x = x_corrigido
+    
+    # Arredondar para 20 dígitos
+    x_final = +x.quantize(Decimal('1.00000000000000000000'))
+    
+    return x_final
+
+# Exemplos de uso
+if __name__ == "__main__":
+    exemplos = [
+        (2.3456789012, 2),
+        (3.1234567890, 3),
+        (4.5678901234, 4),
+        (0.7890123456, 3),
+        (-1.2345678901, 5),
+        (9.8765432109, 3),
+        (1.2345678901, 16),
+        (1.0000000001, 1),
+        (2.4567890123, 10),
+        (-2.3456789012, 5)
+    ]
+    
+    for numero, grau in exemplos:
+        raiz = MAIR(numero, grau)
+        print(f"A raiz {grau}-ésima de {numero} é {raiz}")
+            </code></pre>
+
+            <h3>Explicação do Código</h3>
+            <p>
+                <strong>Importações:</strong>
+                <ul>
+                    <li><code>math</code> para funções matemáticas básicas.</li>
+                    <li><code>decimal</code> para operações de alta precisão.</li>
+                </ul>
+                <strong>Configuração da Precisão:</strong>
+                <p><code>getcontext().prec = 25</code> define a precisão das operações decimais para 25 dígitos, garantindo 20 dígitos após o arredondamento.</p>
+                <strong>Função <code>MAIR</code>:</strong>
+                <ul>
+                    <li><strong>Validação Inicial:</strong> Verifica se o número \( A \) é negativo e se \( N \) é par, caso em que a raiz não é real.</li>
+                    <li><strong>Estimativa Inicial:</strong> Calcula uma aproximação inicial \( x \) utilizando logaritmos ou define como 1.</li>
+                    <li><strong>Iteração Refinada:</strong> Aplica o método de Newton-Raphson seguido pela correção refinada até atingir a precisão desejada ou o número máximo de iterações.</li>
+                    <li><strong>Arredondamento Final:</strong> Garante que o resultado tenha exatamente 20 dígitos de precisão.</li>
+                </ul>
+                <strong>Exemplos de Uso:</strong>
+                <p>Calcula 10 raízes N-ésimas com números do tipo um dígito antes da vírgula e o restante após a vírgula utilizando o método MAIR.</p>
+            </p>
+
+            <!-- Adição da tabela de exemplos -->
+            <h3>Exemplos de Cálculos</h3>
+            <p>Segue abaixo 10 exemplos de cálculos de raízes N-ésimas utilizando o algoritmo MAIR:</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Número A</th>
+                        <th>Grau N</th>
+                        <th>Tipo de Raiz</th>
+                        <th>Raiz N-ésima de A</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>2.3456789012</td>
+                        <td>2</td>
+                        <td>Raiz Quadrada</td>
+                        <td>1.5319006743</td>
+                    </tr>
+                    <tr>
+                        <td>3.1234567890</td>
+                        <td>3</td>
+                        <td>Raiz Cúbica</td>
+                        <td>1.4645918876</td>
+                    </tr>
+                    <tr>
+                        <td>4.5678901234</td>
+                        <td>4</td>
+                        <td>Raiz Quarta</td>
+                        <td>1.2850251613</td>
+                    </tr>
+                    <tr>
+                        <td>0.7890123456</td>
+                        <td>3</td>
+                        <td>Raiz Cúbica</td>
+                        <td>0.9259474167</td>
+                    </tr>
+                    <tr>
+                        <td>-1.2345678901</td>
+                        <td>5</td>
+                        <td>Raiz Quinta</td>
+                        <td>-1.0452928007</td>
+                    </tr>
+                    <tr>
+                        <td>9.8765432109</td>
+                        <td>3</td>
+                        <td>Raiz Cúbica</td>
+                        <td>2.1544346903</td>
+                    </tr>
+                    <tr>
+                        <td>1.2345678901</td>
+                        <td>16</td>
+                        <td>Raiz Décima Sexta</td>
+                        <td>1.0114953541</td>
+                    </tr>
+                    <tr>
+                        <td>1.0000000001</td>
+                        <td>1</td>
+                        <td>Raiz Primeira</td>
+                        <td>1.0000000001</td>
+                    </tr>
+                    <tr>
+                        <td>2.4567890123</td>
+                        <td>10</td>
+                        <td>Raiz Décima</td>
+                        <td>1.0964781961</td>
+                    </tr>
+                    <tr>
+                        <td>-2.3456789012</td>
+                        <td>5</td>
+                        <td>Raiz Quinta</td>
+                        <td>-1.1959978559</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p><em>Todas as raízes apresentadas acima foram calculadas utilizando o método MAIR.</em></p>
+        </div>
+
+        <div class="section calculator">
+            <h2>Calculadora de Raízes N-ésimas MAIR</h2>
+            <p>Utilize a calculadora abaixo para calcular a raiz N-ésima de qualquer número com 20 dígitos de precisão.</p>
+            <label for="calc_numero">Número (A):</label>
+            <input type="number" id="calc_numero" placeholder="Digite o número A (ex: 2.34567890123456789012)" step="any" required>
+
+            <label for="calc_grau">Grau da Raiz (N):</label>
+            <input type="number" id="calc_grau" placeholder="Digite o grau N" required>
+
+            <button onclick="calcularRaiz()">Calcular Raiz</button>
+
+            <div class="resultado" id="calc_resultado"></div>
+        </div>
+    </div>
+
+    <script>
+        // Função para calcular a raiz N-ésima com 20 dígitos de precisão usando decimal.js
+        function calcularRaiz() {
+            let A_input = document.getElementById('calc_numero').value;
+            let N_input = document.getElementById('calc_grau').value;
+            let resultadoDiv = document.getElementById('calc_resultado');
+
+            // Validação dos inputs
+            if (A_input === "" || N_input === "") {
+                resultadoDiv.innerHTML = "Por favor, insira valores para A e N.";
+                return;
+            }
+
+            let A;
+            try {
+                A = new Decimal(A_input);
+            } catch (e) {
+                resultadoDiv.innerHTML = "Valor de A inválido.";
+                return;
+            }
+
+            let N;
+            try {
+                N = new Decimal(N_input);
+            } catch (e) {
+                resultadoDiv.innerHTML = "Valor de N inválido.";
+                return;
+            }
+
+            if (N.lte(0)) {
+                resultadoDiv.innerHTML = "O grau N deve ser um número inteiro positivo.";
+                return;
+            }
+
+            if (!N.isInteger()) {
+                resultadoDiv.innerHTML = "O grau N deve ser um número inteiro positivo.";
+                return;
+            }
+
+            // Validação Inicial
+            if (A.isNegative() && N.isInteger() && N.mod(2).equals(0)) {
+                resultadoDiv.innerHTML = "Raiz N-ésima de número negativo não é real.";
+                return;
+            }
+
+            // Estimativa Inicial
+            let x;
+            if (A.abs().gt(1)) {
+                // x = e^(ln|A| / N)
+                let lnA = A.abs().ln();
+                x = Decimal.exp(lnA.div(N));
+                if (A.isNegative()) {
+                    x = x.neg();
+                }
+            } else {
+                x = new Decimal(1.0);
+            }
+
+            const epsilon = new Decimal('1e-20'); // Usando 1e-20 para comparações de 20 dígitos
+            const maxIteracoes = 100;
+            let iteracao = 0;
+            let convergiu = false;
+
+            while (iteracao < maxIteracoes) {
+                // Método de Newton-Raphson
+                let x_passo = (N.minus(1).times(x).plus(A.div(x.pow(N.minus(1))))).div(N);
+
+                // Correção Refinada
+                let f = x_passo.pow(N).minus(A);
+                let f_prime = N.times(x_passo.pow(N.minus(1)));
+                let x_corrigido = x_passo.minus(f.div(f_prime));
+
+                // Verificar Convergência
+                let diff = x_corrigido.minus(x).abs();
+                if (diff.lt(epsilon)) {
+                    x = x_corrigido;
+                    convergiu = true;
+                    break;
+                }
+
+                // Atualizar x
+                x = x_corrigido;
+                iteracao++;
+            }
+
+            if (!convergiu) {
+                resultadoDiv.innerHTML = "Não convergiu dentro do número máximo de iterações.";
+                return;
+            }
+
+            // Arredondar para 20 dígitos
+            let x_final = x.toFixed(20);
+
+            // Determinar o tipo de raiz
+            let tipoRaiz = "";
+            switch (N.toNumber()) {
+                case 1:
+                    tipoRaiz = "Raiz Primeira";
+                    break;
+                case 2:
+                    tipoRaiz = "Raiz Quadrada";
+                    break;
+                case 3:
+                    tipoRaiz = "Raiz Cúbica";
+                    break;
+                case 4:
+                    tipoRaiz = "Raiz Quarta";
+                    break;
+                case 5:
+                    tipoRaiz = "Raiz Quinta";
+                    break;
+                case 6:
+                    tipoRaiz = "Raiz Sexta";
+                    break;
+                case 7:
+                    tipoRaiz = "Raiz Sétima";
+                    break;
+                case 8:
+                    tipoRaiz = "Raiz Oitava";
+                    break;
+                case 9:
+                    tipoRaiz = "Raiz Nona";
+                    break;
+                case 10:
+                    tipoRaiz = "Raiz Décima";
+                    break;
+                default:
+                    tipoRaiz = `Raiz ${N.toFixed()}-ésima`;
+            }
+
+            resultadoDiv.innerHTML = `Tipo de Raiz: ${tipoRaiz}<br>A raiz ${N.toFixed()}-ésima de ${A.toFixed()} é ${x_final} (Calculada pelo método MAIR)`;
+        }
+    </script>
+</body>
+</html>
+

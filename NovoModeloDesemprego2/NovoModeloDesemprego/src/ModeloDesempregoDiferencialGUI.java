@@ -27,17 +27,24 @@ public class ModeloDesempregoDiferencialGUI extends JFrame {
     private JTextField campoA;
     private JTextField campoB;
     private JTextField campoC;
-    private JTextField campoG;
-    private JTextField campoI;
+    private JTextField campoD;
+    private JTextField campoE;
+    private JTextField campoF;
+    private JTextField campoGCoef;
+    private JTextField campoH;
     private JTextField campoU0;
+    private JTextField campoG0;
+    private JTextField campoI0;
     private JTextField campoTempo;
 
     private JButton botaoCalcular;
-    private JPanel painelGraficoPIB;
-    private JPanel painelGraficoInflacao;
+    private JPanel painelGraficoU;
+    private JPanel painelGraficoG;
+    private JPanel painelGraficoI;
+    private JLabel labelEquacoes;
 
     public ModeloDesempregoDiferencialGUI() {
-        super("Modelo de Previsão de Desemprego com Equação Diferencial");
+        super("Modelo de Previsão de Desemprego com Equações Diferenciais");
 
         // Painel principal com BorderLayout
         JPanel painelPrincipal = new JPanel(new BorderLayout(10, 10));
@@ -77,27 +84,72 @@ public class ModeloDesempregoDiferencialGUI extends JFrame {
         gbc.gridx = 1;
         painelEntrada.add(campoC, gbc);
 
-        JLabel labelG = new JLabel("Crescimento do PIB (G):");
+        JLabel labelD = new JLabel("Coeficiente d:");
         gbc.gridx = 0;
         gbc.gridy = 3;
-        painelEntrada.add(labelG, gbc);
+        painelEntrada.add(labelD, gbc);
 
-        campoG = new JTextField("2.0", 10);
+        campoD = new JTextField("0.1", 10);
         gbc.gridx = 1;
-        painelEntrada.add(campoG, gbc);
+        painelEntrada.add(campoD, gbc);
 
-        JLabel labelI = new JLabel("Inflação (I):");
+        JLabel labelE = new JLabel("Coeficiente e:");
         gbc.gridx = 0;
         gbc.gridy = 4;
-        painelEntrada.add(labelI, gbc);
+        painelEntrada.add(labelE, gbc);
 
-        campoI = new JTextField("3.0", 10);
+        campoE = new JTextField("0.05", 10);
         gbc.gridx = 1;
-        painelEntrada.add(campoI, gbc);
+        painelEntrada.add(campoE, gbc);
+
+        JLabel labelF = new JLabel("Coeficiente f:");
+        gbc.gridx = 0;
+        gbc.gridy = 5;
+        painelEntrada.add(labelF, gbc);
+
+        campoF = new JTextField("0.02", 10);
+        gbc.gridx = 1;
+        painelEntrada.add(campoF, gbc);
+
+        JLabel labelGCoef = new JLabel("Coeficiente g:");
+        gbc.gridx = 0;
+        gbc.gridy = 6;
+        painelEntrada.add(labelGCoef, gbc);
+
+        campoGCoef = new JTextField("0.03", 10);
+        gbc.gridx = 1;
+        painelEntrada.add(campoGCoef, gbc);
+
+        JLabel labelH = new JLabel("Coeficiente h:");
+        gbc.gridx = 0;
+        gbc.gridy = 7;
+        painelEntrada.add(labelH, gbc);
+
+        campoH = new JTextField("0.04", 10);
+        gbc.gridx = 1;
+        painelEntrada.add(campoH, gbc);
+
+        JLabel labelG0 = new JLabel("Crescimento do PIB Inicial (G₀):");
+        gbc.gridx = 0;
+        gbc.gridy = 8;
+        painelEntrada.add(labelG0, gbc);
+
+        campoG0 = new JTextField("2.0", 10);
+        gbc.gridx = 1;
+        painelEntrada.add(campoG0, gbc);
+
+        JLabel labelI0 = new JLabel("Inflação Inicial (I₀):");
+        gbc.gridx = 0;
+        gbc.gridy = 9;
+        painelEntrada.add(labelI0, gbc);
+
+        campoI0 = new JTextField("3.0", 10);
+        gbc.gridx = 1;
+        painelEntrada.add(campoI0, gbc);
 
         JLabel labelU0 = new JLabel("Desemprego Inicial (U₀):");
         gbc.gridx = 0;
-        gbc.gridy = 5;
+        gbc.gridy = 10;
         painelEntrada.add(labelU0, gbc);
 
         campoU0 = new JTextField("5.0", 10);
@@ -106,7 +158,7 @@ public class ModeloDesempregoDiferencialGUI extends JFrame {
 
         JLabel labelTempo = new JLabel("Tempo de Simulação (anos):");
         gbc.gridx = 0;
-        gbc.gridy = 6;
+        gbc.gridy = 11;
         painelEntrada.add(labelTempo, gbc);
 
         campoTempo = new JTextField("10", 10);
@@ -116,16 +168,22 @@ public class ModeloDesempregoDiferencialGUI extends JFrame {
         // Botão de calcular
         botaoCalcular = new JButton("Calcular e Plotar");
         gbc.gridx = 0;
-        gbc.gridy = 7;
+        gbc.gridy = 12;
         gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.CENTER;
         painelEntrada.add(botaoCalcular, gbc);
 
-        painelPrincipal.add(painelEntrada, BorderLayout.NORTH);
+        painelPrincipal.add(painelEntrada, BorderLayout.WEST);
+
+        // Área para exibir as equações
+        labelEquacoes = new JLabel(getEquacoesHTML());
+        labelEquacoes.setBorder(BorderFactory.createTitledBorder("Equações do Modelo"));
+        painelPrincipal.add(labelEquacoes, BorderLayout.NORTH);
 
         // Painéis dos gráficos
-        painelGraficoPIB = new JPanel(new BorderLayout());
-        painelGraficoInflacao = new JPanel(new BorderLayout());
+        painelGraficoU = new JPanel(new BorderLayout());
+        painelGraficoG = new JPanel(new BorderLayout());
+        painelGraficoI = new JPanel(new BorderLayout());
 
         JPanel painelGraficos = new JPanel(new GridBagLayout());
         GridBagConstraints gbcGraficos = new GridBagConstraints();
@@ -135,16 +193,19 @@ public class ModeloDesempregoDiferencialGUI extends JFrame {
         gbcGraficos.weightx = 1.0;
         gbcGraficos.weighty = 1.0;
         gbcGraficos.fill = GridBagConstraints.BOTH;
-        painelGraficos.add(painelGraficoPIB, gbcGraficos);
+        painelGraficos.add(painelGraficoU, gbcGraficos);
 
         gbcGraficos.gridx = 1;
-        painelGraficos.add(painelGraficoInflacao, gbcGraficos);
+        painelGraficos.add(painelGraficoG, gbcGraficos);
+
+        gbcGraficos.gridx = 2;
+        painelGraficos.add(painelGraficoI, gbcGraficos);
 
         painelPrincipal.add(painelGraficos, BorderLayout.CENTER);
 
         setContentPane(painelPrincipal);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(1000, 600);
+        setSize(1600, 800);
         setLocationRelativeTo(null);
 
         // Ação do botão
@@ -156,22 +217,36 @@ public class ModeloDesempregoDiferencialGUI extends JFrame {
         });
     }
 
+    private String getEquacoesHTML() {
+        return "<html><body style='font-family: sans-serif;'>" +
+                "<h3>Equações Diferenciais do Modelo:</h3>" +
+                "<p>dU/dt = a &middot; G + b &middot; I - c &middot; U</p>" +
+                "<p>dG/dt = d &middot; G - e &middot; U + f &middot; I</p>" +
+                "<p>dI/dt = g &middot; U - h &middot; I</p>" +
+                "</body></html>";
+    }
+
     private void calcularEPlotar() {
         // Leitura e validação dos inputs
-        double a, b, c, G, I, U0;
+        double a, b, c, d, e, f, g, h, G0, I0, U0;
         int tempo;
 
         try {
             a = Double.parseDouble(campoA.getText().replace(",", "."));
             b = Double.parseDouble(campoB.getText().replace(",", "."));
             c = Double.parseDouble(campoC.getText().replace(",", "."));
-            G = Double.parseDouble(campoG.getText().replace(",", "."));
-            I = Double.parseDouble(campoI.getText().replace(",", "."));
+            d = Double.parseDouble(campoD.getText().replace(",", "."));
+            e = Double.parseDouble(campoE.getText().replace(",", "."));
+            f = Double.parseDouble(campoF.getText().replace(",", "."));
+            g = Double.parseDouble(campoGCoef.getText().replace(",", "."));
+            h = Double.parseDouble(campoH.getText().replace(",", "."));
+            G0 = Double.parseDouble(campoG0.getText().replace(",", "."));
+            I0 = Double.parseDouble(campoI0.getText().replace(",", "."));
             U0 = Double.parseDouble(campoU0.getText().replace(",", "."));
             tempo = Integer.parseInt(campoTempo.getText());
 
-            if (c <= 0) {
-                JOptionPane.showMessageDialog(this, "O coeficiente c deve ser positivo.",
+            if (c <= 0 || d <= 0 || e <= 0 || f <= 0 || g <= 0 || h <= 0) {
+                JOptionPane.showMessageDialog(this, "Os coeficientes c, d, e, f, g e h devem ser positivos.",
                         "Erro de Entrada", JOptionPane.ERROR_MESSAGE);
                 return;
             }
@@ -189,78 +264,100 @@ public class ModeloDesempregoDiferencialGUI extends JFrame {
         }
 
         // Parâmetros do modelo
-        // Equação: dU/dt = a*G + b*I - c*U
-        // Solução: U(t) = (a*G + b*I)/c + (U0 - (a*G + b*I)/c) * e^(-c*t)
+        // Equações:
+        // dU/dt = a*G + b*I - c*U
+        // dG/dt = d*G - e*U + f*I
+        // dI/dt = g*U - h*I
 
-        // Coeficiente para a solução analítica
-        double U_eq = (a * G + b * I) / c;
+        // Método de Euler para resolver o sistema de ODEs
+        double passo = 0.01; // Passo de integração (anos)
+        int passos = (int) (tempo / passo);
+        double t = 0.0;
+
+        double U = U0;
+        double G = G0;
+        double I = I0;
 
         // Series para os gráficos
-        XYSeries seriesPIB = new XYSeries("Desemprego vs Crescimento do PIB");
-        XYSeries seriesInflacao = new XYSeries("Desemprego vs Inflação");
+        XYSeries seriesU = new XYSeries("Taxa de Desemprego (U)");
+        XYSeries seriesG = new XYSeries("Crescimento do PIB (G)");
+        XYSeries seriesI = new XYSeries("Inflação (I)");
 
-        // Variáveis para variação
-        double passo = 0.1; // Passo para variação das variáveis
-        int pontos = 100;
+        seriesU.add(t, U);
+        seriesG.add(t, G);
+        seriesI.add(t, I);
 
-        // Variação do Crescimento do PIB (mantendo I constante)
-        double G_min = G - 5;
-        double G_max = G + 5;
+        for (int i = 0; i < passos; i++) {
+            // Cálculo das derivadas
+            double dUdt = a * G + b * I - c * U;
+            double dGdt = d * G - e * U + f * I;
+            double dIdt = g * U - h * I;
 
-        for (int i = 0; i <= pontos; i++) {
-            double G_var = G_min + i * (G_max - G_min) / pontos;
-            double U = (a * G_var + b * I) / c;
-            seriesPIB.add(G_var, U);
-        }
+            // Atualização das variáveis usando Euler
+            U += dUdt * passo;
+            G += dGdt * passo;
+            I += dIdt * passo;
+            t += passo;
 
-        // Variação da Inflação (mantendo G constante)
-        double I_min = I - 5;
-        double I_max = I + 5;
-
-        for (int i = 0; i <= pontos; i++) {
-            double I_var = I_min + i * (I_max - I_min) / pontos;
-            double U = (a * G + b * I_var) / c;
-            seriesInflacao.add(I_var, U);
+            seriesU.add(t, U);
+            seriesG.add(t, G);
+            seriesI.add(t, I);
         }
 
         // Dataset para os gráficos
-        XYSeriesCollection datasetPIB = new XYSeriesCollection();
-        datasetPIB.addSeries(seriesPIB);
+        XYSeriesCollection datasetU = new XYSeriesCollection();
+        datasetU.addSeries(seriesU);
 
-        XYSeriesCollection datasetInflacao = new XYSeriesCollection();
-        datasetInflacao.addSeries(seriesInflacao);
+        XYSeriesCollection datasetG = new XYSeriesCollection();
+        datasetG.addSeries(seriesG);
+
+        XYSeriesCollection datasetI = new XYSeriesCollection();
+        datasetI.addSeries(seriesI);
 
         // Criação dos gráficos
-        JFreeChart chartPIB = ChartFactory.createXYLineChart(
-                "Relação entre Desemprego e Crescimento do PIB",
-                "Crescimento do PIB (%)",
+        JFreeChart chartU = ChartFactory.createXYLineChart(
+                "Taxa de Desemprego ao Longo do Tempo",
+                "Tempo (anos)",
                 "Taxa de Desemprego (%)",
-                datasetPIB
+                datasetU
         );
 
-        JFreeChart chartInflacao = ChartFactory.createXYLineChart(
-                "Relação entre Desemprego e Inflação",
+        JFreeChart chartG = ChartFactory.createXYLineChart(
+                "Crescimento do PIB ao Longo do Tempo",
+                "Tempo (anos)",
+                "Crescimento do PIB (%)",
+                datasetG
+        );
+
+        JFreeChart chartI = ChartFactory.createXYLineChart(
+                "Inflação ao Longo do Tempo",
+                "Tempo (anos)",
                 "Inflação (%)",
-                "Taxa de Desemprego (%)",
-                datasetInflacao
+                datasetI
         );
 
         // Adiciona os gráficos aos painéis
-        painelGraficoPIB.removeAll();
-        ChartPanel chartPanelPIB = new ChartPanel(chartPIB);
-        painelGraficoPIB.add(chartPanelPIB, BorderLayout.CENTER);
-        painelGraficoPIB.revalidate();
-        painelGraficoPIB.repaint();
+        painelGraficoU.removeAll();
+        ChartPanel chartPanelU = new ChartPanel(chartU);
+        painelGraficoU.add(chartPanelU, BorderLayout.CENTER);
+        painelGraficoU.revalidate();
+        painelGraficoU.repaint();
 
-        painelGraficoInflacao.removeAll();
-        ChartPanel chartPanelInflacao = new ChartPanel(chartInflacao);
-        painelGraficoInflacao.add(chartPanelInflacao, BorderLayout.CENTER);
-        painelGraficoInflacao.revalidate();
-        painelGraficoInflacao.repaint();
+        painelGraficoG.removeAll();
+        ChartPanel chartPanelG = new ChartPanel(chartG);
+        painelGraficoG.add(chartPanelG, BorderLayout.CENTER);
+        painelGraficoG.revalidate();
+        painelGraficoG.repaint();
+
+        painelGraficoI.removeAll();
+        ChartPanel chartPanelI = new ChartPanel(chartI);
+        painelGraficoI.add(chartPanelI, BorderLayout.CENTER);
+        painelGraficoI.revalidate();
+        painelGraficoI.repaint();
 
         // Exibição do resultado em uma mensagem
         JOptionPane.showMessageDialog(this,
-                String.format("Taxa de Desemprego de Equilíbrio: %.2f%%", U_eq),
+                String.format("Simulação concluída para %d anos.", tempo),
                 "Resultado",
                 JOptionPane.INFORMATION_MESSAGE);
     }

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Previsão do Preço do Dólar em Relação ao Real: Modelo ARIMA-GARCH</title>
+    <!-- MathJax CDN -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+    </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        .calculator {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border: 1px solid #ddd;
+            margin-top: 30px;
+            border-radius: 5px;
+        }
+        .calculator input, .calculator button {
+            padding: 10px;
+            margin: 5px 0;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .result {
+            margin-top: 15px;
+            font-weight: bold;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Previsão do Preço do Dólar em Relação ao Real: Modelo ARIMA-GARCH</h1>
+    <p><em>Autor: Luiz Tiago Wilcke</em></p>
+
+    <h2>Introdução</h2>
+    <p>A previsão da taxa de câmbio entre o dólar americano (USD) e o real brasileiro (BRL) é uma tarefa desafiadora devido à sua natureza volátil e influenciada por diversos fatores macroeconômicos. Este artigo apresenta um modelo estatístico robusto que combina as abordagens ARIMA e GARCH para realizar essa previsão.</p>
+
+    <h2>Modelo ARIMA-GARCH</h2>
+    <p>O modelo ARIMA-GARCH combina duas técnicas poderosas de análise de séries temporais:</p>
+
+    <h3>ARIMA (AutoRegressive Integrated Moving Average)</h3>
+    <p>O modelo ARIMA é utilizado para capturar a tendência e os padrões sazonais na série temporal. A sua formulação geral é dada por:</p>
+    <p>$$
+    ARIMA(p, d, q)
+    $$</p>
+    <p>Onde:</p>
+    <ul>
+        <li><strong>p</strong>: Ordem da parte autoregressiva (AR).</li>
+        <li><strong>d</strong>: Grau de diferenciação (I) para tornar a série estacionária.</li>
+        <li><strong>q</strong>: Ordem da parte de média móvel (MA).</li>
+    </ul>
+
+    <p>A equação geral do modelo ARIMA(p, d, q) pode ser expressa como:</p>
+    <p>$$
+    \phi(B)(1 - B)^d X_t = \theta(B) \epsilon_t
+    $$</p>
+    <p>Onde:</p>
+    <ul>
+        <li><strong>$$\phi(B)$$</strong>: Polinômio autoregressivo definido por $$\phi(B) = 1 - \phi_1 B - \phi_2 B^2 - \dots - \phi_p B^p$$.</li>
+        <li><strong>$$\theta(B)$$</strong>: Polinômio de média móvel definido por $$\theta(B) = 1 + \theta_1 B + \theta_2 B^2 + \dots + \theta_q B^q$$.</li>
+        <li><strong>$$B$$</strong>: Operador de defasagem (lag), onde $$B X_t = X_{t-1}$$.</li>
+        <li><strong>$$\epsilon_t$$</strong>: Termo de erro branco com média zero e variância constante.</li>
+    </ul>
+
+    <p>Expandindo a equação, obtemos:</p>
+    <p>$$
+    X_t = c + \phi_1 X_{t-1} + \phi_2 X_{t-2} + \dots + \phi_p X_{t-p} + \epsilon_t + \theta_1 \epsilon_{t-1} + \theta_2 \epsilon_{t-2} + \dots + \theta_q \epsilon_{t-q}
+    $$</p>
+    <p>Onde <strong>c</strong> é uma constante que pode ser incluída no modelo.</p>
+
+    <h3>GARCH (Generalized Autoregressive Conditional Heteroskedasticity)</h3>
+    <p>O modelo GARCH é aplicado para modelar a volatilidade da série temporal, permitindo capturar períodos de alta e baixa variabilidade. A formulação básica é:</p>
+    <p>$$
+    \sigma_t^2 = \alpha_0 + \alpha_1 \epsilon_{t-1}^2 + \beta_1 \sigma_{t-1}^2
+    $$</p>
+    <p>Onde:</p>
+    <ul>
+        <li><strong>$$\sigma_t^2$$</strong>: Variância condicional no tempo t.</li>
+        <li><strong>$$\alpha_0$$</strong>: Constante.</li>
+        <li><strong>$$\alpha_1$$</strong>: Coeficiente do termo de erro passado.</li>
+        <li><strong>$$\beta_1$$</strong>: Coeficiente do termo de variância passada.</li>
+    </ul>
+
+    <p>Para um modelo GARCH(p, q), a equação se generaliza para:</p>
+    <p>$$
+    \sigma_t^2 = \alpha_0 + \sum_{i=1}^{p} \alpha_i \epsilon_{t-i}^2 + \sum_{j=1}^{q} \beta_j \sigma_{t-j}^2
+    $$</p>
+    <p>Este modelo captura a persistência na volatilidade, onde choques na variância tendem a ter efeitos de longo prazo.</p>
+
+    <h3>Combinação ARIMA-GARCH</h3>
+    <p>A combinação desses modelos permite primeiro capturar a tendência central da série com o ARIMA e, em seguida, modelar a volatilidade residual com o GARCH. A estrutura do modelo combinado é:</p>
+    <p><strong>1. Modelo ARIMA para a Média:</strong></p>
+    <p>$$
+    X_t = c + \phi_1 X_{t-1} + \dots + \phi_p X_{t-p} + \epsilon_t + \theta_1 \epsilon_{t-1} + \dots + \theta_q \epsilon_{t-q}
+    $$</p>
+    <p><strong>2. Modelo GARCH para a Volatilidade:</strong></p>
+    <p>$$
+    \sigma_t^2 = \alpha_0 + \sum_{i=1}^{p} \alpha_i \epsilon_{t-i}^2 + \sum_{j=1}^{q} \beta_j \sigma_{t-j}^2
+    $$</p>
+    <p>Onde os resíduos $$\epsilon_t$$ do modelo ARIMA são utilizados no modelo GARCH para modelar a variância condicional.</p>
+
+    <p>Este modelo combinado permite uma modelagem mais completa, considerando tanto a tendência quanto a variabilidade dos dados, o que é essencial para séries temporais financeiras como a taxa de câmbio.</p>
+
+    <h3>Estimação dos Parâmetros</h3>
+    <p>A estimação dos parâmetros dos modelos ARIMA e GARCH geralmente é realizada usando métodos de máxima verossimilhança. A função de verossimilhança conjunta para o modelo ARIMA-GARCH é dada por:</p>
+    <p>$$
+    L(\theta) = \prod_{t=1}^{T} \frac{1}{\sqrt{2\pi\sigma_t^2}} \exp\left( -\frac{\epsilon_t^2}{2\sigma_t^2} \right)
+    $$</p>
+    <p>Onde <strong>$$\theta$$</strong> representa o conjunto de todos os parâmetros do modelo ARIMA e GARCH. A otimização desta função visa encontrar os valores de $$\theta$$ que maximizam a probabilidade dos dados observados.</p>
+
+    <h2>Fatores Macroeconômicos</h2>
+    <p>Além dos componentes estatísticos, a inclusão de variáveis macroeconômicas exógenas pode melhorar a precisão do modelo. Algumas dessas variáveis incluem:</p>
+    <ul>
+        <li>Taxa de juros dos EUA e do Brasil.</li>
+        <li>Índices de inflação de ambos os países.</li>
+        <li>Risco país, medido por Credit Default Swap (CDS).</li>
+        <li>Intervenções do Banco Central, como compra e venda de dólares.</li>
+    </ul>
+
+    <h2>Calculadora de Previsão</h2>
+    <div class="calculator">
+        <h3>Calculadora ARIMA-GARCH para Previsão do Dólar/Real</h3>
+        <label for="arima_p">Parâmetro AR (p):</label>
+        <input type="number" id="arima_p" value="1" min="0">
+
+        <label for="arima_d">Parâmetro I (d):</label>
+        <input type="number" id="arima_d" value="1" min="0">
+
+        <label for="arima_q">Parâmetro MA (q):</label>
+        <input type="number" id="arima_q" value="1" min="0">
+
+        <label for="garch_alpha">Parâmetro $$\alpha_1$$ (GARCH):</label>
+        <input type="number" id="garch_alpha" value="0.1" step="0.01" min="0">
+
+        <label for="garch_beta">Parâmetro $$\beta_1$$ (GARCH):</label>
+        <input type="number" id="garch_beta" value="0.85" step="0.01" min="0">
+
+        <button onclick="predictExchangeRate()">Prever Taxa de Câmbio</button>
+
+        <div class="result" id="result"></div>
+    </div>
+
+    <h2>Implementação da Calculadora</h2>
+    <p>A calculadora acima permite que você insira os parâmetros do modelo ARIMA-GARCH e obtenha uma previsão simplificada da taxa de câmbio USD/BRL. Note que, para uma previsão realista e precisa, é necessário utilizar dados históricos e realizar a estimação dos parâmetros com métodos estatísticos apropriados, o que está além do escopo desta calculadora simplificada.</p>
+
+    <h3>Detalhes da Implementação</h3>
+    <p>A implementação do modelo ARIMA-GARCH requer várias etapas, incluindo:</p>
+    <ol>
+        <li><strong>Coleta de Dados</strong>: Obtenção de dados históricos da taxa de câmbio USD/BRL.</li>
+        <li><strong>Análise Exploratória</strong>: Verificação da estacionariedade da série temporal utilizando testes como Dickey-Fuller.</li>
+        <li><strong>Identificação do Modelo ARIMA</strong>: Seleção das ordens p, d e q com base em gráficos de ACF e PACF.</li>
+        <li><strong>Estimação dos Parâmetros ARIMA</strong>: Ajuste do modelo ARIMA aos dados.</li>
+        <li><strong>Verificação dos Resíduos</strong>: Análise dos resíduos do modelo ARIMA para garantir que são ruído branco.</li>
+        <li><strong>Modelagem da Volatilidade com GARCH</strong>: Aplicação do modelo GARCH aos resíduos do ARIMA.</li>
+        <li><strong>Validação do Modelo</strong>: Avaliação do modelo utilizando métricas como AIC, BIC e testes de adequação dos resíduos.</li>
+    </ol>
+
+    <h2>Exemplo de Aplicação</h2>
+    <p>A seguir, um exemplo simplificado de como os parâmetros influenciam a previsão:</p>
+    <p>Considere os seguintes parâmetros para o modelo ARIMA(1,1,1)-GARCH(1,1):</p>
+    <ul>
+        <li><strong>p = 1</strong></li>
+        <li><strong>d = 1</strong></li>
+        <li><strong>q = 1</strong></li>
+        <li><strong>$$\alpha_0 = 0.1$$</strong></li>
+        <li><strong>$$\alpha_1 = 0.1$$</strong></li>
+        <li><strong>$$\beta_1 = 0.85$$</strong></li>
+    </ul>
+    <p>Substituindo na fórmula do GARCH:</p>
+    <p>$$
+    \sigma_t^2 = 0.1 + 0.1 \epsilon_{t-1}^2 + 0.85 \sigma_{t-1}^2
+    $$</p>
+    <p>Isso indica que a variância condicional atual depende da variância passada e do quadrado do erro passado, capturando a persistência na volatilidade.</p>
+
+    <h2>Calculadora de Previsão</h2>
+    <div class="calculator">
+        <h3>Calculadora ARIMA-GARCH para Previsão do Dólar/Real</h3>
+        <label for="arima_p">Parâmetro AR (p):</label>
+        <input type="number" id="arima_p" value="1" min="0">
+
+        <label for="arima_d">Parâmetro I (d):</label>
+        <input type="number" id="arima_d" value="1" min="0">
+
+        <label for="arima_q">Parâmetro MA (q):</label>
+        <input type="number" id="arima_q" value="1" min="0">
+
+        <label for="garch_alpha">Parâmetro $$\alpha_1$$ (GARCH):</label>
+        <input type="number" id="garch_alpha" value="0.1" step="0.01" min="0">
+
+        <label for="garch_beta">Parâmetro $$\beta_1$$ (GARCH):</label>
+        <input type="number" id="garch_beta" value="0.85" step="0.01" min="0">
+
+        <button onclick="predictExchangeRate()">Prever Taxa de Câmbio</button>
+
+        <div class="result" id="result"></div>
+    </div>
+
+    <h2>Implementação da Calculadora</h2>
+    <p>A calculadora acima permite que você insira os parâmetros do modelo ARIMA-GARCH e obtenha uma previsão simplificada da taxa de câmbio USD/BRL. Note que, para uma previsão realista e precisa, é necessário utilizar dados históricos e realizar a estimação dos parâmetros com métodos estatísticos apropriados, o que está além do escopo desta calculadora simplificada.</p>
+
+    <h3>Detalhes da Implementação</h3>
+    <p>A implementação do modelo ARIMA-GARCH requer várias etapas, incluindo:</p>
+    <ol>
+        <li><strong>Coleta de Dados</strong>: Obtenção de dados históricos da taxa de câmbio USD/BRL.</li>
+        <li><strong>Análise Exploratória</strong>: Verificação da estacionariedade da série temporal utilizando testes como Dickey-Fuller.</li>
+        <li><strong>Identificação do Modelo ARIMA</strong>: Seleção das ordens p, d e q com base em gráficos de ACF e PACF.</li>
+        <li><strong>Estimação dos Parâmetros ARIMA</strong>: Ajuste do modelo ARIMA aos dados.</li>
+        <li><strong>Verificação dos Resíduos</strong>: Análise dos resíduos do modelo ARIMA para garantir que são ruído branco.</li>
+        <li><strong>Modelagem da Volatilidade com GARCH</strong>: Aplicação do modelo GARCH aos resíduos do ARIMA.</li>
+        <li><strong>Validação do Modelo</strong>: Avaliação do modelo utilizando métricas como AIC, BIC e testes de adequação dos resíduos.</li>
+    </ol>
+
+    <h2>Exemplo de Aplicação</h2>
+    <p>A seguir, um exemplo simplificado de como os parâmetros influenciam a previsão:</p>
+    <p>Considere os seguintes parâmetros para o modelo ARIMA(1,1,1)-GARCH(1,1):</p>
+    <ul>
+        <li><strong>p = 1</strong></li>
+        <li><strong>d = 1</strong></li>
+        <li><strong>q = 1</strong></li>
+        <li><strong>$$\alpha_0 = 0.1$$</strong></li>
+        <li><strong>$$\alpha_1 = 0.1$$</strong></li>
+        <li><strong>$$\beta_1 = 0.85$$</strong></li>
+    </ul>
+    <p>Substituindo na fórmula do GARCH:</p>
+    <p>$$
+    \sigma_t^2 = 0.1 + 0.1 \epsilon_{t-1}^2 + 0.85 \sigma_{t-1}^2
+    $$</p>
+    <p>Isso indica que a variância condicional atual depende da variância passada e do quadrado do erro passado, capturando a persistência na volatilidade.</p>
+
+    <script>
+        function predictExchangeRate() {
+            // Obter valores dos inputs
+            const p = parseInt(document.getElementById('arima_p').value);
+            const d = parseInt(document.getElementById('arima_d').value);
+            const q = parseInt(document.getElementById('arima_q').value);
+            const alpha = parseFloat(document.getElementById('garch_alpha').value);
+            const beta = parseFloat(document.getElementById('garch_beta').value);
+
+            // Validação simples dos parâmetros
+            if (isNaN(p) || isNaN(d) || isNaN(q) || isNaN(alpha) || isNaN(beta)) {
+                document.getElementById('result').innerHTML = "Por favor, insira valores válidos para todos os parâmetros.";
+                return;
+            }
+
+            // Simulação simplificada da previsão
+            // Nota: Esta é uma simplificação e não representa uma previsão real do modelo ARIMA-GARCH
+            // Em um cenário real, seria necessário ajustar o modelo com dados históricos
+
+            // Fórmula simplificada: Preço Futuro = (alpha + beta) / (p + d + q + 1)
+            const predictedRate = (alpha + beta) / (p + d + q + 1); // Ajuste para evitar valores altos
+
+            // Exibir o resultado
+            document.getElementById('result').innerHTML = `A taxa de câmbio prevista USD/BRL é aproximadamente <strong>${predictedRate.toFixed(4)}</strong>.`;
+        }
+    </script>
+
+    <h2>Considerações Finais</h2>
+    <p>O modelo ARIMA-GARCH oferece uma abordagem estruturada para a previsão de séries temporais financeiras, como a taxa de câmbio USD/BRL. Embora a calculadora apresentada seja uma simplificação, ela ilustra como os diferentes parâmetros do modelo podem influenciar a previsão. Para aplicações práticas, recomenda-se utilizar ferramentas estatísticas avançadas e dados históricos detalhados para ajustar e validar o modelo de forma adequada.</p>
+
+</body>
+</html>

@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Modelo Matemático para Previsão do Preço do Barril de Petróleo</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async
+            src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+    </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            line-height: 1.6;
+        }
+        h1, h2 {
+            color: #2c3e50;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            overflow-x: auto;
+        }
+        .author {
+            margin-top: 40px;
+            font-style: italic;
+        }
+        .calculator {
+            margin-top: 40px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #fafafa;
+        }
+        .calculator label {
+            display: block;
+            margin-bottom: 10px;
+        }
+        .calculator input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 4px;
+            box-sizing: border-box;
+        }
+        .calculator button {
+            padding: 10px 20px;
+            background-color: #27ae60;
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .calculator button:hover {
+            background-color: #219150;
+        }
+        #resultCanvas {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Modelo Matemático para Previsão do Preço do Barril de Petróleo</h1>
+    <p><strong>Autor:</strong> Luiz Tiago Wilcke</p>
+
+    <h2>Introdução</h2>
+    <p>
+        A previsão do preço do barril de petróleo é uma tarefa complexa que envolve múltiplos fatores econômicos, políticos e ambientais. 
+        Para modelar este fenômeno, utilizaremos uma equação diferencial avançada que considera tanto a oferta quanto a demanda, 
+        além de fatores externos que influenciam o mercado global de petróleo.
+    </p>
+
+    <h2>Descrição do Modelo</h2>
+    <p>
+        O modelo proposto baseia-se em uma equação diferencial não-linear de segunda ordem, incorporando termos que representam 
+        a elasticidade da oferta e da demanda, bem como choques externos que podem afetar o preço do petróleo. A equação diferencial 
+        que descreve o preço do barril de petróleo \( P(t) \) ao longo do tempo \( t \) é dada por:
+    </p>
+
+    <p>
+        \[
+        \frac{d^2P(t)}{dt^2} + \alpha \frac{dP(t)}{dt} + \beta P(t) = \gamma D(t) - \delta S(t) + \epsilon E(t)
+        \]
+    </p>
+
+    <p>
+        Onde:
+    </p>
+    <ul>
+        <li>\( \alpha \) representa o coeficiente de amortecimento relacionado à volatilidade do mercado.</li>
+        <li>\( \beta \) é o coeficiente de rigidez que denota a resistência do preço a mudanças rápidas.</li>
+        <li>\( D(t) \) é a função que modela a demanda por petróleo ao longo do tempo.</li>
+        <li>\( S(t) \) é a função que modela a oferta de petróleo ao longo do tempo.</li>
+        <li>\( E(t) \) representa choques externos, como eventos geopolíticos ou desastres naturais.</li>
+        <li>\( \gamma, \delta, \epsilon \) são coeficientes que quantificam a influência da demanda, oferta e choques externos, respectivamente.</li>
+    </ul>
+
+    <h2>Solução Numérica</h2>
+    <p>
+        Devido à natureza não-linear e complexa da equação, a solução analítica é impraticável. 
+        Portanto, utilizaremos métodos numéricos, como o Método de Euler, para aproximar a solução.
+    </p>
+
+    <h2>Implementação em HTML e JavaScript</h2>
+    <p>Abaixo está a implementação do modelo matemático utilizando HTML e JavaScript. O código renderiza as equações com MathJax 
+    e executa a simulação numérica para prever o preço do barril de petróleo.</p>
+
+    <pre><code>
+// Parâmetros do Modelo
+const alpha = 0.5; // Coeficiente de amortecimento
+const beta = 0.3;  // Coeficiente de rigidez
+const gamma = 1.2; // Influência da demanda
+const delta = 1.0; // Influência da oferta
+const epsilon = 0.8; // Influência de choques externos
+
+// Funções de Demanda, Oferta e Choques Externos
+function D(t) {
+    // Exemplo: Demanda aumenta exponencialmente
+    return Math.exp(0.05 * t);
+}
+
+function S(t) {
+    // Exemplo: Oferta cresce logisticamente
+    const K = 100; // Capacidade de oferta
+    const r = 0.03; // Taxa de crescimento
+    return K / (1 + Math.exp(-r * (t - 50)));
+}
+
+function E(t) {
+    // Exemplo: Choques externos como eventos discretos
+    if (Math.floor(t) === t && t % 30 === 0) {
+        return 10 * Math.sin(0.2 * t);
+    }
+    return 0;
+}
+
+// Condições Iniciais
+let P = 50; // Preço inicial do barril
+let dPdt = 0; // Velocidade inicial
+const dt = 0.1; // Passo de tempo
+const T = 200; // Tempo total
+const steps = Math.floor(T / dt);
+
+// Armazenar resultados
+let time = [];
+let price = [];
+
+// Método de Euler para Resolver a Equação Diferencial
+for (let i = 0; i <= steps; i++) {
+    let t = i * dt;
+    time.push(t);
+    price.push(P);
+
+    // Calcula as derivadas
+    let d2Pdt2 = gamma * D(t) - delta * S(t) + epsilon * E(t) - alpha * dPdt - beta * P;
+
+    // Atualiza as variáveis usando Euler
+    dPdt += d2Pdt2 * dt;
+    P += dPdt * dt;
+}
+
+// Plotar os resultados usando Canvas
+const canvas = document.createElement('canvas');
+canvas.width = 800;
+canvas.height = 400;
+document.body.appendChild(canvas);
+const ctx = canvas.getContext('2d');
+
+// Configurar eixos
+ctx.beginPath();
+ctx.moveTo(50, 350);
+ctx.lineTo(750, 350);
+ctx.moveTo(50, 350);
+ctx.lineTo(50, 50);
+ctx.strokeStyle = '#000';
+ctx.stroke();
+
+// Plotar preço
+ctx.beginPath();
+ctx.moveTo(50, 350 - price[0]);
+for (let i = 1; i < price.length; i++) {
+    let x = 50 + (700 * time[i] / T);
+    let y = 350 - (300 * (price[i] - Math.min(...price)) / (Math.max(...price) - Math.min(...price)));
+    ctx.lineTo(x, y);
+}
+ctx.strokeStyle = '#e74c3c';
+ctx.stroke();
+
+// Legenda
+ctx.fillStyle = '#000';
+ctx.fillText('Tempo', 750, 355);
+ctx.fillText('Preço do Barril', 30, 50);
+    </code></pre>
+
+    <h2>Calculadora do Modelo</h2>
+    <p>
+        Utilize a calculadora abaixo para ajustar os parâmetros do modelo e visualizar como eles afetam a previsão do preço do barril de petróleo.
+    </p>
+
+    <div class="calculator">
+        <h3>Parâmetros do Modelo</h3>
+        <label>
+            <strong>Coeficiente de Amortecimento (\( \alpha \)):</strong>
+            <input type="number" id="alpha" value="0.5" step="0.1" min="0">
+        </label>
+        <label>
+            <strong>Coeficiente de Rigidez (\( \beta \)):</strong>
+            <input type="number" id="beta" value="0.3" step="0.1" min="0">
+        </label>
+        <label>
+            <strong>Influência da Demanda (\( \gamma \)):</strong>
+            <input type="number" id="gamma" value="1.2" step="0.1" min="0">
+        </label>
+        <label>
+            <strong>Influência da Oferta (\( \delta \)):</strong>
+            <input type="number" id="delta" value="1.0" step="0.1" min="0">
+        </label>
+        <label>
+            <strong>Influência de Choques Externos (\( \epsilon \)):</strong>
+            <input type="number" id="epsilon" value="0.8" step="0.1" min="0">
+        </label>
+        <h3>Condições Iniciais</h3>
+        <label>
+            <strong>Preço Inicial do Barril (\( P_0 \)):</strong>
+            <input type="number" id="P0" value="50" step="1" min="0">
+        </label>
+        <label>
+            <strong>Velocidade Inicial (\( \frac{dP}{dt}_0 \)):</strong>
+            <input type="number" id="dPdt0" value="0" step="1">
+        </label>
+        <h3>Configurações da Simulação</h3>
+        <label>
+            <strong>Passo de Tempo (\( \Delta t \)):</strong>
+            <input type="number" id="dt" value="0.1" step="0.1" min="0.01">
+        </label>
+        <label>
+            <strong>Tempo Total (\( T \)):</strong>
+            <input type="number" id="T" value="200" step="10" min="10">
+        </label>
+        <button onclick="runSimulation()">Executar Simulação</button>
+
+        <canvas id="resultCanvas" width="800" height="400"></canvas>
+    </div>
+
+    <h2>Explicação do Código</h2>
+    <ul>
+        <li><strong>Parâmetros do Modelo:</strong> Define os coeficientes da equação diferencial.</li>
+        <li><strong>Funções de Demanda, Oferta e Choques Externos:</strong> Modelam as variações da demanda, oferta e eventos externos ao longo do tempo.</li>
+        <li><strong>Condições Iniciais:</strong> Estabelecem o preço inicial e a velocidade de mudança do preço.</li>
+        <li><strong>Método de Euler:</strong> Utilizado para resolver numericamente a equação diferencial.</li>
+        <li><strong>Plotagem:</strong> Utiliza o elemento Canvas do HTML para visualizar a evolução do preço ao longo do tempo.</li>
+        <li><strong>Calculadora Interativa:</strong> Permite ajustar os parâmetros do modelo e visualizar os resultados da simulação em tempo real.</li>
+    </ul>
+
+    <h2>Resultados</h2>
+    <p>
+        A simulação gera um gráfico que mostra como o preço do barril de petróleo evolui ao longo do tempo, 
+        levando em consideração as dinâmicas de oferta, demanda e choques externos. A curva resultante reflete 
+        a interação complexa desses fatores e pode ser utilizada para prever tendências futuras no mercado de petróleo.
+    </p>
+
+    <div class="author">
+        &copy; 2024 Luiz Tiago Wilcke
+    </div>
+
+    <script>
+        function runSimulation() {
+            // Obter valores dos inputs
+            const alpha = parseFloat(document.getElementById('alpha').value);
+            const beta = parseFloat(document.getElementById('beta').value);
+            const gamma = parseFloat(document.getElementById('gamma').value);
+            const delta = parseFloat(document.getElementById('delta').value);
+            const epsilon = parseFloat(document.getElementById('epsilon').value);
+            const P0 = parseFloat(document.getElementById('P0').value);
+            const dPdt0 = parseFloat(document.getElementById('dPdt0').value);
+            const dt = parseFloat(document.getElementById('dt').value);
+            const T = parseFloat(document.getElementById('T').value);
+            const steps = Math.floor(T / dt);
+
+            // Funções de Demanda, Oferta e Choques Externos
+            function D(t) {
+                // Demanda aumenta exponencialmente
+                return Math.exp(0.05 * t);
+            }
+
+            function S(t) {
+                // Oferta cresce logisticamente
+                const K = 100; // Capacidade de oferta
+                const r = 0.03; // Taxa de crescimento
+                return K / (1 + Math.exp(-r * (t - 50)));
+            }
+
+            function E(t) {
+                // Choques externos como eventos discretos
+                if (Math.floor(t) === t && t % 30 === 0) {
+                    return 10 * Math.sin(0.2 * t);
+                }
+                return 0;
+            }
+
+            // Condições Iniciais
+            let P = P0; // Preço inicial do barril
+            let dPdt = dPdt0; // Velocidade inicial
+
+            // Armazenar resultados
+            let time = [];
+            let price = [];
+
+            // Método de Euler para Resolver a Equação Diferencial
+            for (let i = 0; i <= steps; i++) {
+                let t = i * dt;
+                time.push(t);
+                price.push(P);
+
+                // Calcula as derivadas
+                let d2Pdt2 = gamma * D(t) - delta * S(t) + epsilon * E(t) - alpha * dPdt - beta * P;
+
+                // Atualiza as variáveis usando Euler
+                dPdt += d2Pdt2 * dt;
+                P += dPdt * dt;
+            }
+
+            // Plotar os resultados usando Canvas
+            const canvas = document.getElementById('resultCanvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Configurar eixos
+            ctx.beginPath();
+            ctx.moveTo(50, 350);
+            ctx.lineTo(750, 350);
+            ctx.moveTo(50, 350);
+            ctx.lineTo(50, 50);
+            ctx.strokeStyle = '#000';
+            ctx.stroke();
+
+            // Determinar escalas
+            const maxTime = T;
+            const minPrice = Math.min(...price);
+            const maxPrice = Math.max(...price);
+            const priceRange = maxPrice - minPrice;
+
+            // Plotar preço
+            ctx.beginPath();
+            ctx.moveTo(50, 350 - ((price[0] - minPrice) / priceRange) * 300);
+            for (let i = 1; i < price.length; i++) {
+                let x = 50 + (700 * time[i] / maxTime);
+                let y = 350 - (300 * (price[i] - minPrice) / priceRange);
+                ctx.lineTo(x, y);
+            }
+            ctx.strokeStyle = '#e74c3c';
+            ctx.stroke();
+
+            // Legenda
+            ctx.fillStyle = '#000';
+            ctx.font = '12px Arial';
+            ctx.fillText('Tempo', 750, 355);
+            ctx.fillText('Preço do Barril', 30, 50);
+        }
+
+        // Executar simulação inicial ao carregar a página
+        window.onload = runSimulation;
+    </script>
+
+</body>
+</html>

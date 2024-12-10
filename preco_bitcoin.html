@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Modelo Matemático Estocástico para Prever o Preço do Bitcoin</title>
+    <!-- Link para o MathJax -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+    </script>
+    <!-- Link para Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* CSS estilo livro com letras maiores */
+        body {
+            font-family: 'Georgia', serif;
+            margin: 2em;
+            line-height: 1.8;
+            background-color: #fdfdfd;
+            color: #333;
+            font-size: 18px;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+            color: #2c3e50;
+        }
+
+        h1 {
+            border-bottom: 2px solid #2c3e50;
+            padding-bottom: 0.3em;
+            font-size: 2.5em;
+        }
+
+        h2 {
+            font-size: 2em;
+            margin-top: 1.5em;
+        }
+
+        h3 {
+            font-size: 1.75em;
+            margin-top: 1.2em;
+        }
+
+        p {
+            text-align: justify;
+            text-indent: 2em;
+            margin: 1em 0;
+        }
+
+        .equation {
+            text-align: center;
+            margin: 2em 0;
+            font-size: 1.2em;
+        }
+
+        .chart-container {
+            width: 100%;
+            margin: 2em 0;
+        }
+
+        /* Estilo para o código */
+        pre {
+            background-color: #f4f4f4;
+            padding: 1em;
+            border-left: 3px solid #ccc;
+            overflow-x: auto;
+            font-size: 1em;
+        }
+
+        code {
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        /* Estilo para a calculadora */
+        .calculator {
+            border: 1px solid #ccc;
+            padding: 1.5em;
+            border-radius: 8px;
+            background-color: #fafafa;
+            margin: 2em 0;
+        }
+
+        .calculator h3 {
+            margin-top: 0;
+            font-size: 1.75em;
+        }
+
+        .calculator label {
+            display: block;
+            margin: 0.5em 0 0.2em;
+            font-weight: bold;
+        }
+
+        .calculator input {
+            width: 100%;
+            padding: 0.7em;
+            margin-bottom: 1em;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 1em;
+        }
+
+        .calculator button {
+            padding: 0.7em 1.5em;
+            background-color: #2c3e50;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+
+        .calculator button:hover {
+            background-color: #34495e;
+        }
+
+        /* Adicionando detalhes para métodos e resoluções */
+        .method-section {
+            margin-top: 2em;
+        }
+
+        .method-section h3 {
+            font-size: 1.75em;
+            margin-bottom: 0.5em;
+        }
+
+        .method-section p, .method-section ul, .method-section ol {
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
+    <h1>Modelo Matemático Estocástico para Prever o Preço do Bitcoin</h1>
+    <p><strong>Autor:</strong> Luiz Tiago Wilcke</p>
+
+    <h2>Introdução</h2>
+    <p>
+        O Bitcoin, como a principal criptomoeda, tem atraído atenção significativa de investidores e pesquisadores. Devido à sua natureza volátil e descentralizada, prever seu preço é um desafio complexo. Este artigo propõe um modelo matemático estocástico para prever o preço do Bitcoin, utilizando equações diferenciais estocásticas (EDE) e implementando-o em JavaScript para simulações e visualizações.
+    </p>
+
+    <h2>Modelo Matemático</h2>
+    <p>
+        Para modelar o comportamento do preço do Bitcoin, consideramos um processo estocástico que captura tanto a tendência geral quanto a volatilidade do ativo. O modelo mais comum para este tipo de análise é o modelo de Movimento Geométrico Browniano (MGB), que pode ser ajustado para melhor refletir as características específicas do Bitcoin.
+    </p>
+
+    <div class="equation">
+        \[
+        dS_t = \mu S_t dt + \sigma S_t dW_t
+        \]
+    </div>
+    <p>
+        Onde:
+        <ul>
+            <li>\( S_t \) é o preço do Bitcoin no tempo \( t \).</li>
+            <li>\( \mu \) é a taxa de retorno esperada.</li>
+            <li>\( \sigma \) é a volatilidade do ativo.</li>
+            <li>\( W_t \) é um processo de Wiener ou movimento Browniano.</li>
+        </ul>
+    </p>
+    <p>
+        Este modelo assume que o logaritmo dos preços segue um passeio aleatório com drift, capturando assim a natureza imprevisível e a tendência de crescimento do Bitcoin.
+    </p>
+
+    <div class="method-section">
+        <h3>Métodos e Resolução da Equação</h3>
+        <p>
+            A equação diferencial estocástica (EDE) apresentada pode ser resolvida utilizando técnicas de cálculo estocástico. A solução analítica do Movimento Geométrico Browniano é dada por:
+        </p>
+        <div class="equation">
+            \[
+            S_t = S_0 \exp\left( \left(\mu - \frac{\sigma^2}{2}\right)t + \sigma W_t \right)
+            \]
+        </div>
+        <p>
+            Onde \( S_0 \) é o preço inicial do ativo. Esta solução indica que o logaritmo do preço segue um movimento Browniano com drift ajustado.
+        </p>
+        <p>
+            Para simular esta equação, utilizamos o método de Euler-Maruyama, uma técnica numérica para resolver EDEs. O método discretiza o tempo em pequenos incrementos \( \Delta t \) e aproxima a solução iterativamente.
+        </p>
+        <p>
+            A discretização do MGB é dada por:
+        </p>
+        <div class="equation">
+            \[
+            S_{t+\Delta t} = S_t \exp\left( \left(\mu - \frac{\sigma^2}{2}\right)\Delta t + \sigma \sqrt{\Delta t} \, \epsilon_t \right)
+            \]
+        </div>
+        <p>
+            Onde \( \epsilon_t \) são variáveis aleatórias independentes e identicamente distribuídas com distribuição normal padrão (\( \mathcal{N}(0,1) \)).
+        </p>
+        <p>
+            Esta formulação permite simular trajetórias do preço do Bitcoin ao longo do tempo, incorporando a aleatoriedade inerente ao processo.
+        </p>
+        <p>
+            <strong>Aplicação ao Bitcoin:</strong> O modelo de Movimento Geométrico Browniano é particularmente adequado para ativos financeiros como o Bitcoin devido à sua capacidade de capturar tanto a tendência de crescimento (através do drift \( \mu \)) quanto a volatilidade (através do parâmetro \( \sigma \)). No contexto do Bitcoin, \( \mu \) pode representar o retorno médio esperado diário do ativo, enquanto \( \sigma \) representa a volatilidade diária, refletindo as variações rápidas e imprevisíveis do preço.
+        </p>
+        <p>
+            Para entender melhor a dinâmica do preço do Bitcoin sob este modelo, consideramos o valor esperado e a variância do preço ao longo do tempo.
+        </p>
+        <h4>Valor Esperado e Variância</h4>
+        <p>
+            Calculando o valor esperado de \( S_t \):
+        </p>
+        <div class="equation">
+            \[
+            \mathbb{E}[S_t] = S_0 e^{\mu t}
+            \]
+        </div>
+        <p>
+            A variância de \( S_t \) é dada por:
+        </p>
+        <div class="equation">
+            \[
+            \text{Var}(S_t) = S_0^2 e^{2\mu t} \left(e^{\sigma^2 t} - 1\right)
+            \]
+        </div>
+        <p>
+            Estas expressões derivadas das integrais associadas ao modelo mostram que o valor esperado do preço do Bitcoin cresce exponencialmente com a taxa de retorno \( \mu \), enquanto a variância também aumenta exponencialmente com o tempo, refletindo a crescente incerteza e volatilidade.
+        </p>
+        <h4>Integral da Equação SDE</h4>
+        <p>
+            Para derivar a solução analítica da EDE, aplicamos a técnica de integração estocástica. Integrando ambos os lados da equação diferencial:
+        </p>
+        <div class="equation">
+            \[
+            \int_{0}^{t} \frac{dS_u}{S_u} = \int_{0}^{t} \mu \, du + \int_{0}^{t} \sigma \, dW_u
+            \]
+        </div>
+        <p>
+            Resolvendo a integral do lado esquerdo:
+        </p>
+        <div class="equation">
+            \[
+            \ln\left(\frac{S_t}{S_0}\right) = \mu t - \frac{\sigma^2}{2} t + \sigma W_t
+            \]
+        </div>
+        <p>
+            Exponenciando ambos os lados para obter \( S_t \):
+        </p>
+        <div class="equation">
+            \[
+            S_t = S_0 \exp\left( \left(\mu - \frac{\sigma^2}{2}\right)t + \sigma W_t \right)
+            \]
+        </div>
+        <p>
+            Este resultado demonstra como o preço do Bitcoin evolui ao longo do tempo, influenciado tanto pelo drift \( \mu \) quanto pela volatilidade \( \sigma \), com \( W_t \) representando o componente estocástico do processo.
+        </p>
+        <p>
+            <strong>Interpretação dos Termos:</strong>
+        </p>
+        <ul>
+            <li>\( \left(\mu - \frac{\sigma^2}{2}\right)t \): Representa o drift ajustado, considerando o efeito da volatilidade no crescimento esperado do preço.</li>
+            <li>\( \sigma W_t \): Captura a aleatoriedade e a volatilidade do processo, refletindo as flutuações imprevisíveis no preço do Bitcoin.</li>
+        </ul>
+        <p>
+            <strong>Aplicação Prática:</strong> Utilizando este modelo, podemos estimar diferentes cenários para o preço do Bitcoin, analisando como mudanças nos parâmetros \( \mu \) e \( \sigma \) afetam as trajetórias simuladas. Isso é particularmente útil para investidores que desejam compreender os potenciais riscos e retornos associados ao investimento em Bitcoin.
+        </p>
+    </div>
+
+    <h2>Implementação em JavaScript</h2>
+    <p>
+        A seguir, apresentamos uma implementação em JavaScript que permite simular o preço do Bitcoin com base no modelo estocástico descrito acima. Utilizamos a biblioteca Chart.js para plotar os resultados.
+    </p>
+
+    <!-- Seção da Calculadora -->
+    <div class="calculator">
+        <h3>Calculadora de Simulação</h3>
+        <form id="simulationForm">
+            <label for="mu">Taxa de Retorno Diária (\( \mu \)):</label>
+            <input type="number" id="mu" name="mu" step="0.0001" value="0.0005" required>
+
+            <label for="sigma">Volatilidade Diária (\( \sigma \)):</label>
+            <input type="number" id="sigma" name="sigma" step="0.001" value="0.01" required>
+
+            <label for="S0">Preço Inicial do Bitcoin (\( S_0 \)):</label>
+            <input type="number" id="S0" name="S0" step="1" value="20000" required>
+
+            <label for="T">Número de Dias para Simulação (\( T \)):</label>
+            <input type="number" id="T" name="T" step="1" value="365" required>
+
+            <label for="dt">Incremento de Tempo (\( dt \)) (Dias):</label>
+            <input type="number" id="dt" name="dt" step="0.1" value="1" required>
+
+            <button type="submit">Simular</button>
+        </form>
+    </div>
+
+    <div class="chart-container">
+        <canvas id="bitcoinChart"></canvas>
+    </div>
+
+    <h3>Código JavaScript</h3>
+    <pre><code>
+// Parâmetros do modelo com valores padrão
+let mu = 0.0005; // Taxa de retorno diária
+let sigma = 0.01; // Volatilidade diária
+let S0 = 20000; // Preço inicial do Bitcoin
+let T = 365; // Número de dias para simulação
+let dt = 1; // Incremento de tempo (1 dia)
+
+// Função para gerar um número aleatório com distribuição normal
+function randn_bm() {
+    let u = 0, v = 0;
+    while(u === 0) u = Math.random(); // Converte [0,1) em (0,1)
+    while(v === 0) v = Math.random();
+    return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+}
+
+// Função para simular o preço do Bitcoin
+function simulateBitcoin(mu, sigma, S0, T, dt) {
+    let prices = [S0];
+    for(let t = 1; t <= T; t++) {
+        let epsilon = randn_bm();
+        let St = prices[t-1] * Math.exp((mu - 0.5 * sigma * sigma) * dt + sigma * Math.sqrt(dt) * epsilon);
+        prices.push(St);
+    }
+    return prices;
+}
+
+// Função para preparar dados para o gráfico
+function prepareChartData(prices, T) {
+    const labels = [];
+    for(let i = 0; i <= T; i++) {
+        labels.push(`Dia ${i}`);
+    }
+
+    return {
+        labels: labels,
+        datasets: [{
+            label: 'Preço do Bitcoin',
+            data: prices,
+            borderColor: 'rgba(75, 192, 192, 1)',
+            borderWidth: 2,
+            fill: false,
+            tension: 0.1
+        }]
+    };
+}
+
+// Função para criar ou atualizar o gráfico
+let bitcoinChart;
+function renderChart(data) {
+    if (bitcoinChart) {
+        bitcoinChart.data = data;
+        bitcoinChart.update();
+    } else {
+        bitcoinChart = new Chart(
+            document.getElementById('bitcoinChart'),
+            {
+                type: 'line',
+                data: data,
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Simulação do Preço do Bitcoin'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            display: true,
+                            title: {
+                                display: true,
+                                text: 'Tempo (Dias)'
+                            }
+                        },
+                        y: {
+                            display: true,
+                            title: {
+                                display: true,
+                                text: 'Preço (USD)'
+                            }
+                        }
+                    }
+                },
+            }
+        );
+    }
+}
+
+// Função para executar a simulação e atualizar o gráfico
+function executeSimulation() {
+    const prices = simulateBitcoin(mu, sigma, S0, T, dt);
+    const chartData = prepareChartData(prices, T);
+    renderChart(chartData);
+}
+
+// Executar a simulação inicial com valores padrão
+executeSimulation();
+
+// Manipulador de submissão do formulário
+document.getElementById('simulationForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    // Obter valores do formulário
+    mu = parseFloat(document.getElementById('mu').value);
+    sigma = parseFloat(document.getElementById('sigma').value);
+    S0 = parseFloat(document.getElementById('S0').value);
+    T = parseInt(document.getElementById('T').value);
+    dt = parseFloat(document.getElementById('dt').value);
+
+    // Validar os valores
+    if (isNaN(mu) || isNaN(sigma) || isNaN(S0) || isNaN(T) || isNaN(dt)) {
+        alert('Por favor, insira valores válidos para todas as variáveis.');
+        return;
+    }
+
+    // Executar a simulação com os novos parâmetros
+    executeSimulation();
+});
+    </code></pre>
+
+    <!-- Script para tornar a calculadora funcional -->
+    <script>
+        // Parâmetros do modelo com valores padrão
+        let mu = 0.0005; // Taxa de retorno diária
+        let sigma = 0.01; // Volatilidade diária
+        let S0 = 20000; // Preço inicial do Bitcoin
+        let T = 365; // Número de dias para simulação
+        let dt = 1; // Incremento de tempo (1 dia)
+
+        // Função para gerar um número aleatório com distribuição normal
+        function randn_bm() {
+            let u = 0, v = 0;
+            while(u === 0) u = Math.random(); // Converte [0,1) em (0,1)
+            while(v === 0) v = Math.random();
+            return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+        }
+
+        // Função para simular o preço do Bitcoin
+        function simulateBitcoin(mu, sigma, S0, T, dt) {
+            let prices = [S0];
+            for(let t = 1; t <= T; t++) {
+                let epsilon = randn_bm();
+                let St = prices[t-1] * Math.exp((mu - 0.5 * sigma * sigma) * dt + sigma * Math.sqrt(dt) * epsilon);
+                prices.push(St);
+            }
+            return prices;
+        }
+
+        // Função para preparar dados para o gráfico
+        function prepareChartData(prices, T) {
+            const labels = [];
+            for(let i = 0; i <= T; i++) {
+                labels.push(`Dia ${i}`);
+            }
+
+            return {
+                labels: labels,
+                datasets: [{
+                    label: 'Preço do Bitcoin',
+                    data: prices,
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 2,
+                    fill: false,
+                    tension: 0.1
+                }]
+            };
+        }
+
+        // Função para criar ou atualizar o gráfico
+        let bitcoinChart;
+        function renderChart(data) {
+            if (bitcoinChart) {
+                bitcoinChart.data = data;
+                bitcoinChart.update();
+            } else {
+                bitcoinChart = new Chart(
+                    document.getElementById('bitcoinChart'),
+                    {
+                        type: 'line',
+                        data: data,
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: 'Simulação do Preço do Bitcoin'
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    display: true,
+                                    title: {
+                                        display: true,
+                                        text: 'Tempo (Dias)'
+                                    }
+                                },
+                                y: {
+                                    display: true,
+                                    title: {
+                                        display: true,
+                                        text: 'Preço (USD)'
+                                    }
+                                }
+                            }
+                        },
+                    }
+                );
+            }
+        }
+
+        // Função para executar a simulação e atualizar o gráfico
+        function executeSimulation() {
+            const prices = simulateBitcoin(mu, sigma, S0, T, dt);
+            const chartData = prepareChartData(prices, T);
+            renderChart(chartData);
+        }
+
+        // Executar a simulação inicial com valores padrão
+        executeSimulation();
+
+        // Manipulador de submissão do formulário
+        document.getElementById('simulationForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            // Obter valores do formulário
+            mu = parseFloat(document.getElementById('mu').value);
+            sigma = parseFloat(document.getElementById('sigma').value);
+            S0 = parseFloat(document.getElementById('S0').value);
+            T = parseInt(document.getElementById('T').value);
+            dt = parseFloat(document.getElementById('dt').value);
+
+            // Validar os valores
+            if (isNaN(mu) || isNaN(sigma) || isNaN(S0) || isNaN(T) || isNaN(dt)) {
+                alert('Por favor, insira valores válidos para todas as variáveis.');
+                return;
+            }
+
+            // Executar a simulação com os novos parâmetros
+            executeSimulation();
+        });
+    </script>
+
+    <h2>Explicação do Código</h2>
+    <p>
+        O código JavaScript acima realiza os seguintes passos:
+        <ol>
+            <li><strong>Parâmetros do Modelo:</strong> Define a taxa de retorno diária (\( \mu \)), a volatilidade diária (\( \sigma \)), o preço inicial do Bitcoin (\( S_0 \)), o período de simulação (\( T \)) e o incremento de tempo (\( dt \)).</li>
+            <li><strong>Geração de Números Aleatórios:</strong> A função <code>randn_bm()</code> gera números aleatórios seguindo uma distribuição normal padrão utilizando o método Box-Muller.</li>
+            <li><strong>Simulação do Preço:</strong> A função <code>simulateBitcoin()</code> utiliza a fórmula do MGB para simular o preço do Bitcoin ao longo do tempo, armazenando os valores em um array.</li>
+            <li><strong>Preparação dos Dados:</strong> A função <code>prepareChartData()</code> prepara os dados simulados para serem inseridos no gráfico, gerando rótulos para cada dia.</li>
+            <li><strong>Configuração e Renderização do Gráfico:</strong> A função <code>renderChart()</code> utiliza-se da biblioteca Chart.js para criar ou atualizar um gráfico de linha que representa a evolução do preço do Bitcoin ao longo do período simulado.</li>
+            <li><strong>Calculadora de Simulação:</strong> A seção de calculadora permite que o usuário insira valores personalizados para \( \mu \), \( \sigma \), \( S_0 \), \( T \) e \( dt \). Ao submeter o formulário, a simulação é executada com os novos parâmetros e o gráfico é atualizado em tempo real.</li>
+        </ol>
+    </p>
+
+    <h2>Resultados e Discussão</h2>
+    <p>
+        A simulação apresentada fornece uma visão geral de como o preço do Bitcoin pode evoluir ao longo de um ano, considerando os parâmetros definidos. É importante notar que, devido à natureza estocástica do modelo, diferentes execuções podem resultar em trajetórias distintas. Ajustes nos parâmetros \( \mu \) e \( \sigma \) permitem explorar diferentes cenários de mercado.
+    </p>
+    <p>
+        Embora o modelo de Movimento Geométrico Browniano seja uma abordagem simplificada, ele serve como uma base para modelagens mais complexas que podem incorporar fatores adicionais, como saltos de preço, volatilidade estocástica e interações com outros ativos financeiros.
+    </p>
+
+    <h2>Conclusão</h2>
+    <p>
+        Este artigo apresentou um modelo matemático estocástico para prever o preço do Bitcoin, implementado em JavaScript e visualizado com Chart.js. A adição de uma calculadora interativa permite que usuários explorem diferentes parâmetros e observem como eles afetam a simulação do preço do Bitcoin. Embora modelos mais sofisticados possam oferecer previsões mais precisas, o Movimento Geométrico Browniano fornece uma compreensão fundamental das dinâmicas de preços dos ativos financeiros. Futuras pesquisas podem expandir este modelo incorporando dados reais e técnicas avançadas de análise.
+    </p>
+
+    <h2>Referências</h2>
+    <ul>
+        <li>Black, F., & Scholes, M. (1973). The Pricing of Options and Corporate Liabilities. Journal of Political Economy, 81(3), 637-654.</li>
+        <li>Hull, J. C. (2015). Options, Futures, and Other Derivatives. Pearson.</li>
+        <li>Shreve, S. E. (2004). Stochastic Calculus for Finance I: The Binomial Asset Pricing Model. Springer.</li>
+        <li>Karatzas, I., & Shreve, S. E. (1991). Brownian Motion and Stochastic Calculus. Springer.</li>
+        <li>Ordentlich, D., & Chriss, N. (2000). Optimal Execution of Portfolio Transactions. Proceedings of the National Academy of Sciences, 97(10), 5115-5120.</li>
+    </ul>
+</body>
+</html>
+

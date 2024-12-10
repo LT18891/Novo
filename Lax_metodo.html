@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Método de Lax-Friedrichs para Equações Diferenciais</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+    </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            line-height: 1.6;
+        }
+        h1, h2, h3 {
+            color: #2F4F4F;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            overflow-x: auto;
+        }
+        .equation {
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Método de Lax-Friedrichs para Resolução de Equações Diferenciais</h1>
+    <p><strong>Autor:</strong> Luiz Tiago Wilcke</p>
+
+    <h2>Introdução</h2>
+    <p>
+        O método de Lax-Friedrichs é uma técnica numérica utilizada para resolver equações diferenciais parciais hiperbólicas. Este método é amplamente aplicado na simulação de fenômenos de ondas e em dinâmicas de fluidos. Neste artigo, apresentaremos o passo a passo para resolver diversas equações diferenciais utilizando o método de Lax-Friedrichs.
+    </p>
+
+    <h2>Equação de Convecção Linear</h2>
+    <p>
+        Consideremos a equação de convecção linear:
+    </p>
+    <div class="equation">
+        \[
+        \frac{\partial u}{\partial t} + c \frac{\partial u}{\partial x} = 0
+        \]
+    </div>
+    <h3>Passo a Passo da Solução</h3>
+    <ol>
+        <li><strong>Discretização:</strong> Dividimos o domínio em uma grade discreta com passos de espaço \(\Delta x\) e de tempo \(\Delta t\). Seja \(u_j^n\) a aproximação de \(u(x_j, t^n)\).</li>
+        <li><strong>Aplicação do Método de Lax-Friedrichs:</strong> A fórmula do método é dada por:
+            <div class="equation">
+                \[
+                u_j^{n+1} = \frac{1}{2}(u_{j+1}^n + u_{j-1}^n) - \frac{c \Delta t}{2 \Delta x}(u_{j+1}^n - u_{j-1}^n)
+                \]
+                \]
+            </div>
+        </li>
+        <li><strong>Implementação Numérica:</strong> Para cada ponto \(j\) na grade, atualizamos \(u_j^{n+1}\) usando a fórmula acima.</li>
+        <li><strong>Condições de Contorno:</strong> Aplicamos condições de contorno apropriadas, como condições de Dirichlet ou Neumann.</li>
+        <li><strong>Iteração:</strong> Repetimos o processo para cada passo de tempo até atingir o tempo final desejado.</li>
+    </ol>
+    <h3>Exemplo Numérico</h3>
+    <p>
+        Suponha que \(c = 1\), \(\Delta x = 0.1\), \(\Delta t = 0.05\), e a condição inicial seja \(u(x, 0) = \sin(\pi x)\). Vamos calcular \(u_j^{1}\).
+    </p>
+    <ol>
+        <li>Identificamos os pontos vizinhos:
+            <div class="equation">
+                \[
+                u_{j+1}^0 = \sin\left(\pi (x_j + \Delta x)\right)
+                \]
+                \[
+                u_{j-1}^0 = \sin\left(\pi (x_j - \Delta x)\right)
+                \]
+            </div>
+        </li>
+        <li>Aplicamos a fórmula do método:
+            <div class="equation">
+                \[
+                u_j^{1} = \frac{1}{2}\left[\sin\left(\pi (x_j + \Delta x)\right) + \sin\left(\pi (x_j - \Delta x)\right)\right] - \frac{1 \times 0.05}{2 \times 0.1}\left[\sin\left(\pi (x_j + \Delta x)\right) - \sin\left(\pi (x_j - \Delta x)\right)\right]
+                \]
+            </div>
+        </li>
+        <li>Simplificamos utilizando identidades trigonométricas:
+            <div class="equation">
+                \[
+                u_j^{1} = \sin(\pi x_j) \cos(\pi \Delta x) - \frac{0.05}{0.2} \cos(\pi x_j) \cdot 2 \sin(\pi \Delta x)
+                \]
+            </div>
+        </li>
+        <li>Substituímos os valores numéricos:
+            <div class="equation">
+                \[
+                u_j^{1} = \sin(\pi x_j) \cos(0.1\pi) - 0.25 \cos(\pi x_j) \cdot 2 \sin(0.1\pi)
+                \]
+            </div>
+        </li>
+        <li>Calculamos os valores finais:
+            <div class="equation">
+                \[
+                u_j^{1} \approx \sin(\pi x_j) \times 0.9950 - 0.5 \cos(\pi x_j) \times 0.3090 \approx 0.9950 \sin(\pi x_j) - 0.1545 \cos(\pi x_j)
+                \]
+            </div>
+        </li>
+    </ol>
+
+    <h2>Equação de Burgers</h2>
+    <p>
+        A equação de Burgers é uma equação não-linear que pode ser escrita como:
+    </p>
+    <div class="equation">
+        \[
+        \frac{\partial u}{\partial t} + u \frac{\partial u}{\partial x} = \nu \frac{\partial^2 u}{\partial x^2}
+        \]
+    </div>
+    <p>
+        Onde \(\nu\) é a viscosidade. Para simplificar, consideraremos o caso sem viscosidade (\(\nu = 0\)):
+    </p>
+    <div class="equation">
+        \[
+        \frac{\partial u}{\partial t} + u \frac{\partial u}{\partial x} = 0
+        \]
+    </div>
+    <h3>Aplicação do Método de Lax-Friedrichs</h3>
+    <ol>
+        <li><strong>Discretização:</strong> Dividimos o domínio como anteriormente.</li>
+        <li><strong>Fórmula do Método:</strong> Para a equação não-linear, a fórmula de Lax-Friedrichs é adaptada para:
+            <div class="equation">
+                \[
+                u_j^{n+1} = \frac{1}{2}(u_{j+1}^n + u_{j-1}^n) - \frac{\Delta t}{2 \Delta x} \left(\frac{(u_{j+1}^n)^2}{2} - \frac{(u_{j-1}^n)^2}{2}\right)
+                \]
+            </div>
+        </li>
+        <li><strong>Implementação:</strong> Atualizamos cada ponto \(u_j^{n+1}\) usando a fórmula acima.</li>
+        <li><strong>Condições de Contorno:</strong> Aplicamos condições apropriadas para fechar o sistema.</li>
+        <li><strong>Iteração:</strong> Continuamos o processo até o tempo final desejado.</li>
+    </ol>
+    <h3>Exemplo Numérico</h3>
+    <p>
+        Consideremos a condição inicial \(u(x, 0) = \sin(\pi x)\), com \(\Delta x = 0.1\), \(\Delta t = 0.05\).
+    </p>
+    <ol>
+        <li>Calculamos os termos quadráticos:
+            <div class="equation">
+                \[
+                \frac{(u_{j+1}^0)^2}{2} = \frac{\sin^2(\pi (x_j + \Delta x))}{2}
+                \]
+                \[
+                \frac{(u_{j-1}^0)^2}{2} = \frac{\sin^2(\pi (x_j - \Delta x))}{2}
+                \]
+            </div>
+        </li>
+        <li>Aplicamos a fórmula do método:
+            <div class="equation">
+                \[
+                u_j^{1} = \frac{1}{2}\left[\sin(\pi (x_j + \Delta x)) + \sin(\pi (x_j - \Delta x))\right] - \frac{0.05}{0.2} \left[\frac{\sin^2(\pi (x_j + \Delta x)) - \sin^2(\pi (x_j - \Delta x))}{2}\right]
+                \]
+            </div>
+        </li>
+        <li>Simplificamos utilizando identidades trigonométricas:
+            <div class="equation">
+                \[
+                u_j^{1} = \sin(\pi x_j) \cos(\pi \Delta x) - 0.25 \left[\sin(\pi (x_j + \Delta x)) + \sin(\pi (x_j - \Delta x))\right] \sin(\pi \Delta x)
+                \]
+            </div>
+        </li>
+        <li>Substituímos os valores numéricos:
+            <div class="equation">
+                \[
+                u_j^{1} \approx \sin(\pi x_j) \times 0.9950 - 0.25 \times [\sin(\pi x_j) \times 0.9950] \times 0.3090
+                \]
+            </div>
+        </li>
+        <li>Calculamos os valores finais:
+            <div class="equation">
+                \[
+                u_j^{1} \approx 0.9950 \sin(\pi x_j) - 0.0774 \sin(\pi x_j) \approx 0.9176 \sin(\pi x_j)
+                \]
+            </div>
+        </li>
+    </ol>
+
+    <h2>Equação de Advecção com Fonte</h2>
+    <p>
+        Consideremos a equação de advecção com um termo fonte:
+    </p>
+    <div class="equation">
+        \[
+        \frac{\partial u}{\partial t} + c \frac{\partial u}{\partial x} = S(u)
+        \]
+    </div>
+    <p>
+        Onde \(S(u)\) representa uma fonte que depende de \(u\). Para este exemplo, vamos assumir \(S(u) = -ku\), onde \(k\) é uma constante de decaimento.
+    </p>
+    <h3>Aplicação do Método de Lax-Friedrichs</h3>
+    <ol>
+        <li><strong>Discretização:</strong> Como nos casos anteriores, dividimos o domínio em \(\Delta x\) e \(\Delta t\).</li>
+        <li><strong>Fórmula do Método:</strong> Adaptando o método para incluir o termo fonte:
+            <div class="equation">
+                \[
+                u_j^{n+1} = \frac{1}{2}(u_{j+1}^n + u_{j-1}^n) - \frac{c \Delta t}{2 \Delta x}(u_{j+1}^n - u_{j-1}^n) + \Delta t S(u_j^n)
+                \]
+            </div>
+        </li>
+        <li><strong>Implementação:</strong> Atualizamos cada ponto \(u_j^{n+1}\) usando a fórmula acima.</li>
+        <li><strong>Condições de Contorno:</strong> Aplicamos condições apropriadas.</li>
+        <li><strong>Iteração:</strong> Repetimos o processo até o tempo final desejado.</li>
+    </ol>
+    <h3>Exemplo Numérico</h3>
+    <p>
+        Suponha \(c = 1\), \(k = 0.1\), \(\Delta x = 0.1\), \(\Delta t = 0.05\), e a condição inicial \(u(x, 0) = e^{-x^2}\). Vamos calcular \(u_j^{1}\).
+    </p>
+    <ol>
+        <li>Identificamos os pontos vizinhos:
+            <div class="equation">
+                \[
+                u_{j+1}^0 = e^{-(x_j + \Delta x)^2}
+                \]
+                \[
+                u_{j-1}^0 = e^{-(x_j - \Delta x)^2}
+                \]
+            </div>
+        </li>
+        <li>Aplicamos a fórmula do método:
+            <div class="equation">
+                \[
+                u_j^{1} = \frac{1}{2}\left[e^{-(x_j + 0.1)^2} + e^{-(x_j - 0.1)^2}\right] - \frac{1 \times 0.05}{2 \times 0.1}\left[e^{-(x_j + 0.1)^2} - e^{-(x_j - 0.1)^2}\right] + 0.05 \times (-0.1 e^{-x_j^2})
+                \]
+            </div>
+        </li>
+        <li>Simplificamos:
+            <div class="equation">
+                \[
+                u_j^{1} = \frac{1}{2}\left[e^{-(x_j + 0.1)^2} + e^{-(x_j - 0.1)^2}\right] - 0.25\left[e^{-(x_j + 0.1)^2} - e^{-(x_j - 0.1)^2}\right] - 0.005 e^{-x_j^2}
+                \]
+            </div>
+        </li>
+        <li>Calculamos os valores finais:
+            <div class="equation">
+                \[
+                u_j^{1} = \left(\frac{1}{2} - 0.25\right)e^{-(x_j + 0.1)^2} + \left(\frac{1}{2} + 0.25\right)e^{-(x_j - 0.1)^2} - 0.005 e^{-x_j^2}
+                \]
+            </div>
+        </li>
+        <li>Simplificando:
+            <div class="equation">
+                \[
+                u_j^{1} = 0.25 e^{-(x_j + 0.1)^2} + 0.75 e^{-(x_j - 0.1)^2} - 0.005 e^{-x_j^2}
+                \]
+            </div>
+        </li>
+    </ol>
+
+    <h2>Equação de Ondas</h2>
+    <p>
+        A equação de ondas em uma dimensão pode ser escrita como:
+    </p>
+    <div class="equation">
+        \[
+        \frac{\partial^2 u}{\partial t^2} = c^2 \frac{\partial^2 u}{\partial x^2}
+        \]
+    </div>
+    <p>
+        Para aplicar o método de Lax-Friedrichs, reescrevemos a equação como um sistema de primeira ordem.
+    </p>
+    <h3>Reescrevendo como Sistema de Primeira Ordem</h3>
+    <ol>
+        <li>Introduzimos variáveis auxiliares:
+            <div class="equation">
+                \[
+                v = \frac{\partial u}{\partial t}
+                \]
+                \[
+                w = \frac{\partial u}{\partial x}
+                \]
+            </div>
+        </li>
+        <li>Reescrevemos a equação:
+            <div class="equation">
+                \[
+                \frac{\partial v}{\partial t} = c^2 \frac{\partial w}{\partial x}
+                \]
+            </div>
+        </li>
+        <li>Assim, o sistema é:
+            <div class="equation">
+                \[
+                \begin{cases}
+                \frac{\partial u}{\partial t} = v \\
+                \frac{\partial v}{\partial t} = c^2 \frac{\partial w}{\partial x} \\
+                \frac{\partial w}{\partial t} = \frac{\partial v}{\partial x}
+                \end{cases}
+                \]
+            \div>
+        </div>
+        </li>
+    </ol>
+    <h3>Aplicação do Método de Lax-Friedrichs</h3>
+    <ol>
+        <li><strong>Discretização:</strong> Dividimos o domínio em \(\Delta x\) e \(\Delta t\).</li>
+        <li><strong>Fórmulas do Método:</strong>
+            <div class="equation">
+                \[
+                \begin{cases}
+                u_j^{n+1} = \frac{1}{2}(u_{j+1}^n + u_{j-1}^n) - \frac{\Delta t}{2 \Delta x}(v_{j+1}^n - v_{j-1}^n) \\
+                v_j^{n+1} = \frac{1}{2}(v_{j+1}^n + v_{j-1}^n) - \frac{c^2 \Delta t}{2 \Delta x}(w_{j+1}^n - w_{j-1}^n) \\
+                w_j^{n+1} = \frac{1}{2}(w_{j+1}^n + w_{j-1}^n) - \frac{\Delta t}{2 \Delta x}(v_{j+1}^n - v_{j-1}^n)
+                \end{cases}
+                \]
+            \]
+            \]
+            </div>
+        </li>
+        <li><strong>Implementação:</strong> Atualizamos \(u_j^{n+1}\), \(v_j^{n+1}\) e \(w_j^{n+1}\) usando as fórmulas acima.</li>
+        <li><strong>Condições de Contorno:</strong> Aplicamos condições apropriadas para cada variável.</li>
+        <li><strong>Iteração:</strong> Repetimos o processo até o tempo final desejado.</li>
+    </ol>
+    <h3>Exemplo Numérico</h3>
+    <p>
+        Suponha \(c = 1\), \(\Delta x = 0.1\), \(\Delta t = 0.05\), e as condições iniciais \(u(x, 0) = \sin(\pi x)\), \(v(x, 0) = 0\), \(w(x, 0) = \pi \cos(\pi x)\).
+    </p>
+    <ol>
+        <li>Calculamos as atualizações para cada variável:
+            <div class="equation">
+                \[
+                \begin{cases}
+                u_j^{1} = \frac{1}{2}\left[\sin(\pi (x_j + 0.1)) + \sin(\pi (x_j - 0.1))\right] - \frac{0.05}{2 \times 0.1}(0 - 0) = \frac{1}{2}\left[\sin(\pi (x_j + 0.1)) + \sin(\pi (x_j - 0.1))\right] \\
+                v_j^{1} = \frac{1}{2}(0 + 0) - \frac{1^2 \times 0.05}{2 \times 0.1}\left[\pi \cos(\pi (x_j + 0.1)) - \pi \cos(\pi (x_j - 0.1))\right] = -\frac{0.05 \pi}{0.2}\left[\cos(\pi (x_j + 0.1)) - \cos(\pi (x_j - 0.1))\right] \\
+                w_j^{1} = \frac{1}{2}\left[\pi \cos(\pi (x_j + 0.1)) + \pi \cos(\pi (x_j - 0.1))\right] - \frac{0.05}{2 \times 0.1}(0 - 0) = \frac{\pi}{2}\left[\cos(\pi (x_j + 0.1)) + \cos(\pi (x_j - 0.1))\right]
+                \end{cases}
+                \]
+            \]
+            \]
+            </div>
+        </li>
+        <li>Aplicamos identidades trigonométricas para simplificar:
+            <div class="equation">
+                \[
+                \begin{cases}
+                u_j^{1} = \sin(\pi x_j) \cos(0.1\pi) \\
+                v_j^{1} = -\frac{0.05 \pi}{0.2} \left[-2 \sin(\pi x_j) \sin(0.1\pi)\right] = 0.5 \pi \sin(\pi x_j) \sin(0.1\pi) \\
+                w_j^{1} = \pi \cos(\pi x_j) \cos(0.1\pi)
+                \end{cases}
+                \]
+            \]
+            \]
+            </div>
+        </li>
+        <li>Substituímos os valores numéricos:
+            <div class="equation">
+                \[
+                \begin{cases}
+                u_j^{1} \approx \sin(\pi x_j) \times 0.9950 \\
+                v_j^{1} \approx 0.5 \pi \sin(\pi x_j) \times 0.3090 \approx 0.485 \sin(\pi x_j) \\
+                w_j^{1} \approx \pi \cos(\pi x_j) \times 0.9950 \approx 3.13 \cos(\pi x_j)
+                \end{cases}
+                \]
+            \]
+            \]
+            </div>
+        </li>
+    </ol>
+
+    <h2>Equação de Euler</h2>
+    <p>
+        A equação de Euler para fluxo compressível em uma dimensão é um sistema de equações não-lineares que descreve o movimento de um fluido inviscido. As equações são:
+    </p>
+    <div class="equation">
+        \[
+        \begin{cases}
+        \frac{\partial \rho}{\partial t} + \frac{\partial (\rho u)}{\partial x} = 0 \\
+        \frac{\partial (\rho u)}{\partial t} + \frac{\partial (\rho u^2 + p)}{\partial x} = 0 \\
+        \frac{\partial E}{\partial t} + \frac{\partial ((E + p)u)}{\partial x} = 0
+        \end{cases}
+        \]
+    </div>
+    <p>
+        Onde:
+        <ul>
+            <li>\(\rho\) é a densidade do fluido.</li>
+            <li>\(u\) é a velocidade do fluido.</li>
+            <li>\(p\) é a pressão.</li>
+            <li>\(E\) é a energia total por unidade de volume.</li>
+        </ul>
+    </p>
+    <h3>Aplicação do Método de Lax-Friedrichs</h3>
+    <ol>
+        <li><strong>Discretização:</strong> Dividimos o domínio em \(\Delta x\) e \(\Delta t\).</li>
+        <li><strong>Fórmulas do Método:</strong> Para cada equação do sistema, aplicamos a fórmula de Lax-Friedrichs:
+            <div class="equation">
+                \[
+                U_j^{n+1} = \frac{1}{2}(U_{j+1}^n + U_{j-1}^n) - \frac{\Delta t}{2 \Delta x}(F(U_{j+1}^n) - F(U_{j-1}^n))
+                \]
+                \]
+            </div>
+            Onde \(U = [\rho, \rho u, E]^T\) e \(F(U) = [\rho u, \rho u^2 + p, (E + p)u]^T\).
+        </li>
+        <li><strong>Implementação:</strong> Atualizamos cada componente de \(U_j^{n+1}\) usando a fórmula acima.</li>
+        <li><strong>Condições de Contorno:</strong> Aplicamos condições apropriadas para fechar o sistema.</li>
+        <li><strong>Iteração:</strong> Repetimos o processo até o tempo final desejado.</li>
+    </ol>
+    <h3>Exemplo Numérico</h3>
+    <p>
+        Consideremos as seguintes condições iniciais e parâmetros:
+        <ul>
+            <li>\(\rho(x, 0) = 1\)</li>
+            <li>\(u(x, 0) = 0\)</li>
+            <li>Pressão inicial \(p(x, 0) = 1\)</li>
+            <li>\(\Delta x = 0.1\), \(\Delta t = 0.05\)</li>
+        </ul>
+    </p>
+    <ol>
+        <li>Inicializamos os valores de \(U_j^0 = [1, 0, 1 + \frac{0^2}{2}] = [1, 0, 1]\).</li>
+        <li>Aplicamos a fórmula de Lax-Friedrichs para cada componente:
+            <div class="equation">
+                \[
+                \rho_j^{1} = \frac{1}{2}(1 + 1) - \frac{0.05}{2 \times 0.1}(1 \times 0 - 1 \times 0) = 1
+                \]
+                \[
+                (\rho u)_j^{1} = \frac{1}{2}(0 + 0) - \frac{0.05}{2 \times 0.1}(1 \times 0^2 + 1 - 1 \times 0^2 - 1) = 0
+                \]
+                \[
+                E_j^{1} = \frac{1}{2}(1 + 1) - \frac{0.05}{2 \times 0.1}((1 + 1) \times 0 - (1 + 1) \times 0) = 1
+                \]
+            \]
+            \]
+            </div>
+        </li>
+        <li>Observamos que, devido às condições iniciais simétricas, os valores permanecem constantes neste passo.</li>
+        <li>Iteramos o processo para os próximos passos de tempo conforme necessário.</li>
+    </ol>
+
+    <h2>Conclusão</h2>
+    <p>
+        O método de Lax-Friedrichs é uma ferramenta poderosa para a resolução numérica de equações diferenciais parciais, especialmente aquelas de natureza hiperbólica. Através da discretização adequada e aplicação das fórmulas específicas do método, é possível obter soluções aproximadas eficazes para diversos problemas físicos e de engenharia. Este artigo demonstrou sua aplicação em diferentes contextos, incluindo equações lineares e não-lineares, com e sem termos fonte, bem como sistemas de equações como a equação de Euler.
+    </p>
+
+    <h2>Referências</h2>
+    <ul>
+        <li>LeVeque, R. J. (2002). <em>Finite Volume Methods for Hyperbolic Problems</em>. Cambridge University Press.</li>
+        <li>Toro, E. F. (2009). <em>Riemann Solvers and Numerical Methods for Fluid Dynamics</em>. Springer.</li>
+        <li>Courant, R., Friedrichs, K. O., & Lewy, H. (1928). On the Partial Difference Equations of Mathematical Physics. <em>Proceedings of the American Academy of Arts and Sciences</em>, 64, 591-600.</li>
+        <li>Harten, A., Engquist, B., Osher, S., & Chakravarthy, S. R. (1983). On the Theory of Godunov-Type Schemes for Hyperbolic Systems of Conservation Laws. <em>Journal of Computational Physics</em>, 53(3), 267-279.</li>
+    </ul>
+</body>
+</html>

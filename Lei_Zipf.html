@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Gerando a Lei de Zipf através de um Processo Estocástico</title>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            line-height: 1.6;
+            max-width: 800px;
+        }
+        h1, h2, h3, h4 {
+            color: #2c3e50;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-left: 3px solid #ccc;
+            overflow-x: auto;
+        }
+        code {
+            font-family: Consolas, monospace;
+            background-color: #f4f4f4;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        .author {
+            text-align: right;
+            font-style: italic;
+            margin-bottom: 40px;
+        }
+        .equation {
+            text-align: center;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Gerando a Lei de Zipf através de um Processo Estocástico</h1>
+    <div class="author">Autor: Luiz Tiago Wilcke</div>
+
+    <h2>Introdução</h2>
+    <p>A <strong>Lei de Zipf</strong> é um princípio empírico que descreve a frequência de ocorrência de palavras em um corpus de texto. Proposta pelo linguista George Kingsley Zipf, a lei afirma que a frequência de uma palavra é inversamente proporcional à sua posição em um ranking de frequência. Em outras palavras, a segunda palavra mais comum ocorre aproximadamente metade das vezes da mais comum, a terceira um terço, e assim por diante.</p>
+
+    <h2>Fundamentação Teórica</h2>
+    <p>A Lei de Zipf é observada não apenas em linguística, mas também em diversas outras áreas como economia, tráfego de internet, citações científicas, entre outras. A robustez desse fenômeno sugere que há princípios subjacentes comuns a sistemas complexos que geram tais distribuições.</p>
+    
+    <h3>Distribuições de Potência e a Lei de Zipf</h3>
+    <p>A Lei de Zipf pode ser considerada uma distribuição de potência, onde a probabilidade \( P(x) \) de um evento \( x \) ocorre de acordo com:</p>
+    <div class="equation">
+        \[
+        P(x) \propto \frac{1}{x^\alpha}
+        \]
+    </div>
+    <p>Para a Lei de Zipf, o expoente \( \alpha \) é tipicamente próximo de 1. Distribuições de potência são comuns em sistemas complexos e indicam que eventos raros podem ter impactos significativos.</p>
+
+    <h2>Processo Estocástico de Preferential Attachment</h2>
+    <p>Um modelo estocástico simples que gera uma distribuição semelhante à Lei de Zipf é o <em>Preferential Attachment</em> ou "o rico fica mais rico". Esse modelo descreve como elementos mais frequentes têm uma maior probabilidade de serem selecionados novamente, aumentando sua frequência de forma cumulativa.</p>
+
+    <h3>Descrição do Modelo</h3>
+    <ol>
+        <li><strong>Conjunto Inicial de Símbolos:</strong> Começamos com um conjunto inicial de \( k \) símbolos, por exemplo, \( \{A, B, C, \ldots\} \).</li>
+        <li><strong>Contagem Inicial:</strong> Cada símbolo começa com uma contagem inicial \( C_i = 1 \).</li>
+        <li><strong>Processo Iterativo:</strong> Em cada passo \( t \), adicionamos uma ocorrência de um símbolo escolhido com probabilidade proporcional à sua frequência atual.</li>
+        <li><strong>Atualização:</strong> Após a escolha do símbolo \( i \), incrementamos sua contagem: \( C_i(t+1) = C_i(t) + 1 \).</li>
+        <li><strong>Repetição:</strong> Repetimos os passos 3 e 4 por um grande número de iterações.</li>
+    </ol>
+
+    <h3>Formulação Matemática</h3>
+    <p>Definimos \( C_i(t) \) como a contagem do símbolo \( i \) no passo \( t \). A probabilidade de escolher o símbolo \( i \) no passo \( t \) é dada por:</p>
+    <div class="equation">
+        \[
+        P(i, t) = \frac{C_i(t)}{S(t)}
+        \]
+    </div>
+    <p>onde \( S(t) = \sum_{j=1}^{k} C_j(t) \) é a soma total das contagens até o passo \( t \).</p>
+    <p>Após a escolha do símbolo \( i \), atualizamos sua contagem:</p>
+    <div class="equation">
+        \[
+        C_i(t+1) = C_i(t) + 1
+        \]
+    </div>
+    <p>Para grandes \( t \), espera-se que a distribuição de \( C_i(t) \) siga uma lei de potência semelhante à Lei de Zipf:</p>
+    <div class="equation">
+        \[
+        C_i \propto \frac{1}{i^\alpha}
+        \]
+    </div>
+    <p>onde \( \alpha \) é um expoente característico, próximo de 1 para muitas aplicações práticas.</p>
+
+    <h3>Análise Estocástica Avançada</h3>
+    <p>Para uma análise mais aprofundada do modelo de Preferential Attachment, podemos considerar a evolução da contagem \( C_i(t) \) ao longo do tempo. Supondo que o processo seja contínuo, podemos aproximar a dinâmica por uma equação diferencial estocástica.</p>
+    <p>Consideramos que a taxa de crescimento de \( C_i(t) \) é proporcional à sua frequência atual:</p>
+    <div class="equation">
+        \[
+        \frac{dC_i(t)}{dt} = \lambda \frac{C_i(t)}{S(t)}
+        \]
+    </div>
+    <p>Onde \( \lambda \) é uma taxa de chegada de novos símbolos. Assumindo que \( S(t) \approx \lambda t \) para grandes \( t \), a equação pode ser reescrita como:</p>
+    <div class="equation">
+        \[
+        \frac{dC_i(t)}{dt} = \frac{\lambda C_i(t)}{\lambda t} = \frac{C_i(t)}{t}
+        \]
+    </div>
+    <p>Resolvendo esta equação diferencial, obtemos:</p>
+    <div class="equation">
+        \[
+        C_i(t) = C_i(t_0) \left(\frac{t}{t_0}\right)^{1}
+        \]
+    </div>
+    <p>Isso indica que a contagem \( C_i(t) \) cresce linearmente com o tempo, reforçando a ideia de que símbolos já populares tendem a se tornar ainda mais frequentes.</p>
+
+    <h3>Distribuição Estacionária</h3>
+    <p>Para determinar a distribuição estacionária das contagens, consideramos a probabilidade de escolha de cada símbolo. Utilizando a abordagem de equilíbrio, temos:</p>
+    <div class="equation">
+        \[
+        \frac{C_i(t)}{S(t)} = \frac{1}{i^\alpha}
+        \]
+    </div>
+    <p>Substituindo na equação de atualização, obtemos uma relação que permite determinar o valor de \( \alpha \). Análises mais detalhadas mostram que, sob certas condições, \( \alpha \) converge para 1, alinhando-se com a Lei de Zipf.</p>
+
+    <h2>Implementação em JavaScript</h2>
+    <p>A seguir, apresentamos uma simulação simples em JavaScript que implementa o modelo de Preferential Attachment para gerar uma distribuição de frequência semelhante à Lei de Zipf.</p>
+
+    <pre><code>
+// Número de símbolos iniciais
+const k = 100;
+
+// Número de iterações
+const iterations = 100000;
+
+// Inicialização das contagens
+let counts = Array(k).fill(1); // C_i(0) = 1 para todos os i
+
+// Função para escolher um símbolo com probabilidade proporcional à sua contagem
+function chooseSymbol(counts, total) {
+    let r = Math.random() * total;
+    let cumulative = 0;
+    for (let i = 0; i < counts.length; i++) {
+        cumulative += counts[i];
+        if (r < cumulative) {
+            return i;
+        }
+    }
+    return counts.length - 1; // Retorna o último símbolo como fallback
+}
+
+// Processo de iteração
+for (let t = 0; t < iterations; t++) {
+    let total = counts.reduce((a, b) => a + b, 0);
+    let chosen = chooseSymbol(counts, total);
+    counts[chosen] += 1;
+}
+
+// Ordenar as contagens em ordem decrescente
+counts.sort((a, b) => b - a);
+
+// Exibir os resultados
+console.log("Rank\tContagem");
+counts.forEach((count, index) => {
+    console.log(`${index + 1}\t${count}`);
+});
+    </code></pre>
+
+    <h3>Explicação do Código</h3>
+    <ul>
+        <li><strong>Inicialização:</strong> Definimos \( k \) símbolos, todos com contagem inicial de 1.</li>
+        <li><strong>Escolha do Símbolo:</strong> A função <code>chooseSymbol</code> seleciona um símbolo com probabilidade proporcional à sua contagem atual.</li>
+        <li><strong>Iteração:</strong> Em cada iteração, atualizamos a contagem do símbolo escolhido.</li>
+        <li><strong>Resultados:</strong> Após todas as iterações, ordenamos as contagens em ordem decrescente para observar a distribuição de frequência.</li>
+    </ul>
+
+    <h2>Análise da Simulação</h2>
+    <h3>Resultados da Simulação</h3>
+    <p>Ao executar a simulação acima, obtemos uma distribuição onde poucos símbolos possuem contagens extremamente altas, enquanto a maioria tem contagens baixas. Esse padrão é característico da Lei de Zipf, demonstrando como um processo estocástico simples pode gerar uma distribuição de frequência semelhante.</p>
+
+    <h3>Visualização dos Resultados</h3>
+    <p>Para uma análise mais detalhada, podemos plotar os resultados em um gráfico de log-log, onde a relação linear confirma a presença de uma distribuição de potência.</p>
+    <p>Embora a implementação básica fornecida exiba apenas os dados no console, uma implementação mais avançada pode incluir a geração de gráficos utilizando bibliotecas como <em>D3.js</em> ou <em>Chart.js</em>.</p>
+
+    <h3>Variações do Modelo</h3>
+    <p>Existem diversas variações do modelo de Preferential Attachment que podem gerar diferentes comportamentos de distribuição:</p>
+    <ul>
+        <li><strong>Preferential Attachment com Feedback Não-Linear:</strong> Onde a probabilidade de escolha de um símbolo depende de uma potência da sua contagem, \( P(i, t) \propto C_i(t)^\beta \). Para \( \beta \neq 1 \), observamos diferentes exponents \( \alpha \) na distribuição de potência.</li>
+        <li><strong>Preferential Attachment com Adição de Novos Símbolos:</strong> Introduzindo novos símbolos ao longo das iterações, o que pode modelar sistemas em crescimento, como redes sociais ou a evolução de vocabulário.</li>
+        <li><strong>Preferential Attachment com Limite Superior:</strong> Impor um limite máximo para as contagens, representando restrições no sistema real.</li>
+    </ul>
+
+    <h3>Equação de Master do Processo</h3>
+    <p>Para uma descrição mais formal do processo estocástico, podemos utilizar a Equação de Master, que descreve a evolução probabilística das contagens:</p>
+    <div class="equation">
+        \[
+        P(C_i, t+1) = P(C_i - 1, t) \cdot \frac{C_i - 1}{S(t)} + P(C_i, t) \cdot \left(1 - \frac{C_i}{S(t)}\right)
+        \]
+    </div>
+    <p>Onde \( P(C_i, t) \) é a probabilidade de um símbolo \( i \) ter a contagem \( C_i \) no passo \( t \). Esta equação leva em consideração a probabilidade de um símbolo \( i \) ser escolhido e incrementar sua contagem, bem como a probabilidade de não ser escolhido.</p>
+
+    <h2>Resultados da Simulação</h2>
+    <p>Ao executar a simulação acima, obtemos uma distribuição onde poucos símbolos possuem contagens extremamente altas, enquanto a maioria tem contagens baixas. Esse padrão é característico da Lei de Zipf, demonstrando como um processo estocástico simples pode gerar uma distribuição de frequência semelhante.</p>
+
+    <h2>Conclusão</h2>
+    <p>A Lei de Zipf é um fenômeno recorrente em diversos sistemas complexos, e o modelo de Preferential Attachment oferece uma explicação simples e eficaz para a sua emergência. Através de um processo estocástico baseado em feedback positivo, podemos reproduzir distribuições de frequência que refletem a realidade observada em linguagens naturais e outros domínios.</p>
+    <p>Adicionalmente, ao explorar variações do modelo e aprofundar a análise matemática, podemos compreender melhor as condições necessárias para a formação de distribuições de potência e aplicar esses conhecimentos em áreas como redes sociais, economia e biologia.</p>
+
+    <h2>Referências</h2>
+    <ul>
+        <li>Zipf, G. K. (1949). <em>Human Behavior and the Principle of Least Effort</em>.</li>
+        <li>Newman, M. E. J. (2005). Power laws, Pareto distributions and Zipf's law. <em>Contemporary Physics</em>, 46(5), 323-351.</li>
+        <li>Barabási, A.-L. (2003). <em>Linked: How Everything Is Connected to Everything Else and What It Means for Business, Science, and Everyday Life</em>.</li>
+        <li>Albert, R., & Barabási, A.-L. (2002). Statistical mechanics of complex networks. <em>Reviews of Modern Physics</em>, 74(1), 47.</li>
+    </ul>
+
+    <h2>Sobre o Autor</h2>
+    <p>Luiz Tiago Wilcke é um entusiasta de ciências da computação e estatística, com interesse especial em processos estocásticos e suas aplicações em linguística e análise de dados.</p>
+</body>
+</html>

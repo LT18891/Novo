@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Distribuição Lognormal: Propriedades, Equações e Aplicações</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async
+            src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+    </script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            line-height: 1.6;
+        }
+        h1, h2, h3, h4, h5 {
+            color: #2E4053;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .plot {
+            width: 100%;
+            max-width: 800px;
+            margin: 20px auto;
+        }
+        .figure-caption {
+            text-align: center;
+            font-style: italic;
+            margin-bottom: 20px;
+        }
+        .slider-container {
+            width: 80%;
+            max-width: 800px;
+            margin: 20px auto;
+            text-align: center;
+        }
+        .slider-container label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .slider-container input {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Distribuição Lognormal: Propriedades, Equações e Aplicações</h1>
+
+<p><strong>Autor:</strong> Luiz Tiago Wilcke</p>
+
+<h2>Resumo</h2>
+<p>
+A distribuição lognormal é amplamente utilizada em estatística e modelagem de dados, sendo particularmente eficaz na descrição de fenômenos positivos sujeitos a crescimento multiplicativo. Este artigo oferece uma revisão completa sobre a distribuição lognormal, apresentando suas propriedades matemáticas, momentos, estimação de parâmetros e técnicas de visualização. Além disso, é explorado um exemplo prático na área econômica, utilizando a distribuição lognormal para modelar a precificação de opções segundo o modelo de Black-Scholes. O artigo inclui uma implementação em HTML, JavaScript e Plotly, permitindo interatividade na manipulação dos parâmetros e visualização da PDF, CDF e histogramas de dados simulados.
+</p>
+
+<h2>Palavras-chave</h2>
+<p>Distribuição Lognormal, Estatística, Modelagem, Visualização Interativa, Finanças, Black-Scholes</p>
+
+<h2>1. Introdução</h2>
+<p>
+A distribuição lognormal descreve o comportamento de uma variável aleatória cujo logaritmo é normalmente distribuído. Em outras palavras, se \( X \) é lognormal, então \( Y = \ln(X) \) segue uma distribuição normal. Essa abordagem é especialmente útil em contextos onde o fenômeno em questão resulta da multiplicação de diversos fatores ou apresenta crescimento exponencial, como rendas, preços de ativos financeiros, tamanhos de organismos vivos e tempos de vida de componentes.
+</p>
+
+<p>
+O objetivo deste artigo é apresentar de maneira clara e sistemática as propriedades matemáticas da distribuição lognormal, sua PDF, CDF e momentos, bem como métodos de estimação de parâmetros. Além disso, discutiremos aplicações práticas em áreas como economia, engenharia, biologia e ciências ambientais, destacando um exemplo da área financeira (precificação de opções segundo Black-Scholes).
+</p>
+
+<h2>2. Definição e Propriedades</h2>
+
+<h3>2.1 Definição</h3>
+<p>
+Seja \( X \) uma variável aleatória lognormal. Por definição, existe uma variável \( Y = \ln(X) \) tal que:
+</p>
+\[
+Y = \ln(X) \sim \mathcal{N}(\mu, \sigma^2)
+\]
+
+<p>
+Isso implica que \( X = e^Y \) e a distribuição de \( X \) é dita lognormal com parâmetros \(\mu\) e \(\sigma\).
+</p>
+
+<h3>2.2 Função de Densidade de Probabilidade (PDF)</h3>
+<p>
+A função de densidade de probabilidade da distribuição lognormal é:
+</p>
+\[
+f_X(x) = \frac{1}{x \sigma \sqrt{2\pi}} \exp\left(-\frac{(\ln x - \mu)^2}{2\sigma^2}\right), \quad x > 0.
+\]
+
+<h3>2.3 Função de Distribuição Cumulativa (CDF)</h3>
+<p>
+A CDF pode ser expressa em termos da função erro (\(\text{erf}\)):
+</p>
+\[
+F_X(x) = \frac{1}{2}\left[1 + \text{erf}\left(\frac{\ln x - \mu}{\sigma \sqrt{2}}\right)\right], \quad x > 0.
+\]
+
+<h3>2.4 Propriedades Estatísticas</h3>
+<ul>
+    <li><strong>Média:</strong> \(\mathbb{E}[X] = e^{\mu + \sigma^2/2}\)</li>
+    <li><strong>Variância:</strong> \(\text{Var}(X) = (e^{\sigma^2}-1)e^{2\mu+\sigma^2}\)</li>
+    <li><strong>Moda:</strong> \(\text{Moda} = e^{\mu-\sigma^2}\)</li>
+    <li><strong>Mediana:</strong> \(\text{Mediana} = e^{\mu}\)</li>
+    <li><strong>Assimetria (Skewness):</strong> \(\gamma_1 = (e^{\sigma^2}+2)\sqrt{e^{\sigma^2}-1}\)</li>
+    <li><strong>Curtose Excesso:</strong> \(\gamma_2 = e^{4\sigma^2}+2e^{3\sigma^2}+3e^{2\sigma^2}-6\)</li>
+</ul>
+
+<h2>3. Momentos</h2>
+<p>
+O n-ésimo momento de \( X \) é dado por:
+</p>
+\[
+\mathbb{E}[X^n] = e^{n\mu + \frac{n^2\sigma^2}{2}}.
+\]
+
+<p>
+Por exemplo, para \( n=3 \):
+\(\mathbb{E}[X^3] = e^{3\mu+\frac{9\sigma^2}{2}}\), e para \( n=4 \):
+\(\mathbb{E}[X^4] = e^{4\mu+8\sigma^2}\).
+</p>
+
+<h2>4. Estimação de Parâmetros</h2>
+<p>
+Dada uma amostra \(\{x_1, x_2, \ldots, x_n\}\), os estimadores de máxima verossimilhança são:
+</p>
+\[
+\hat{\mu} = \ln\left(\frac{\overline{X}^2}{S^2}\right), \quad \hat{\sigma}^2 = \ln\left(\frac{S^2}{\overline{X}^2} + 1\right),
+\]
+onde \(\overline{X}\) é a média amostral e \( S^2 \) a variância amostral.
+
+<h2>5. Plotagens e Visualização Interativa</h2>
+<p>
+A seguir, apresentamos uma interface interativa usando JavaScript (Plotly) para visualizar a PDF, CDF e um histograma de dados simulados da distribuição lognormal. Ajustando os valores de \(\mu\) e \(\sigma\), o leitor pode observar em tempo real o impacto desses parâmetros no formato da distribuição.
+</p>
+
+<div class="slider-container">
+    <label for="mu-slider">Selecione o valor de \( \mu \): <span id="mu-value">0</span></label>
+    <input type="range" id="mu-slider" min="-2" max="2" step="0.1" value="0">
+</div>
+
+<div class="slider-container">
+    <label for="sigma-slider">Selecione o valor de \( \sigma \): <span id="sigma-value">0.5</span></label>
+    <input type="range" id="sigma-slider" min="0.1" max="2" step="0.1" value="0.5">
+</div>
+
+<div class="plot" id="pdf-plot"></div>
+<div class="figure-caption">Figura 1: PDF da distribuição lognormal.</div>
+
+<div class="plot" id="cdf-plot"></div>
+<div class="figure-caption">Figura 2: CDF da distribuição lognormal.</div>
+
+<div class="plot" id="histogram-plot"></div>
+<div class="figure-caption">Figura 3: Histograma de dados simulados sobreposto com a PDF teórica.</div>
+
+<h2>6. Aplicações</h2>
+<p>
+A distribuição lognormal encontra aplicações em diversas áreas:
+</p>
+
+<h3>6.1 Economia e Finanças</h3>
+<p>
+Em finanças, a suposição de que os retornos logarítmicos de certos ativos seguem uma distribuição normal leva a preços lognormais. Um exemplo clássico é o modelo de Black-Scholes para precificação de opções, onde assume-se que o preço do ativo subjacente (ex. uma ação) segue uma distribuição lognormal.
+</p>
+
+<h4>6.1.1 Exemplo: Precificação de Opções (Black-Scholes)</h4>
+<p>
+O preço de uma opção de compra europeia (\(C\)) no modelo Black-Scholes é:
+</p>
+\[
+C = S_0\Phi(d_1) - K e^{-rT}\Phi(d_2),
+\]
+onde:
+\[
+d_1 = \frac{\ln(S_0/K) + (r+\sigma^2/2)T}{\sigma\sqrt{T}}, \quad d_2 = d_1 - \sigma\sqrt{T}.
+\]
+
+<p>
+Assumindo \( S_0 = 100 \), \( K = 100 \), \( r = 5\% \), \(\sigma = 20\% \) e \( T=1 \) ano, podemos calcular:
+</p>
+\[
+d_1 = \frac{0.07}{0.2} = 0.35, \quad d_2 = 0.35 - 0.2 = 0.15.
+\]
+
+<p>
+A partir das tabelas da distribuição normal padrão:
+\(\Phi(0.35) \approx 0.6368\), \(\Phi(0.15) \approx 0.5596\).
+</p>
+\[
+C = 100 \times 0.6368 - 100 e^{-0.05} \times 0.5596 \approx 63.68 - 53.23 = 10.45.
+\]
+
+<p>
+Portanto, a opção de compra vale aproximadamente R\$10,45.
+</p>
+
+<h3>6.2 Biologia e Ecologia</h3>
+<p>
+Na biologia e ecologia, a distribuição lognormal é utilizada para descrever a abundância de espécies ou o tamanho de organismos. A multiplicação de fatores ambientais e genéticos resulta em distribuições de tamanhos bem modeladas pela lognormal.
+</p>
+
+<h3>6.3 Engenharia</h3>
+<p>
+Em engenharia de confiabilidade, a distribuição lognormal é empregada para modelar tempos até a falha de componentes, refletindo a natureza multiplicativa dos processos de degradação.
+</p>
+
+<h3>6.4 Ciências Ambientais</h3>
+<p>
+Na área ambiental, concentrações de poluentes podem ser bem modeladas por distribuições lognormais, já que processos multiplicativos e misturas complexas de fontes contribuem para a concentração final.
+</p>
+
+<h2>7. Exemplo Prático: Distribuição de Renda</h2>
+<p>
+Suponha que desejamos determinar a probabilidade de que a renda per capita exceda R\$150.000, dada uma média amostral de R\$100.000 e variância amostral \(2.5 \times 10^9\).
+</p>
+
+<p>
+Estima-se:
+</p>
+\[
+\hat{\mu} = \ln\left(\frac{(100000)^2}{2.5 \times 10^9}\right) = \ln(4) \approx 1.3863
+\]
+\[
+\hat{\sigma}^2 = \ln\left(\frac{2.5 \times 10^9}{(100000)^2} + 1\right) = \ln(1.25) \approx 0.2231
+\]
+\[
+\hat{\sigma} = \sqrt{0.2231} \approx 0.472.
+\]
+
+<p>
+Queremos \( P(X > 150000) \):
+</p>
+\[
+P(X>150000) = P\left(Y > \ln(150000)\right), \quad Y \sim \mathcal{N}(\hat{\mu}, \hat{\sigma}^2).
+\]
+
+\[
+\ln(150000)\approx11.9184.
+\]
+
+<p>
+Calculando o z-score:
+</p>
+\[
+z = \frac{11.9184 - 1.3863}{0.472} \approx 22.34.
+\]
+
+<p>
+Um valor tão alto torna a probabilidade praticamente zero. Portanto, é altamente improvável que a renda exceda R\$150.000.
+</p>
+
+<h2>8. Conclusões</h2>
+<p>
+A distribuição lognormal é uma ferramenta estatística valiosa para modelar fenômenos que envolvem fatores multiplicativos, com aplicações em inúmeras áreas. Neste artigo, revisamos suas propriedades, estimamos parâmetros a partir de amostras, exploramos aplicações práticas e fornecemos uma interface interativa para visualização gráfica. A distribuição lognormal continua sendo um instrumento fundamental para análises em economia, finanças, engenharia, biologia e ciências ambientais, apoiando a compreensão e a tomada de decisões baseadas em dados.
+</p>
+
+<h2>Referências</h2>
+<ol>
+    <li>Aitchison, J., & Brown, J. A. C. (1957). <em>The Lognormal Distribution</em>. Cambridge University Press.</li>
+    <li>Box, G. E. P., Hunter, W. G., & Hunter, J. S. (2005). <em>Statistics for Experimenters: Design, Innovation, and Discovery</em>. Wiley-Interscience.</li>
+    <li>Black, F., & Scholes, M. (1973). "The Pricing of Options and Corporate Liabilities." <em>Journal of Political Economy</em>, 81(3), 637-654.</li>
+    <li>Fisher, R. A. (1932). <em>The Theory of Statistics</em>. Oliver & Boyd.</li>
+    <li>Johnson, N. L., Kotz, S., & Balakrishnan, N. (1994). <em>Continuous Univariate Distributions, Volume 2</em>. Wiley-Interscience.</li>
+    <li>Hull, J. C. (2017). <em>Options, Futures, and Other Derivatives</em>. Pearson.</li>
+    <li>Montgomery, D. C., & Runger, G. C. (2014). <em>Applied Statistics and Probability for Engineers</em>. Wiley.</li>
+    <li>Wilkie, D. (1993). <em>The Black-Scholes Option Pricing Model</em>. Prentice Hall.</li>
+</ol>
+
+<script>
+    /**
+     * Função de erro (erf) baseada na aproximação de Abramowitz e Segalstein
+     * Fonte: https://en.wikipedia.org/wiki/Error_function#Numerical_approximations
+     */
+    function erf(x) {
+        const sign = (x >= 0) ? 1 : -1;
+        x = Math.abs(x);
+        const a1 = 0.254829592;
+        const a2 = -0.284496736;
+        const a3 = 1.421413741;
+        const a4 = -1.453152027;
+        const a5 = 1.061405429;
+        const p = 0.3275911;
+
+        const t = 1.0 / (1.0 + p * x);
+        const y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
+        return sign * y;
+    }
+
+    /**
+     * Gera dados para PDF e CDF da distribuição lognormal
+     */
+    function generateData(mu, sigma) {
+        const x = [];
+        const pdf = [];
+        const cdf = [];
+        const xMax = Math.exp(mu + 4 * sigma); // Captura ~99.99% da distribuição
+        for (let i = 0.01; i <= xMax; i += 0.01) {
+            x.push(i);
+            const log_i = Math.log(i);
+            const pdf_val = (1 / (i * sigma * Math.sqrt(2 * Math.PI))) * Math.exp(-Math.pow(log_i - mu, 2) / (2 * Math.pow(sigma, 2)));
+            pdf.push(pdf_val);
+            const cdf_val = 0.5 * (1 + erf((log_i - mu) / (sigma * Math.sqrt(2))));
+            cdf.push(cdf_val);
+        }
+        return {x, pdf, cdf};
+    }
+
+    /**
+     * Gera amostras lognormais usando o método Box-Muller
+     */
+    function generateLogNormalSamples(mu, sigma, sampleSize) {
+        const samples = [];
+        for (let i = 0; i < sampleSize; i++) {
+            const u1 = Math.random();
+            const u2 = Math.random();
+            const z0 = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
+            const x = Math.exp(mu + sigma * z0);
+            samples.push(x);
+        }
+        return samples;
+    }
+
+    /**
+     * Atualiza os gráficos PDF, CDF e Histograma
+     */
+    function updatePlots() {
+        const mu = parseFloat(document.getElementById('mu-slider').value);
+        const sigma = parseFloat(document.getElementById('sigma-slider').value);
+
+        // Atualiza os valores exibidos nos sliders
+        document.getElementById('mu-value').innerText = mu;
+        document.getElementById('sigma-value').innerText = sigma.toFixed(1);
+
+        // Gera os dados para PDF e CDF
+        const data = generateData(mu, sigma);
+
+        // Plot PDF
+        const pdf_trace = {
+            x: data.x,
+            y: data.pdf,
+            mode: 'lines',
+            name: 'PDF',
+            line: {color: '#17BECF'}
+        };
+        Plotly.newPlot('pdf-plot', [pdf_trace], {
+            title: `PDF da Distribuição Lognormal (μ = ${mu}, σ = ${sigma})`,
+            xaxis: {title: 'x'},
+            yaxis: {title: 'f(x)'}
+        });
+
+        // Plot CDF
+        const cdf_trace = {
+            x: data.x,
+            y: data.cdf,
+            mode: 'lines',
+            name: 'CDF',
+            line: {color: '#FF5733'}
+        };
+        Plotly.newPlot('cdf-plot', [cdf_trace], {
+            title: `CDF da Distribuição Lognormal (μ = ${mu}, σ = ${sigma})`,
+            xaxis: {title: 'x'},
+            yaxis: {title: 'F(x)'}
+        });
+
+        // Gera dados simulados para o histograma
+        const sampleSize = 1000;
+        const simulatedData = generateLogNormalSamples(mu, sigma, sampleSize);
+
+        // Define o número de bins e calcula as frequências
+        const bins = 50;
+        const minVal = Math.min(...simulatedData);
+        const maxVal = Math.max(...simulatedData);
+        const binWidth = (maxVal - minVal) / bins;
+
+        const histogram = Array(bins).fill(0);
+        simulatedData.forEach(val => {
+            if (val >= minVal && val < maxVal) {
+                const index = Math.floor((val - minVal) / binWidth);
+                histogram[index]++;
+            }
+        });
+
+        const binCenters = [];
+        for (let i = 0; i < bins; i++) {
+            binCenters.push(minVal + (i + 0.5) * binWidth);
+        }
+
+        // Plot Histograma
+        const histogram_trace = {
+            x: binCenters,
+            y: histogram,
+            type: 'bar',
+            name: 'Dados Simulados',
+            opacity: 0.6,
+            marker: {color: '#7FDBFF'}
+        };
+
+        // Normaliza a PDF para sobrepor no histograma
+        const pdf_normalized = data.pdf.map(val => val * sampleSize * binWidth);
+        const pdf_trace_hist = {
+            x: data.x,
+            y: pdf_normalized,
+            mode: 'lines',
+            name: 'PDF Teórica',
+            line: {color: '#FF4136'}
+        };
+
+        Plotly.newPlot('histogram-plot', [histogram_trace, pdf_trace_hist], {
+            title: 'Histograma de Dados Simulados com PDF Teórica',
+            xaxis: {title: 'x'},
+            yaxis: {title: 'Frequência'},
+            showlegend: true
+        });
+    }
+
+    // Adiciona eventos aos sliders para atualizar os gráficos em tempo real
+    document.getElementById('mu-slider').addEventListener('input', updatePlots);
+    document.getElementById('sigma-slider').addEventListener('input', updatePlots);
+
+    // Atualiza os gráficos assim que a página for carregada
+    document.addEventListener('DOMContentLoaded', updatePlots);
+</script>
+
+</body>
+</html>
+
+
+

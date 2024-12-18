@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Tennis Atari Clone</title>
+    <style>
+        body {
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            position: relative;
+        }
+        canvas {
+            border: 2px solid #fff;
+            background-color: #333;
+        }
+        #placar {
+            position: absolute;
+            top: 20px;
+            color: #fff;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 16px;
+            text-align: center;
+            width: 100%;
+        }
+        #autor {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            text-align: center;
+            color: blue;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 14px;
+            animation: piscar 1s infinite;
+        }
+        @keyframes piscar {
+            0% { opacity: 1; }
+            50% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+    </style>
+    <!-- Fonte para o placar e autor (opcional, para estilo retrô) -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="placar">Jogador: 0 | IA: 0</div>
+    <canvas id="canvasJogo" width="800" height="400"></canvas>
+    <div id="autor">Autor: Luiz Tiago Wilcke</div>
+
+    <!-- Sons (opcional) -->
+    <audio id="somBatida" src="https://www.soundjay.com/button/sounds/button-16.mp3" preload="auto"></audio>
+    <audio id="somPonto" src="https://www.soundjay.com/button/sounds/button-09.mp3" preload="auto"></audio>
+
+    <script>
+        // Autor: Luiz Tiago Wilcke
+
+        let canvas = document.getElementById('canvasJogo');
+        let ctx = canvas.getContext('2d');
+
+        // Sons
+        let somBatida = document.getElementById('somBatida');
+        let somPonto = document.getElementById('somPonto');
+
+        // Dimensões
+        let LARGURA = canvas.width;
+        let ALTURA = canvas.height;
+
+        // Paletas
+        let larguraPaleta = 50; // Aumentamos para acomodar o desenho do personagem
+        let alturaPaleta = 100;
+        let velocidadePaleta = 6;
+
+        // Bola
+        let raioBola = 10;
+        let posBolaX = LARGURA / 2;
+        let posBolaY = ALTURA / 2;
+        let velocidadeBolaX = 5;
+        let velocidadeBolaY = 5;
+
+        // Jogador (direita)
+        let posJogadorY = ALTURA / 2 - alturaPaleta / 2;
+
+        // IA (esquerda)
+        let posIA_Y = ALTURA / 2 - alturaPaleta / 2;
+        let velocidadeIA = 5; // Velocidade de movimentação da IA
+        let inteligenciaIA = 0.3; // Fator de inteligência da IA (0 < inteligenciaIA <= 1)
+
+        // Pontuação
+        let pontuacaoJogador = 0;
+        let pontuacaoIA = 0;
+        let divPlacar = document.getElementById('placar');
+
+        // Controles
+        let teclasPressionadas = {};
+
+        document.addEventListener('keydown', (e) => {
+            teclasPressionadas[e.key] = true;
+        });
+
+        document.addEventListener('keyup', (e) => {
+            teclasPressionadas[e.key] = false;
+        });
+
+        // Atualiza a posição da paleta do jogador
+        function atualizarPaletaJogador() {
+            // Jogador - teclas ArrowUp e ArrowDown
+            if (teclasPressionadas['ArrowUp']) {
+                if (posJogadorY > 0) {
+                    posJogadorY -= velocidadePaleta;
+                }
+            }
+            if (teclasPressionadas['ArrowDown']) {
+                if (posJogadorY < ALTURA - alturaPaleta) {
+                    posJogadorY += velocidadePaleta;
+                }
+            }
+        }
+
+        // Atualiza a posição da paleta da IA
+        function atualizarPaletaIA() {
+            // IA mais inteligente: tenta prever a posição futura da bola
+            // Calcula a posição prevista da bola
+            let posicaoPrevistaBolaY = posBolaY + (velocidadeBolaY * inteligenciaIA * 15);
+
+            // Limita a posição prevista dentro dos limites do canvas
+            posicaoPrevistaBolaY = Math.max(raioBola, Math.min(ALTURA - raioBola, posicaoPrevistaBolaY));
+
+            // IA move a paleta em direção à posição prevista da bola
+            let centroPaletaIA = posIA_Y + alturaPaleta / 2;
+            if (centroPaletaIA < posicaoPrevistaBolaY - 10) {
+                posIA_Y += velocidadeIA;
+            } else if (centroPaletaIA > posicaoPrevistaBolaY + 10) {
+                posIA_Y -= velocidadeIA;
+            }
+
+            // Limita a IA para não sair da tela
+            posIA_Y = Math.max(0, Math.min(ALTURA - alturaPaleta, posIA_Y));
+        }
+
+        // Atualiza a posição da bola
+        function atualizarBola() {
+            posBolaX += velocidadeBolaX;
+            posBolaY += velocidadeBolaY;
+
+            // Colisão com topo e fundo
+            if (posBolaY + raioBola > ALTURA || posBolaY - raioBola < 0) {
+                velocidadeBolaY = -velocidadeBolaY;
+                tocarSomBatida();
+            }
+
+            // Colisão com paleta do Jogador
+            if (posBolaX + raioBola > LARGURA - larguraPaleta) {
+                if (posBolaY > posJogadorY && posBolaY < posJogadorY + alturaPaleta) {
+                    velocidadeBolaX = -velocidadeBolaX;
+                    aumentarVelocidadeBola();
+                    tocarSomBatida();
+                } else {
+                    // Ponto para a IA
+                    pontuacaoIA++;
+                    tocarSomPonto();
+                    redefinirBola();
+                }
+            }
+
+            // Colisão com paleta da IA
+            if (posBolaX - raioBola < larguraPaleta) {
+                if (posBolaY > posIA_Y && posBolaY < posIA_Y + alturaPaleta) {
+                    velocidadeBolaX = -velocidadeBolaX;
+                    aumentarVelocidadeBola();
+                    tocarSomBatida();
+                } else {
+                    // Ponto para o Jogador
+                    pontuacaoJogador++;
+                    tocarSomPonto();
+                    redefinirBola();
+                }
+            }
+
+            // Limita a velocidade máxima da bola
+            let velocidadeMaxima = 12;
+            if (velocidadeBolaX > velocidadeMaxima) velocidadeBolaX = velocidadeMaxima;
+            if (velocidadeBolaX < -velocidadeMaxima) velocidadeBolaX = -velocidadeMaxima;
+            if (velocidadeBolaY > velocidadeMaxima) velocidadeBolaY = velocidadeMaxima;
+            if (velocidadeBolaY < -velocidadeMaxima) velocidadeBolaY = -velocidadeMaxima;
+        }
+
+        // Aumenta a velocidade da bola após cada batida
+        function aumentarVelocidadeBola() {
+            velocidadeBolaX *= 1.05;
+            velocidadeBolaY *= 1.05;
+        }
+
+        // Redefine a posição da bola para o centro
+        function redefinirBola() {
+            posBolaX = LARGURA / 2;
+            posBolaY = ALTURA / 2;
+            // Inicia a bola em direção ao jogador que perdeu o ponto
+            velocidadeBolaX = velocidadeBolaX > 0 ? -5 : 5;
+            velocidadeBolaY = (Math.random() > 0.5 ? 1 : -1) * 5;
+        }
+
+        // Tocar som de batida
+        function tocarSomBatida() {
+            somBatida.currentTime = 0;
+            somBatida.play();
+        }
+
+        // Tocar som de ponto
+        function tocarSomPonto() {
+            somPonto.currentTime = 0;
+            somPonto.play();
+        }
+
+        // Desenha os elementos do jogo
+        function desenhar() {
+            // Fundo
+            ctx.fillStyle = '#333';
+            ctx.fillRect(0, 0, LARGURA, ALTURA);
+
+            // Linha central
+            ctx.strokeStyle = '#fff';
+            ctx.setLineDash([10, 15]);
+            ctx.beginPath();
+            ctx.moveTo(LARGURA / 2, 0);
+            ctx.lineTo(LARGURA / 2, ALTURA);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Paleta do Jogador (direita) - Desenho do personagem
+            desenharPersonagem(LARGURA - larguraPaleta, posJogadorY);
+
+            // Paleta da IA (esquerda) - Desenho do personagem
+            desenharPersonagem(0, posIA_Y);
+
+            // Bola
+            ctx.beginPath();
+            ctx.arc(posBolaX, posBolaY, raioBola, 0, Math.PI * 2);
+            ctx.fillStyle = '#fff';
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        // Função para desenhar um personagem simples (pessoa) na posição x, y
+        function desenharPersonagem(x, y) {
+            // Corpo
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(x, y + 20, larguraPaleta, alturaPaleta - 20); // Corpo
+
+            // Cabeça
+            ctx.beginPath();
+            ctx.arc(x + larguraPaleta / 2, y + 10, 10, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Braço direito
+            ctx.beginPath();
+            ctx.moveTo(x + larguraPaleta, y + 30);
+            ctx.lineTo(x + larguraPaleta + 15, y + 40);
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Braço esquerdo
+            ctx.beginPath();
+            ctx.moveTo(x, y + 30);
+            ctx.lineTo(x - 15, y + 40);
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Raquete
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(x + larguraPaleta, y + 35, 15, 5); // Raquete
+        }
+
+        // Atualiza o placar
+        function atualizarPlacar() {
+            divPlacar.textContent = `Jogador: ${pontuacaoJogador} | IA: ${pontuacaoIA}`;
+        }
+
+        // Loop principal do jogo
+        function loopJogo() {
+            atualizarPaletaJogador();
+            atualizarPaletaIA();
+            atualizarBola();
+            desenhar();
+            atualizarPlacar();
+            requestAnimationFrame(loopJogo);
+        }
+
+        // Inicia o jogo
+        loopJogo();
+    </script>
+</body>
+</html>

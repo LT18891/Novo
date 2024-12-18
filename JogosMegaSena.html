@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Gerador de Jogos da Mega-Sena</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+            padding: 20px;
+        }
+        #cartelas {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        .cartela {
+            background-color: #fff;
+            padding: 15px;
+            margin: 10px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            width: 200px;
+        }
+        .cartela h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .bola {
+            width: 40px;
+            height: 40px;
+            background-color: #FF5733;
+            color: white;
+            border-radius: 50%;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            margin: 5px;
+            font-size: 18px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        #equations {
+            margin-top: 30px;
+            text-align: left;
+            display: inline-block;
+            max-width: 600px;
+        }
+        #controls {
+            margin-top: 20px;
+        }
+        #generate-btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #28A745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #generate-btn:hover {
+            background-color: #218838;
+        }
+        input[type="number"] {
+            padding: 8px;
+            width: 60px;
+            font-size: 16px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        footer {
+            margin-top: 40px;
+            font-size: 16px;
+            color: #555;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .autor-nome {
+            font-size: 24px; /* Aumenta o tamanho da fonte */
+            font-weight: bold; /* Negrito para destaque */
+        }
+        @media (max-width: 600px) {
+            .cartela {
+                width: 100%;
+            }
+            #equations {
+                max-width: 100%;
+            }
+            footer {
+                max-width: 100%;
+            }
+        }
+    </style>
+    <!-- MathJax Configuration -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async
+            src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+    </script>
+</head>
+<body>
+
+    <h1>Gerador de Jogos da Mega-Sena</h1>
+
+    <div id="controls">
+        <label for="num-jogos">Número de Jogos:</label>
+        <input type="number" id="num-jogos" min="1" max="100" value="1">
+        <button id="generate-btn">Gerar Números</button>
+    </div>
+
+    <div id="cartelas">
+        <!-- Jogos gerados aparecerão aqui -->
+    </div>
+
+    <div id="equations">
+        <h2>Equações Utilizadas</h2>
+        <p>A distribuição de probabilidade ponderada é dada por:</p>
+        $$ P(n_i) = \frac{f_i}{\sum_{j=1}^{60} f_j} $$
+        <p>Onde:</p>
+        <ul>
+            <li> \( P(n_i) \) é a probabilidade do número \( n_i \) ser selecionado.</li>
+            <li> \( f_i \) é a frequência do número \( n_i \).</li>
+            <li> \( \sum_{j=1}^{60} f_j \) é a soma de todas as frequências.</li>
+        </ul>
+    </div>
+
+    <footer>
+        <span class="autor-nome">Autor: Luiz Tiago Wilcke</span>
+    </footer>
+
+    <script>
+        // Frequência histórica dos números (1 a 60)
+        const frequencias = [
+            15, 12, 20, 18, 25, 10, 22, 17, 19, 14,
+            13, 16, 21, 11, 23, 9, 24, 8, 26, 7,
+            27, 6, 28, 5, 29, 4, 30, 3, 31, 2,
+            32, 1, 33, 35, 34, 36, 38, 37, 39, 40,
+            42, 41, 43, 44, 45, 46, 48, 47, 49, 50,
+            52, 51, 53, 54, 55, 56, 58, 57, 59, 60
+        ];
+
+        // Função para gerar números com probabilidade ponderada
+        function gerarMegaSena() {
+            const totalFrequencia = frequencias.reduce((a, b) => a + b, 0);
+            let numerosSelecionados = new Set();
+
+            while (numerosSelecionados.size < 6) {
+                let rand = Math.random() * totalFrequencia;
+                let acumulado = 0;
+                for (let i = 0; i < frequencias.length; i++) {
+                    acumulado += frequencias[i];
+                    if (rand < acumulado) {
+                        numerosSelecionados.add(i + 1);
+                        break;
+                    }
+                }
+            }
+
+            return Array.from(numerosSelecionados).sort((a, b) => a - b);
+        }
+
+        // Função para renderizar os números na cartela
+        function renderizarCartelas(jogos) {
+            const cartelasDiv = document.getElementById('cartelas');
+            cartelasDiv.innerHTML = '';
+            jogos.forEach((jogo, index) => {
+                const cartela = document.createElement('div');
+                cartela.classList.add('cartela');
+
+                const titulo = document.createElement('h3');
+                titulo.textContent = `Jogo ${index + 1}`;
+                cartela.appendChild(titulo);
+
+                jogo.forEach(num => {
+                    const bola = document.createElement('div');
+                    bola.classList.add('bola');
+                    bola.textContent = num;
+                    cartela.appendChild(bola);
+                });
+
+                cartelasDiv.appendChild(cartela);
+            });
+        }
+
+        // Função para gerar N jogos
+        function gerarJogos(n) {
+            const jogos = [];
+            for (let i = 0; i < n; i++) {
+                jogos.push(gerarMegaSena());
+            }
+            return jogos;
+        }
+
+        // Evento de clique no botão
+        document.getElementById('generate-btn').addEventListener('click', () => {
+            const numJogosInput = document.getElementById('num-jogos');
+            let numJogos = parseInt(numJogosInput.value);
+
+            if (isNaN(numJogos) || numJogos < 1) {
+                alert('Por favor, insira um número válido de jogos.');
+                return;
+            }
+
+            if (numJogos > 100) {
+                alert('Por favor, insira um número de jogos menor ou igual a 100.');
+                return;
+            }
+
+            const jogos = gerarJogos(numJogos);
+            renderizarCartelas(jogos);
+        });
+
+        // Gerar 1 jogo automaticamente ao carregar a página
+        window.onload = () => {
+            const jogos = gerarJogos(1);
+            renderizarCartelas(jogos);
+        };
+    </script>
+
+</body>
+</html>
+
+

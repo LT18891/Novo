@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Preço do Bitcoin</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #121212;
+            color: #ffffff;
+            margin: 20px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        #precoAtual {
+            text-align: center;
+            font-size: 28px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        #infoAdicional {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .infoBox {
+            background: #1e1e1e;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+            text-align: center;
+        }
+        .infoBox h3 {
+            margin: 0 0 10px 0;
+            font-size: 18px;
+        }
+        .infoBox p {
+            margin: 0;
+            font-size: 16px;
+        }
+        #controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        select, input[type="number"] {
+            padding: 8px 12px;
+            border-radius: 5px;
+            border: none;
+            font-size: 16px;
+            background: #2c3e50;
+            color: #ecf0f1;
+        }
+        label {
+            font-size: 16px;
+        }
+        #mensagemErro {
+            text-align: center;
+            color: #e74c3c;
+            display: none;
+            margin-bottom: 20px;
+        }
+        #containerGrafico {
+            width: 90%;
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.7);
+        }
+        .spinner {
+            border: 8px solid #f3f3f3; 
+            border-top: 8px solid #3498db; 
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 40px auto;
+            display: none;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        #spinnerContainer {
+            text-align: center;
+        }
+        @media (max-width: 600px) {
+            #infoAdicional {
+                flex-direction: column;
+                align-items: center;
+            }
+            #controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            .infoBox {
+                width: 80%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Preço do Bitcoin</h1>
+    <div id="precoAtual">Carregando preço...</div>
+    <div id="infoAdicional">
+        <div class="infoBox">
+            <h3>Variação 24h</h3>
+            <p id="variacao24h">-</p>
+        </div>
+    </div>
+    <div id="controls">
+        <label for="moedaSelect">Moeda:</label>
+        <select id="moedaSelect">
+            <option value="usd" selected>USD</option>
+            <option value="brl">BRL</option>
+            <option value="eur">EUR</option>
+            <option value="btc">BTC</option>
+        </select>
+
+        <label for="intervaloSelect">Intervalo de Atualização (segundos):</label>
+        <input type="number" id="intervaloSelect" min="10" max="3600" value="30">
+    </div>
+    <div id="mensagemErro">Não foi possível obter os dados no momento.</div>
+    <div id="spinnerContainer">
+        <div class="spinner" id="spinner"></div>
+    </div>
+    <div id="containerGrafico">
+        <canvas id="graficoBitcoin"></canvas>
+    </div>
+
+    <script>
+        let rotulosTempo = [];
+        let dadosPrecos = [];
+        let grafico;
+        let intervaloAtualizacao = 30000; // 30 segundos
+        let intervaloID;
+
+        const elementoPrecoAtual = document.getElementById('precoAtual');
+        const variacao24hElem = document.getElementById('variacao24h');
+        const spinner = document.getElementById('spinner');
+        const mensagemErro = document.getElementById('mensagemErro');
+        const moedaSelect = document.getElementById('moedaSelect');
+        const intervaloSelect = document.getElementById('intervaloSelect');
+
+        function mostrarSpinner(mostrar) {
+            spinner.style.display = mostrar ? 'block' : 'none';
+        }
+
+        async function obterPrecoBitcoin(moeda) {
+            try {
+                const resposta = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=${moeda}&include_24hr_change=true`);
+                if (!resposta.ok) {
+                    throw new Error(`Erro HTTP: ${resposta.status}`);
+                }
+                const dados = await resposta.json();
+                return dados.bitcoin;
+            } catch (erro) {
+                console.error('Erro ao obter preço do Bitcoin:', erro);
+                return null;
+            }
+        }
+
+        function atualizarInformacoes(precoDados, moeda) {
+            const simbolo = moeda.toUpperCase() === 'USD' ? '$' :
+                           moeda.toUpperCase() === 'BRL' ? 'R$' :
+                           moeda.toUpperCase() === 'EUR' ? '€' :
+                           '₿';
+
+            elementoPrecoAtual.textContent = `Preço Atual: ${simbolo}${precoDados[moeda].toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            const variacao = precoDados[`${moeda}_24h_change`].toFixed(2);
+            variacao24hElem.textContent = `${variacao}%`;
+            variacao24hElem.style.color = variacao >= 0 ? '#2ecc71' : '#e74c3c';
+        }
+
+        function atualizarGrafico(moeda, precoAtual) {
+            const horarioAtual = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            rotulosTempo.push(horarioAtual);
+            dadosPrecos.push(precoAtual);
+
+            // Limitar o número de pontos no gráfico para evitar sobrecarga
+            if (rotulosTempo.length > 100) {
+                rotulosTempo.shift();
+                dadosPrecos.shift();
+            }
+
+            if (grafico) {
+                grafico.update();
+            } else {
+                const ctx = document.getElementById('graficoBitcoin').getContext('2d');
+                grafico = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: rotulosTempo,
+                        datasets: [{
+                            label: `BTC/${moeda.toUpperCase()}`,
+                            data: dadosPrecos,
+                            borderColor: 'rgba(52, 152, 219, 1)',
+                            backgroundColor: 'rgba(52, 152, 219, 0.2)',
+                            tension: 0.2,
+                            fill: true,
+                            pointRadius: 0,
+                            pointHoverRadius: 5,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        interaction: {
+                            mode: 'index',
+                            intersect: false,
+                        },
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const simbolo = moeda.toUpperCase() === 'USD' ? '$' :
+                                                       moeda.toUpperCase() === 'BRL' ? 'R$' :
+                                                       moeda.toUpperCase() === 'EUR' ? '€' :
+                                                       '₿';
+                                        return `${simbolo}${context.parsed.y.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                                    }
+                                }
+                            },
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Tempo',
+                                    color: '#ecf0f1',
+                                    font: {
+                                        size: 14
+                                    }
+                                },
+                                ticks: {
+                                    color: '#ecf0f1'
+                                },
+                                grid: {
+                                    color: '#34495e'
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: `Preço (${moeda.toUpperCase()})`,
+                                    color: '#ecf0f1',
+                                    font: {
+                                        size: 14
+                                    }
+                                },
+                                ticks: {
+                                    color: '#ecf0f1',
+                                    callback: function(value) {
+                                        const simbolo = moeda.toUpperCase() === 'USD' ? '$' :
+                                                       moeda.toUpperCase() === 'BRL' ? 'R$' :
+                                                       moeda.toUpperCase() === 'EUR' ? '€' :
+                                                       '₿';
+                                        return `${simbolo}${value}`;
+                                    }
+                                },
+                                grid: {
+                                    color: '#34495e'
+                                },
+                                beginAtZero: false
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        async function atualizarDados() {
+            const moeda = moedaSelect.value;
+            const intervalo = parseInt(intervaloSelect.value) * 1000;
+
+            // Atualizar o intervalo de atualização se for alterado
+            if (intervalo !== intervaloAtualizacao) {
+                clearInterval(intervaloID);
+                intervaloAtualizacao = intervalo;
+                intervaloID = setInterval(atualizarDados, intervaloAtualizacao);
+            }
+
+            mostrarSpinner(true);
+            mensagemErro.style.display = 'none';
+
+            const precoDados = await obterPrecoBitcoin(moeda);
+
+            mostrarSpinner(false);
+
+            if (precoDados) {
+                atualizarInformacoes(precoDados, moeda);
+                atualizarGrafico(moeda, precoDados[moeda]);
+            } else {
+                elementoPrecoAtual.textContent = 'Preço Atual: Indisponível';
+                variacao24hElem.textContent = '-';
+                mensagemErro.style.display = 'block';
+            }
+        }
+
+        // Eventos de mudança nos controles
+        moedaSelect.addEventListener('change', atualizarDados);
+        intervaloSelect.addEventListener('change', atualizarDados);
+
+        // Primeira atualização
+        atualizarDados();
+        // Configurar o intervalo de atualização
+        intervaloID = setInterval(atualizarDados, intervaloAtualizacao);
+    </script>
+</body>
+</html>

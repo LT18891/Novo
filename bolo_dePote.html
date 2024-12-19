@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Venda de Bolos de Pote e Trufas</title>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .produto {
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .equacoes {
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Venda de Bolos de Pote e Trufas</h1>
+        <p>Explore estratégias e equações econômicas para maximizar as vendas no terminal central de Joinville.</p>
+
+        <div class="produto">
+            <h2>Estratégias para Vendas:</h2>
+            <ul>
+                <li>Montar uma pequena barraquinha ou estande com visual atrativo.</li>
+                <li>Oferecer degustações para atrair clientes.</li>
+                <li>Oferecer combos, como "3 trufas por R$ 10".</li>
+                <li>Divulgar promoções no WhatsApp e redes sociais para clientes do terminal.</li>
+                <li>Fazer parcerias com trabalhadores locais para garantir vendas regulares.</li>
+            </ul>
+        </div>
+
+        <div class="equacoes">
+            <h2>Modelos Matemáticos e Econômicos:</h2>
+            <p>Considere os seguintes aspectos para modelar as vendas:</p>
+
+            <p>1. Equação de Receita:</p>
+            <p>\[
+                R(t) = p_B \cdot q_B(t) + p_T \cdot q_T(t)
+            \]</p>
+            <p>Onde:</p>
+            <ul>
+                <li>\(p_B\): Preço do bolo de pote</li>
+                <li>\(q_B(t)\): Quantidade de bolos vendidos no tempo \(t\)</li>
+                <li>\(p_T\): Preço da trufa</li>
+                <li>\(q_T(t)\): Quantidade de trufas vendidas no tempo \(t\)</li>
+            </ul>
+
+            <p>2. Custo Total:</p>
+            <p>\[
+                C(t) = c_B \cdot q_B(t) + c_T \cdot q_T(t) + C_f
+            \]</p>
+            <p>Onde:</p>
+            <ul>
+                <li>\(c_B\): Custo de produção de um bolo de pote</li>
+                <li>\(c_T\): Custo de produção de uma trufa</li>
+                <li>\(C_f\): Custos fixos (ex.: transporte, aluguel do espaço)</li>
+            </ul>
+
+            <p>3. Lucro:</p>
+            <p>\[
+                L(t) = R(t) - C(t)
+            \]</p>
+
+            <p>4. Taxa de Crescimento de Vendas (Modelo Diferencial):</p>
+            <p>\[
+                \frac{dQ}{dt} = r \cdot Q(t) \cdot \left(1 - \frac{Q(t)}{K}\right)
+            \]</p>
+            <p>Onde:</p>
+            <ul>
+                <li>\(r\): Taxa de crescimento inicial</li>
+                <li>\(Q(t)\): Quantidade total de produtos vendidos no tempo \(t\)</li>
+                <li>\(K\): Capacidade máxima de vendas (limitação pelo público do terminal)</li>
+            </ul>
+        </div>
+
+        <div class="produto">
+            <h2>Simulação com JavaScript:</h2>
+            <p>Experimente calcular a receita total:</p>
+            <label for="bolos">Quantidade de bolos vendidos:</label>
+            <input type="number" id="bolos" value="0">
+            <br>
+            <label for="trufas">Quantidade de trufas vendidas:</label>
+            <input type="number" id="trufas" value="0">
+            <br><br>
+            <button onclick="calcularReceita()">Calcular Receita</button>
+            <p id="resultado">Receita Total: R$ 0,00</p>
+
+            <script>
+                const precoBolo = 5; // preço do bolo de pote
+                const precoTrufa = 3; // preço da trufa
+
+                function calcularReceita() {
+                    const bolosVendidos = parseInt(document.getElementById('bolos').value) || 0;
+                    const trufasVendidas = parseInt(document.getElementById('trufas').value) || 0;
+
+                    const receitaTotal = (bolosVendidos * precoBolo) + (trufasVendidas * precoTrufa);
+                    document.getElementById('resultado').textContent = `Receita Total: R$ ${receitaTotal.toFixed(2)}`;
+                }
+            </script>
+        </div>
+    </div>
+</body>
+</html>

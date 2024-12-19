@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Modelo Preditivo do Preço do Bitcoin</title>
+    <!-- Incluir MathJax para renderização de equações -->
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <!-- Incluir Chart.js para visualização de gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Fonte futurista */
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background-color: #0d0d0d;
+            color: #00ff99;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1, h2, h3 {
+            text-align: center;
+            color: #00ff99;
+            text-shadow: 0 0 10px #00ff99, 0 0 20px #00ff99;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin: 20px 0;
+        }
+
+        h2 {
+            font-size: 2em;
+            margin: 20px 0;
+        }
+
+        h3 {
+            font-size: 1.5em;
+            margin: 15px 0;
+        }
+
+        p, ul, li, label {
+            color: #c0ffc0;
+        }
+
+        a {
+            color: #00d9ff;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        a:hover {
+            color: #00ff99;
+        }
+
+        .section {
+            padding: 20px;
+            border-bottom: 1px solid #333;
+        }
+
+        .equation {
+            text-align: center;
+            margin: 20px 0;
+            background-color: #1a1a1a;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px #00ff99;
+        }
+
+        .parameters {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .parameters div {
+            background-color: #1a1a1a;
+            padding: 15px;
+            margin: 10px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px #00ff99;
+            width: 200px;
+        }
+
+        .parameters label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .parameters input {
+            width: 100%;
+            padding: 5px;
+            border: none;
+            border-radius: 4px;
+            background-color: #333;
+            color: #00ff99;
+            box-shadow: inset 0 0 5px #00ff99;
+        }
+
+        .parameters input:focus {
+            outline: none;
+            box-shadow: inset 0 0 10px #00ff99;
+        }
+
+        .button-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .button-container button {
+            background-color: #00ff99;
+            color: #0d0d0d;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1em;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0 0 10px #00ff99;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .button-container button:hover {
+            background-color: #00e680;
+            transform: scale(1.05);
+        }
+
+        #resultado {
+            text-align: center;
+            font-size: 1.2em;
+            margin-top: 10px;
+            color: #ff4d4d;
+            text-shadow: 0 0 5px #ff4d4d;
+        }
+
+        canvas {
+            display: block;
+            margin: 20px auto;
+            max-width: 90%;
+            height: auto;
+            background-color: #1a1a1a;
+            border: 2px solid #00ff99;
+            border-radius: 10px;
+            box-shadow: 0 0 20px #00ff99;
+        }
+
+        /* Scrollbar personalizada */
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0d0d0d;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: #00ff99;
+            border-radius: 6px;
+            border: 3px solid #0d0d0d;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .parameters div {
+                width: 45%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .parameters div {
+                width: 90%;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            h2 {
+                font-size: 1.5em;
+            }
+
+            h3 {
+                font-size: 1.2em;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Modelo Preditivo do Preço do Bitcoin</h1>
+
+    <div class="section">
+        <h2>Introdução</h2>
+        <p>
+            Este artigo apresenta um modelo preditivo para o preço do Bitcoin, levando em consideração diversas variáveis econômicas e de mercado. O modelo utiliza um sistema de equações diferenciais para simular a interação entre demanda, oferta, sentimento do mercado e liquidez.
+        </p>
+    </div>
+
+    <div class="section">
+        <h2>Descrição do Modelo</h2>
+        <p>
+            O modelo considera as seguintes variáveis principais:
+        </p>
+        <ul>
+            <li><strong>P(t)</strong>: Preço do Bitcoin ao longo do tempo.</li>
+            <li><strong>Z(t)</strong>: Sentimento do mercado.</li>
+            <li><strong>L(t)</strong>: Liquidez no mercado.</li>
+        </ul>
+        <p>
+            As interações entre essas variáveis são descritas pelas seguintes equações diferenciais:
+        </p>
+        <div class="equation">
+            $$\frac{dP}{dt} = \alpha D(t)Z(t) - \beta S(t)L(t) + \gamma M(t) P(t)^2 - \delta E(t) P(t)Z(t) + R_P(t)$$
+            $$\frac{dZ}{dt} = \varepsilon (M(t)-N(t)) Z(t) - \zeta Z(t)^2 + \iota P(t) + \theta R_Z(t)$$
+            $$\frac{dL}{dt} = \kappa L(t)\left(1 - \frac{L(t)}{L_{max}}\right) - \lambda P(t)L(t) + \xi R_L(t)$$
+        </div>
+        <p>
+            Onde:
+        </p>
+        <ul>
+            <li><strong>D(t)</strong>: Demanda ao longo do tempo.</li>
+            <li><strong>S(t)</strong>: Oferta ao longo do tempo.</li>
+            <li><strong>M(t)</strong>: Função de mercado.</li>
+            <li><strong>E(t)</strong>: Influências externas.</li>
+            <li><strong>N(t)</strong>: Intervenção no mercado.</li>
+            <li><strong>R_P(t), R_Z(t), R_L(t)</strong>: Termos de ruído para cada variável.</li>
+            <li><strong>α, β, γ, δ, ε, ζ, ι, θ, κ, λ, ξ</strong>: Parâmetros do modelo.</li>
+            <li><strong>L_max</strong>: Limite máximo de liquidez.</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>Implementação em JavaScript</h2>
+        <p>
+            A seguir, apresentamos a implementação do modelo utilizando JavaScript. O código resolve o sistema de equações diferenciais e plota os resultados utilizando a biblioteca <a href="https://www.chartjs.org/" target="_blank">Chart.js</a>.
+        </p>
+
+        <div class="parameters">
+            <div>
+                <label for="alpha">Alpha (α):</label>
+                <input type="number" id="alpha" value="0.001" step="0.0001">
+            </div>
+            <div>
+                <label for="beta">Beta (β):</label>
+                <input type="number" id="beta" value="0.001" step="0.0001">
+            </div>
+            <div>
+                <label for="gamma">Gamma (γ):</label>
+                <input type="number" id="gamma" value="0.001" step="0.0001">
+            </div>
+            <div>
+                <label for="delta">Delta (δ):</label>
+                <input type="number" id="delta" value="0.001" step="0.0001">
+            </div>
+            <div>
+                <label for="epsilon">Epsilon (ε):</label>
+                <input type="number" id="epsilon" value="0.001" step="0.0001">
+            </div>
+            <div>
+                <label for="zeta">Zeta (ζ):</label>
+                <input type="number" id="zeta" value="0.001" step="0.0001">
+            </div>
+            <div>
+                <label for="iota">Iota (ι):</label>
+                <input type="number" id="iota" value="0.001" step="0.0001">
+            </div>
+            <div>
+                <label for="theta">Theta (θ):</label>
+                <input type="number" id="theta" value="0.1" step="0.01">
+            </div>
+            <div>
+                <label for="kappa">Kappa (κ):</label>
+                <input type="number" id="kappa" value="0.01" step="0.001">
+            </div>
+            <div>
+                <label for="lambda">Lambda (λ):</label>
+                <input type="number" id="lambda" value="0.001" step="0.0001">
+            </div>
+            <div>
+                <label for="Lmax">L_max:</label>
+                <input type="number" id="Lmax" value="100" step="1">
+            </div>
+            <div>
+                <label for="xi">Xi (ξ):</label>
+                <input type="number" id="xi" value="0.001" step="0.0001">
+            </div>
+            <div>
+                <label for="P0">P₀ (Preço inicial):</label>
+                <input type="number" id="P0" value="1.0" step="0.1">
+            </div>
+            <div>
+                <label for="Z0">Z₀ (Sentimento inicial):</label>
+                <input type="number" id="Z0" value="1.0" step="0.1">
+            </div>
+            <div>
+                <label for="L0">L₀ (Liquidez inicial):</label>
+                <input type="number" id="L0" value="10.0" step="0.1">
+            </div>
+            <div>
+                <label for="t_max">Tempo Máximo (t_max):</label>
+                <input type="number" id="t_max" value="10" step="1">
+            </div>
+            <div>
+                <label for="num_points">Número de Pontos:</label>
+                <input type="number" id="num_points" value="200" step="10">
+            </div>
+            <div>
+                <label for="noiseP">Desvio Ruído P:</label>
+                <input type="number" id="noiseP" value="0.1" step="0.01">
+            </div>
+            <div>
+                <label for="noiseZ">Desvio Ruído Z:</label>
+                <input type="number" id="noiseZ" value="0.01" step="0.001">
+            </div>
+            <div>
+                <label for="noiseL">Desvio Ruído L:</label>
+                <input type="number" id="noiseL" value="0.1" step="0.01">
+            </div>
+            <div>
+                <label for="seed">Semente Aleatória:</label>
+                <input type="number" id="seed" placeholder="Opcional">
+            </div>
+        </div>
+
+        <div class="button-container">
+            <button onclick="resolverEPlotar()">Prever Preço</button>
+        </div>
+
+        <div>
+            <h3>Resultados da Simulação</h3>
+            <p id="resultado">Preço previsto após t_max: -- USD</p>
+        </div>
+
+        <canvas id="chartP" width="800" height="400"></canvas>
+        <canvas id="chartZL" width="800" height="400"></canvas>
+    </div>
+
+    <div class="section">
+        <h2>Equações do Modelo</h2>
+        <div class="equation">
+            $$\frac{dP}{dt} = \alpha D(t)Z(t) - \beta S(t)L(t) + \gamma M(t) P(t)^2 - \delta E(t) P(t)Z(t) + R_P(t)$$
+            $$\frac{dZ}{dt} = \varepsilon (M(t)-N(t)) Z(t) - \zeta Z(t)^2 + \iota P(t) + \theta R_Z(t)$$
+            $$\frac{dL}{dt} = \kappa L(t)\left(1 - \frac{L(t)}{L_{max}}\right) - \lambda P(t)L(t) + \xi R_L(t)$$
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Implementação do Modelo em JavaScript</h2>
+        <p>
+            O modelo é implementado em JavaScript utilizando o método de Runge-Kutta de 4ª ordem para resolver o sistema de equações diferenciais. Os resultados são visualizados utilizando a biblioteca Chart.js.
+        </p>
+    </div>
+
+    <script>
+        // Funções para demanda, oferta, mercado, externos e intervenção
+        function demanda(t) {
+            return 10 + 5 * Math.sin(0.1 * t);
+        }
+
+        function oferta(t) {
+            return 8 + 3 * Math.cos(0.1 * t);
+        }
+
+        function mercado(t) {
+            return 1.0 + 0.05 * Math.sin(0.05 * t);
+        }
+
+        function externos(t) {
+            return 2.0 + 0.2 * Math.cos(0.05 * t);
+        }
+
+        function intervencao(t) {
+            return 0.5 + 0.1 * Math.sin(0.02 * t);
+        }
+
+        // Função para gerar números aleatórios com semente
+        function seededRandom(seed) {
+            var x = Math.sin(seed++) * 10000;
+            return x - Math.floor(x);
+        }
+
+        // Sistema de equações diferenciais
+        function sistemaVariaveis(Y, t, params, inputs) {
+            const { alpha, beta, gamma, delta, epsilon, zeta, iota, theta, kappa, lambda, Lmax, xi } = params;
+            const { D_t, S_t, M_t, E_t, N_t, RP_t, RZ_t, RL_t } = inputs;
+            const [P, Z, L] = Y;
+
+            const dPdt = alpha * D_t * Z - beta * S_t * L + gamma * M_t * Math.pow(P, 2) - delta * E_t * P * Z + RP_t;
+            const dZdt = epsilon * (M_t - N_t) * Z - zeta * Math.pow(Z, 2) + iota * P + theta * RZ_t;
+            const dLdt = kappa * L * (1 - L / Lmax) - lambda * P * L + xi * RL_t;
+
+            return [dPdt, dZdt, dLdt];
+        }
+
+        // Método de Runge-Kutta 4
+        function rungeKutta4(Y, t, dt, derivs, params, inputs) {
+            const k1 = derivs(Y, t, params, inputs);
+            const Yk1 = Y.map((val, i) => val + dt * k1[i] / 2);
+
+            const k2 = derivs(Yk1, t + dt / 2, params, inputs);
+            const Yk2 = Y.map((val, i) => val + dt * k2[i] / 2);
+
+            const k3 = derivs(Yk2, t + dt / 2, params, inputs);
+            const Yk3 = Y.map((val, i) => val + dt * k3[i]);
+
+            const k4 = derivs(Yk3, t + dt, params, inputs);
+
+            return Y.map((val, i) => val + (dt / 6) * (k1[i] + 2 * k2[i] + 2 * k3[i] + k4[i]));
+        }
+
+        // Função para resolver o sistema
+        function resolverEPlotar() {
+            // Obter parâmetros do usuário
+            const alpha = parseFloat(document.getElementById('alpha').value);
+            const beta = parseFloat(document.getElementById('beta').value);
+            const gamma = parseFloat(document.getElementById('gamma').value);
+            const delta = parseFloat(document.getElementById('delta').value);
+            const epsilon = parseFloat(document.getElementById('epsilon').value);
+            const zeta = parseFloat(document.getElementById('zeta').value);
+            const iota = parseFloat(document.getElementById('iota').value);
+            const theta = parseFloat(document.getElementById('theta').value);
+            const kappa = parseFloat(document.getElementById('kappa').value);
+            const lambda = parseFloat(document.getElementById('lambda').value);
+            const Lmax = parseFloat(document.getElementById('Lmax').value);
+            const xi = parseFloat(document.getElementById('xi').value);
+
+            const P0 = parseFloat(document.getElementById('P0').value);
+            const Z0 = parseFloat(document.getElementById('Z0').value);
+            const L0 = parseFloat(document.getElementById('L0').value);
+
+            const t_max = parseFloat(document.getElementById('t_max').value);
+            const num_points = parseInt(document.getElementById('num_points').value);
+
+            const noiseP = parseFloat(document.getElementById('noiseP').value);
+            const noiseZ = parseFloat(document.getElementById('noiseZ').value);
+            const noiseL = parseFloat(document.getElementById('noiseL').value);
+            const seed = document.getElementById('seed').value ? parseInt(document.getElementById('seed').value) : null;
+
+            // Inicializações
+            const dt = t_max / num_points;
+            let t = 0;
+            let Y = [P0, Z0, L0];
+            const params = { alpha, beta, gamma, delta, epsilon, zeta, iota, theta, kappa, lambda, Lmax, xi };
+
+            // Função para gerar ruído
+            let randomFunc;
+            if (seed !== null) {
+                let currentSeed = seed;
+                randomFunc = () => {
+                    currentSeed += 1;
+                    return seededRandom(currentSeed);
+                };
+            } else {
+                randomFunc = Math.random;
+            }
+
+            // Arrays para armazenar resultados
+            const T_vals = [t];
+            const P_vals = [Y[0]];
+            const Z_vals = [Y[1]];
+            const L_vals = [Y[2]];
+
+            // Simulação
+            for (let i = 1; i <= num_points; i++) {
+                t += dt;
+                // Calcular valores das funções
+                const D_t = demanda(t);
+                const S_t = oferta(t);
+                const M_t = mercado(t);
+                const E_t = externos(t);
+                const N_t = intervencao(t);
+
+                // Calcular ruído
+                const RP_t = noiseP * (randomFunc() * 2 - 1);
+                const RZ_t = noiseZ * (randomFunc() * 2 - 1);
+                const RL_t = noiseL * (randomFunc() * 2 - 1);
+
+                const inputs = { D_t, S_t, M_t, E_t, N_t, RP_t, RZ_t, RL_t };
+
+                // Resolver ODE
+                Y = rungeKutta4(Y, t, dt, sistemaVariaveis, params, inputs);
+
+                // Armazenar resultados
+                T_vals.push(t);
+                P_vals.push(Y[0]);
+                Z_vals.push(Y[1]);
+                L_vals.push(Y[2]);
+            }
+
+            // Atualizar resultado
+            document.getElementById('resultado').innerText = `Preço previsto após ${t_max} unidades de tempo: ${Y[0].toFixed(8)} USD`;
+
+            // Plotar gráficos
+            plotarGraficos(T_vals, P_vals, Z_vals, L_vals);
+        }
+
+        // Função para plotar gráficos usando Chart.js
+        let chartP, chartZL;
+
+        function plotarGraficos(T, P, Z, L) {
+            // Gráfico de Preço
+            const ctxP = document.getElementById('chartP').getContext('2d');
+            if (chartP) chartP.destroy();
+            chartP = new Chart(ctxP, {
+                type: 'line',
+                data: {
+                    labels: T,
+                    datasets: [{
+                        label: 'Preço (P)',
+                        data: P,
+                        borderColor: '#00ff99',
+                        backgroundColor: 'rgba(0, 255, 153, 0.1)',
+                        fill: true,
+                        pointRadius: 0,
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#00ff99'
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Previsão do Preço do Bitcoin',
+                            color: '#00ff99',
+                            font: {
+                                size: 18
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            title: {
+                                display: true,
+                                text: 'Tempo',
+                                color: '#00ff99'
+                            },
+                            ticks: {
+                                color: '#c0ffc0'
+                            },
+                            grid: {
+                                color: '#333'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Preço (USD)',
+                                color: '#00ff99'
+                            },
+                            ticks: {
+                                color: '#c0ffc0'
+                            },
+                            grid: {
+                                color: '#333'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Gráfico de Sentimento e Liquidez
+            const ctxZL = document.getElementById('chartZL').getContext('2d');
+            if (chartZL) chartZL.destroy();
+            chartZL = new Chart(ctxZL, {
+                type: 'line',
+                data: {
+                    labels: T,
+                    datasets: [
+                        {
+                            label: 'Sentimento (Z)',
+                            data: Z,
+                            borderColor: '#ff4d4d',
+                            backgroundColor: 'rgba(255, 77, 77, 0.1)',
+                            fill: true,
+                            pointRadius: 0,
+                            borderWidth: 2
+                        },
+                        {
+                            label: 'Liquidez (L)',
+                            data: L,
+                            borderColor: '#00d9ff',
+                            backgroundColor: 'rgba(0, 217, 255, 0.1)',
+                            fill: true,
+                            pointRadius: 0,
+                            borderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#00ff99'
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Sentimento e Liquidez ao longo do Tempo',
+                            color: '#00ff99',
+                            font: {
+                                size: 18
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            title: {
+                                display: true,
+                                text: 'Tempo',
+                                color: '#00ff99'
+                            },
+                            ticks: {
+                                color: '#c0ffc0'
+                            },
+                            grid: {
+                                color: '#333'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Valor (adimensional)',
+                                color: '#00ff99'
+                            },
+                            ticks: {
+                                color: '#c0ffc0'
+                            },
+                            grid: {
+                                color: '#333'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+    </script>
+
+</body>
+</html>

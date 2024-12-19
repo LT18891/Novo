@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artigo de Luiz Tiago Wilcke</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Orbitron|Roboto&display=swap">
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        body {
+            background-color: black;
+            color: white;
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Orbitron', sans-serif;
+            color: #00FF00;
+            text-transform: uppercase;
+        }
+
+        .formula {
+            background-color: #111;
+            padding: 10px;
+            margin: 20px 0;
+            border-left: 5px solid #00FF00;
+        }
+
+        .highlight {
+            color: #FFD700;
+            font-weight: bold;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Estudo de Criptomoedas e Tecnologia Blockchain</h1>
+    <h2>Autor: Luiz Tiago Wilcke</h2>
+
+    <div class="section">
+        <h3>Introdução</h3>
+        <p>Neste artigo, exploramos a modelagem matemática de criptomoedas, com foco no <span class="highlight">Modelo Jump-Diffusion</span> e sua aplicação na precificação de opções de Bitcoin. Este modelo captura a dinâmica de preços do Bitcoin, incluindo saltos repentinos que são característicos de mercados voláteis.</p>
+    </div>
+
+    <div class="section">
+        <h3>Modelagem Matemática</h3>
+        <p>A modelagem de preços no contexto de criptomoedas utiliza uma variedade de fórmulas e processos estocásticos. A seguir, algumas das principais equações utilizadas:</p>
+
+        <div class="formula">
+            <p>Equação diferencial estocástica para o preço do Bitcoin:</p>
+            <p>$$d \log P_t = \mu_t dt + \sigma(t) dW_t + Y_t dJ_t$$</p>
+        </div>
+
+        <div class="formula">
+            <p>Função característica do processo de log-retorno do Bitcoin:</p>
+            <p>$$F_{\omega}\left(\ln \frac{S_t}{S_0}\right) = \exp \left\{i\omega \alpha t - \frac{1}{2}i\omega(1 - i\omega)\sigma^2 t + \lambda \left[E\left(j^{i\omega} - 1\right) - i\omega k\right]t \right\}$$</p>
+        </div>
+
+        <div class="formula">
+            <p>Equação para o retorno médio do processo de log-retorno:</p>
+            <p>$$E\left(\ln \frac{S_t}{S_0}\right) = \left[\alpha - \frac{1}{2}\sigma^2 + \lambda E(\ln j) - \lambda k\right]t$$</p>
+        </div>
+
+        <div class="formula">
+            <p>Variância total do logaritmo do preço do Bitcoin sob um processo Jump-Diffusion:</p>
+            <p>$$\text{Var}\left(\ln \frac{S_t}{S_0}\right) = \left[\sigma^2 + \lambda\left(\text{Var}(\ln j) + [E(\ln j)]^2\right)\right]t$$</p>
+        </div>
+
+        <div class="formula">
+            <p>Preço da opção de compra europeia sob o modelo de Bates:</p>
+            <p>$$C_a(S, X, \tau) = \sum_{i=0}^{\infty} \frac{e^{-\lambda^* \tau} (\lambda^* \tau)^i}{i!} \left[ S_t e^{-b_i \tau} N(d_{1i}) - X e^{-r \tau} N(d_{2i}) \right]$$</p>
+        </div>
+
+        <div class="formula">
+            <p>Equação de preço do Bitcoin com saltos:</p>
+            <p>$$S_t = S_0 \exp \left[\left(b - \frac{\sigma^2}{2}\right)t + \sigma W_t\right] \prod_{i=1}^{N(t)} J_i$$</p>
+        </div>
+
+        <div class="formula">
+            <p>Fórmula do delta de uma opção de compra (call) europeia:</p>
+            <p>$$\Delta_C = P_{Oi}(\lambda \tau) e^{-b_i \tau} N(d_{1i})$$</p>
+        </div>
+
+        <div class="formula">
+            <p>Fórmula do gamma de uma opção de compra (call) europeia:</p>
+            <p>$$\Gamma_C = P_{Oi}(\lambda \tau) \frac{e^{-b_i \tau}}{\sigma_i \sqrt{\tau} S_t} N'(d_{1i})$$</p>
+        </div>
+
+        <div class="formula">
+            <p>Fórmula do theta de uma opção de compra (call) europeia:</p>
+            <p>$$\Theta_C = [b_i P_{Oi}(\lambda \tau) + \lambda P_{Oi-1}(\tau) - \lambda P_{Oi}(\tau)][S_t e^{-b_i \tau} N(d_{1i})] - [r P_{Oi}(\lambda \tau) + \lambda P_{Oi-1}(\tau) - \lambda P_{Oi}(\tau)][X e^{-r \tau} N(d_{2i})]$$</p>
+        </div>
+
+        <div class="formula">
+            <p>Fórmula do vega de uma opção de compra (call) europeia:</p>
+            <p>$$\nu_C = P_{Oi}(\lambda \tau) S_t e^{-b_i \tau} \sqrt{\tau} N'(d_{1i})$$</p>
+        </div>
+
+        <div class="formula">
+            <p>Fórmula do rho de uma opção de compra (call) europeia:</p>
+            <p>$$\rho_C = P_{Oi}(\lambda \tau) X \tau e^{-r \tau} N(d_{2i})$$</p>
+        </div>
+    </div>
+
+    <div class="section">
+        <h3>Análise de Resultados</h3>
+        <p>Com base nas fórmulas apresentadas, podemos observar que o modelo Jump-Diffusion oferece uma abordagem robusta para capturar as dinâmicas de preço das criptomoedas, especialmente em contextos de alta volatilidade. A inclusão de parâmetros de salto permite uma precificação mais precisa das opções, refletindo melhor o comportamento real do mercado.</p>
+        <p>Os resultados numéricos indicam que o uso do modelo de Bates, uma extensão do modelo de Merton, proporciona maior precisão na previsão de preços em mercados onde os saltos são frequentes. A comparação entre diferentes métodos de precificação mostra que a inclusão de componentes estocásticos e saltos melhora a qualidade das estimativas.</p>
+    </div>
+
+    <div class="section">
+        <h3>Conclusão</h3>
+        <p>O modelo Jump-Diffusion se mostra uma ferramenta poderosa na captura das variações bruscas de preço das criptomoedas, fornecendo uma base sólida para a precificação de opções em um mercado volátil. A capacidade de incluir saltos e ajustar a volatilidade dinamicamente torna esse modelo essencial para analistas e investidores no mercado de criptomoedas.</p>
+        <p>Com base nos resultados apresentados, conclui-se que a modelagem avançada, como o modelo de Bates, é crucial para capturar as complexidades inerentes ao comportamento do mercado de criptomoedas, oferecendo insights valiosos para a tomada de decisões informadas.</p>
+    </div>
+</body>
+</html>

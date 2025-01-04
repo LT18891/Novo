@@ -1,0 +1,1234 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Casa de Apostas</title>
+    <style>
+        /* Reset Básico */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Fonte e Cores Globais */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            padding-bottom: 60px; /* Espaço para o rodapé fixo */
+            transition: background-color 0.3s;
+        }
+
+        /* Cabeçalho */
+        header {
+            background-color: #1a1a1a;
+            color: white;
+            padding: 15px 30px;
+            text-align: center;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            margin-bottom: 5px;
+            font-size: 1.8em;
+        }
+
+        /* Navegação */
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        nav ul li {
+            margin: 0 10px;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        nav ul li a:hover {
+            background-color: #333;
+            transform: scale(1.05);
+        }
+
+        /* Botão de Ação */
+        .action-button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .action-button:hover {
+            background-color: #218838;
+            transform: scale(1.05);
+        }
+
+        /* Conteúdo Principal */
+        main {
+            padding: 100px 20px 20px 20px; /* Espaço para o cabeçalho fixo */
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        section {
+            background-color: white;
+            padding: 30px;
+            margin-bottom: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+        section:hover {
+            transform: translateY(-5px);
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #1a1a1a;
+            text-align: center;
+            font-size: 1.6em;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        label {
+            margin-bottom: 10px;
+            font-size: 1.1em;
+            color: #555;
+        }
+
+        /* Design das Cartelas */
+        .numeros-container {
+            display: grid;
+            grid-template-columns: repeat(6, 60px); /* Ajuste para 6 colunas */
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .cartela {
+            background-color: #e6e6e6;
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #ccc;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.1);
+        }
+
+        .cartela h3 {
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            color: #333;
+        }
+
+        .numero-input {
+            width: 50px;
+            height: 50px;
+            font-size: 1.2em;
+            text-align: center;
+            border: 2px solid #007bff;
+            border-radius: 50%;
+            background-color: #fff;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            outline: none;
+        }
+
+        .numero-input:focus {
+            border-color: #28a745;
+            box-shadow: 0 0 5px rgba(40, 167, 69, 0.5);
+        }
+
+        button {
+            width: 220px;
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+            border-radius: 25px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        button:hover {
+            background-color: #0069d9;
+            transform: scale(1.05);
+        }
+
+        /* Formulário de Autenticação */
+        .auth-container {
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .auth-container form {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 350px;
+            transition: transform 0.3s;
+        }
+
+        .auth-container form:hover {
+            transform: translateY(-3px);
+        }
+
+        .auth-container h3 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #1a1a1a;
+            font-size: 1.4em;
+        }
+
+        .auth-container input[type="text"],
+        .auth-container input[type="password"],
+        .auth-container input[type="email"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .auth-container input[type="text"]:focus,
+        .auth-container input[type="password"]:focus,
+        .auth-container input[type="email"]:focus {
+            border-color: #28a745;
+            box-shadow: 0 0 5px rgba(40, 167, 69, 0.5);
+            outline: none;
+        }
+
+        .auth-container button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+            border-radius: 25px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .auth-container button:hover {
+            background-color: #218838;
+            transform: scale(1.05);
+        }
+
+        /* Perfil do Usuário */
+        .user-profile {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .user-profile h3 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: #1a1a1a;
+        }
+
+        .user-profile p {
+            font-size: 1.1em;
+            color: #555;
+        }
+
+        /* Histórico de Apostas */
+        .history-container {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+
+        .history-container table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .history-container th, .history-container td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: center;
+        }
+
+        .history-container th {
+            background-color: #f8f9fa;
+            color: #333;
+        }
+
+        /* Modal */
+        .modal {
+            display: none; /* Oculto por padrão */
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.6);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            padding: 30px;
+            border: 1px solid #888;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 10px;
+            position: relative;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from {opacity: 0;}
+            to {opacity: 1;}
+        }
+
+        .close {
+            color: #aaa;
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #000;
+        }
+
+        /* Rodapé */
+        footer {
+            background-color: #1a1a1a;
+            color: #ccc;
+            text-align: center;
+            padding: 20px;
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+            box-shadow: 0 -2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* Bolão */
+        .bolao-container {
+            margin-top: 40px;
+        }
+
+        .bolao-container h2 {
+            margin-bottom: 20px;
+            color: #1a1a1a;
+            text-align: center;
+            font-size: 1.6em;
+        }
+
+        .bolao-form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .bolao-form input[type="text"],
+        .bolao-form input[type="number"] {
+            width: 100%;
+            max-width: 400px;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .bolao-form input[type="text"]:focus,
+        .bolao-form input[type="number"]:focus {
+            border-color: #28a745;
+            box-shadow: 0 0 5px rgba(40, 167, 69, 0.5);
+            outline: none;
+        }
+
+        .bolao-form button {
+            background-color: #17a2b8;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+            border-radius: 25px;
+            padding: 12px 20px;
+            transition: background-color 0.3s, transform 0.3s;
+            width: 220px;
+        }
+
+        .bolao-form button:hover {
+            background-color: #138496;
+            transform: scale(1.05);
+        }
+
+        .bolao-list {
+            margin-top: 30px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .bolao-list table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .bolao-list th, .bolao-list td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: center;
+        }
+
+        .bolao-list th {
+            background-color: #f8f9fa;
+            color: #333;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            nav ul {
+                flex-direction: column;
+            }
+
+            .auth-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .auth-container form {
+                width: 90%;
+            }
+
+            .numeros-container {
+                grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+            }
+
+            .bolao-form input[type="text"],
+            .bolao-form input[type="number"] {
+                max-width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Casa de Apostas</h1>
+        <nav>
+            <ul>
+                <li><a href="#megasena">Mega-Sena</a></li>
+                <li><a href="#quina">Quina</a></li>
+                <li><a href="#lotofacil">Lotofácil</a></li>
+                <li><a href="#bolao">Bolão</a></li>
+                <li><a href="#perfil">Perfil</a></li>
+                <li><a href="#" id="btnLogout" style="display: none;">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Formulários de Autenticação -->
+        <section id="auth">
+            <div class="auth-container">
+                <!-- Registro -->
+                <form id="formRegistro">
+                    <h3>Registrar</h3>
+                    <input type="text" id="nomeRegistro" placeholder="Nome Completo" required>
+                    <input type="email" id="emailRegistro" placeholder="Email" required>
+                    <input type="password" id="senhaRegistro" placeholder="Senha" required>
+                    <button type="submit">Registrar</button>
+                </form>
+
+                <!-- Login -->
+                <form id="formLogin">
+                    <h3>Login</h3>
+                    <input type="email" id="emailLogin" placeholder="Email" required>
+                    <input type="password" id="senhaLogin" placeholder="Senha" required>
+                    <button type="submit">Entrar</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Perfil do Usuário -->
+        <section id="perfil" style="display: none;">
+            <div class="user-profile">
+                <h3>Bem-vindo, <span id="nomeUsuario">Usuário</span>!</h3>
+                <p>Saldo: R$ <span id="saldoUsuario">1000.00</span></p>
+            </div>
+            <div class="history-container">
+                <h3>Histórico de Apostas</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Jogo</th>
+                            <th>Números</th>
+                            <th>Data</th>
+                            <th>Resultado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelaHistorico">
+                        <!-- Apostas serão adicionadas aqui -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Seção Mega-Sena -->
+        <section id="megasena">
+            <h2>Mega-Sena</h2>
+            <div class="cartela">
+                <h3>Cartela Mega-Sena</h3>
+                <form id="formMegasena">
+                    <label for="numerosMegasena">Escolha 6 números:</label>
+                    <div class="numeros-container" id="numerosMegasena">
+                        <!-- Campos de números gerados dinamicamente -->
+                    </div>
+                    <button type="submit">Enviar Aposta</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Seção Quina -->
+        <section id="quina">
+            <h2>Quina</h2>
+            <div class="cartela">
+                <h3>Cartela Quina</h3>
+                <form id="formQuina">
+                    <label for="numerosQuina">Escolha 5 números:</label>
+                    <div class="numeros-container" id="numerosQuina">
+                        <!-- Campos de números gerados dinamicamente -->
+                    </div>
+                    <button type="submit">Enviar Aposta</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Seção Lotofácil -->
+        <section id="lotofacil">
+            <h2>Lotofácil</h2>
+            <div class="cartela">
+                <h3>Cartela Lotofácil</h3>
+                <form id="formLotofacil">
+                    <label for="numerosLotofacil">Escolha 15 números:</label>
+                    <div class="numeros-container" id="numerosLotofacil">
+                        <!-- Campos de números gerados dinamicamente -->
+                    </div>
+                    <button type="submit">Enviar Aposta</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Seção Bolão -->
+        <section id="bolao">
+            <h2>Bolão</h2>
+            <div class="bolao-container">
+                <!-- Criação de Bolão -->
+                <form id="formCriarBolao" class="bolao-form">
+                    <h3>Criar Bolão</h3>
+                    <input type="text" id="nomeBolao" placeholder="Nome do Bolão" required>
+                    <input type="number" id="participantesBolao" placeholder="Número de Participantes" min="2" max="10" required>
+                    <button type="submit">Criar Bolão</button>
+                </form>
+
+                <!-- Lista de Bolões -->
+                <div class="bolao-list">
+                    <h3>Bolões Disponíveis</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Participantes</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelaBolao">
+                            <!-- Bolões serão adicionados aqui -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Casa de Apostas. Todos os direitos reservados.</p>
+    </footer>
+
+    <!-- Modal de Resultado -->
+    <div id="modalResultado" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Resultado do Sorteio</h3>
+            <p id="resultadoTexto">Seu resultado aparecerá aqui.</p>
+        </div>
+    </div>
+
+    <script>
+        // Funções para Gerar Campos de Números
+        function gerarCamposNumeros(containerId, quantidade, maxNumero) {
+            const container = document.getElementById(containerId);
+            for (let i = 1; i <= quantidade; i++) {
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.min = 1;
+                input.max = maxNumero;
+                input.required = true;
+                input.placeholder = i;
+                input.classList.add('numero-input');
+                container.appendChild(input);
+            }
+        }
+
+        // Gerar campos para Mega-Sena (6 números, máximo 60)
+        gerarCamposNumeros('numerosMegasena', 6, 60);
+
+        // Gerar campos para Quina (5 números, máximo 80)
+        gerarCamposNumeros('numerosQuina', 5, 80);
+
+        // Gerar campos para Lotofácil (15 números, máximo 25)
+        gerarCamposNumeros('numerosLotofacil', 15, 25);
+
+        // Variáveis Globais
+        let usuarios = []; // Array para armazenar usuários (simulação)
+        let bolaoList = []; // Array para armazenar bolões
+        let usuarioLogado = null; // Objeto do usuário logado
+        let saldoInicial = 1000.00; // Saldo inicial para novos usuários
+
+        // Função para Atualizar Perfil
+        function atualizarPerfil() {
+            if (usuarioLogado) {
+                document.getElementById('nomeUsuario').textContent = usuarioLogado.nome;
+                document.getElementById('saldoUsuario').textContent = usuarioLogado.saldo.toFixed(2);
+                document.getElementById('auth').style.display = 'none';
+                document.getElementById('perfil').style.display = 'block';
+                document.getElementById('btnLogout').style.display = 'block';
+            } else {
+                document.getElementById('auth').style.display = 'block';
+                document.getElementById('perfil').style.display = 'none';
+                document.getElementById('btnLogout').style.display = 'none';
+            }
+        }
+
+        // Função para Adicionar Aposta ao Histórico
+        function adicionarApostaHistorico(jogo, numeros, data, resultado) {
+            const tabela = document.getElementById('tabelaHistorico');
+            const novaLinha = document.createElement('tr');
+
+            const celulaJogo = document.createElement('td');
+            celulaJogo.textContent = jogo;
+            novaLinha.appendChild(celulaJogo);
+
+            const celulaNumeros = document.createElement('td');
+            celulaNumeros.textContent = numeros.join(', ');
+            novaLinha.appendChild(celulaNumeros);
+
+            const celulaData = document.createElement('td');
+            celulaData.textContent = data;
+            novaLinha.appendChild(celulaData);
+
+            const celulaResultado = document.createElement('td');
+            celulaResultado.textContent = resultado;
+            novaLinha.appendChild(celulaResultado);
+
+            tabela.appendChild(novaLinha);
+        }
+
+        // Função para Simular Sorteio
+        function simularSorteio(jogo, maxNumero, quantidade) {
+            let sorteados = [];
+            while (sorteados.length < quantidade) {
+                let num = Math.floor(Math.random() * maxNumero) + 1;
+                if (!sorteados.includes(num)) {
+                    sorteados.push(num);
+                }
+            }
+            return sorteados.sort((a, b) => a - b);
+        }
+
+        // Função para Verificar Prêmio
+        function verificarPremio(numerosApostados, numerosSorteados) {
+            const acertos = numerosApostados.filter(num => numerosSorteados.includes(num)).length;
+            return acertos;
+        }
+
+        // Função para Mostrar Resultado no Modal
+        function mostrarResultado(jogo, numerosSorteados, acertos) {
+            const modal = document.getElementById('modalResultado');
+            const resultadoTexto = document.getElementById('resultadoTexto');
+            resultadoTexto.innerHTML = `
+                <strong>${jogo}:</strong> Números sorteados: ${numerosSorteados.join(', ')}<br>
+                <strong>Você acertou:</strong> ${acertos} número(s).
+            `;
+            modal.style.display = 'flex';
+        }
+
+        // Fechar Modal
+        const modal = document.getElementById('modalResultado');
+        const spanClose = document.getElementsByClassName('close')[0];
+        spanClose.onclick = function() {
+            modal.style.display = 'none';
+        }
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Função para Processar Aposta
+        function processarAposta(event, jogo, maxNumero, quantidade, custoAposta) {
+            event.preventDefault();
+            if (!usuarioLogado) {
+                alert('Por favor, faça login para realizar apostas.');
+                return;
+            }
+
+            const form = event.target;
+            const numeros = Array.from(form.querySelectorAll('input[type="number"]')).map(input => Number(input.value));
+
+            // Verificar se todos os números estão dentro do intervalo permitido
+            for (let num of numeros) {
+                if (num < 1 || num > maxNumero) {
+                    alert(`Todos os números devem estar entre 1 e ${maxNumero}.`);
+                    return;
+                }
+            }
+
+            // Verificar se há números duplicados
+            const numerosUnicos = new Set(numeros);
+            if (numerosUnicos.size !== numeros.length) {
+                alert('Você não pode repetir números. Por favor, revise sua aposta.');
+                return;
+            }
+
+            // Verificar saldo
+            if (usuarioLogado.saldo < custoAposta) {
+                alert('Saldo insuficiente para realizar esta aposta.');
+                return;
+            }
+
+            // Deduzir saldo
+            usuarioLogado.saldo -= custoAposta;
+            atualizarPerfil();
+
+            // Simular Sorteio
+            const numerosSorteados = simularSorteio(jogo, maxNumero, quantidade);
+            const acertos = verificarPremio(numeros, numerosSorteados);
+
+            // Determinar resultado
+            let resultado;
+            if (acertos === quantidade) {
+                resultado = 'Premiado! Jackpot!';
+                usuarioLogado.saldo += custoAposta * 1000; // Simulação de prêmio
+                alert('Parabéns! Você ganhou o jackpot!');
+            } else if (acertos >= Math.floor(quantidade / 2)) {
+                resultado = `Prêmio menor: ${acertos} acertos.`;
+                usuarioLogado.saldo += custoAposta * 10; // Simulação de prêmio menor
+                alert(`Você ganhou! Acertou ${acertos} números.`);
+            } else {
+                resultado = 'Sem prêmio.';
+                alert('Infelizmente, você não ganhou desta vez.');
+            }
+
+            atualizarPerfil();
+            adicionarApostaHistorico(jogo, numeros, new Date().toLocaleString(), resultado);
+            mostrarResultado(jogo, numerosSorteados, acertos);
+            form.reset();
+        }
+
+        // Adicionar event listeners aos formulários de apostas com custo de aposta
+        document.getElementById('formMegasena').addEventListener('submit', function(event) {
+            processarAposta(event, 'Mega-Sena', 60, 6, 5.00);
+        });
+
+        document.getElementById('formQuina').addEventListener('submit', function(event) {
+            processarAposta(event, 'Quina', 80, 5, 3.00);
+        });
+
+        document.getElementById('formLotofacil').addEventListener('submit', function(event) {
+            processarAposta(event, 'Lotofácil', 25, 15, 2.00);
+        });
+
+        // Funções para Simular Registro e Login de Usuários
+
+        // Registro
+        document.getElementById('formRegistro').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const nome = document.getElementById('nomeRegistro').value.trim();
+            const email = document.getElementById('emailRegistro').value.trim();
+            const senha = document.getElementById('senhaRegistro').value.trim();
+
+            // Verificar se o email já está registrado
+            const usuarioExistente = usuarios.find(usuario => usuario.email === email);
+            if (usuarioExistente) {
+                alert('Este email já está registrado. Por favor, faça login ou use outro email.');
+                return;
+            }
+
+            // Adicionar novo usuário
+            const novoUsuario = { nome, email, senha, saldo: saldoInicial, historico: [], bolaoParticipando: [] };
+            usuarios.push(novoUsuario);
+            alert('Registro realizado com sucesso! Você já pode fazer login.');
+            document.getElementById('formRegistro').reset();
+        });
+
+        // Login
+        document.getElementById('formLogin').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const email = document.getElementById('emailLogin').value.trim();
+            const senha = document.getElementById('senhaLogin').value.trim();
+
+            // Verificar credenciais
+            const usuario = usuarios.find(usuario => usuario.email === email && usuario.senha === senha);
+            if (usuario) {
+                usuarioLogado = usuario;
+                alert(`Bem-vindo, ${usuario.nome}!`);
+                document.getElementById('formLogin').reset();
+                atualizarPerfil();
+                atualizarBolaoLista();
+                atualizarApostasBolao();
+            } else {
+                alert('Email ou senha incorretos. Por favor, tente novamente.');
+            }
+        });
+
+        // Logout
+        document.getElementById('btnLogout').addEventListener('click', function(event) {
+            event.preventDefault();
+            usuarioLogado = null;
+            alert('Você foi desconectado.');
+            atualizarPerfil();
+        });
+
+        // Inicializar Perfil
+        atualizarPerfil();
+
+        // Funções para Bolão
+
+        // Criar Bolão
+        document.getElementById('formCriarBolao').addEventListener('submit', function(event) {
+            event.preventDefault();
+            if (!usuarioLogado) {
+                alert('Por favor, faça login para criar um bolão.');
+                return;
+            }
+
+            const nomeBolao = document.getElementById('nomeBolao').value.trim();
+            const participantesBolao = parseInt(document.getElementById('participantesBolao').value.trim());
+
+            if (bolaoList.length >= 10) { // Limite de bolões
+                alert('Limite de bolões atingido. Tente novamente mais tarde.');
+                return;
+            }
+
+            if (participantesBolao < 2 || participantesBolao > 10) {
+                alert('Número de participantes deve ser entre 2 e 10.');
+                return;
+            }
+
+            // Criar novo bolão
+            const novoBolao = {
+                id: Date.now(),
+                nome: nomeBolao,
+                participantesMax: participantesBolao,
+                participantes: [usuarioLogado.email],
+                apostas: []
+            };
+
+            bolaoList.push(novoBolao);
+            usuarioLogado.bolaoParticipando.push(novoBolao.id);
+            alert('Bolão criado com sucesso!');
+            document.getElementById('formCriarBolao').reset();
+            atualizarBolaoLista();
+            atualizarApostasBolao();
+            atualizarPerfil();
+        });
+
+        // Atualizar Lista de Bolões
+        function atualizarBolaoLista() {
+            const tabelaBolao = document.getElementById('tabelaBolao');
+            tabelaBolao.innerHTML = '';
+
+            bolaoList.forEach(bolao => {
+                const novaLinha = document.createElement('tr');
+
+                const celulaNome = document.createElement('td');
+                celulaNome.textContent = bolao.nome;
+                novaLinha.appendChild(celulaNome);
+
+                const celulaParticipantes = document.createElement('td');
+                celulaParticipantes.textContent = `${bolao.participantes.length}/${bolao.participantesMax}`;
+                novaLinha.appendChild(celulaParticipantes);
+
+                const celulaAcoes = document.createElement('td');
+                const btnParticipar = document.createElement('button');
+                btnParticipar.textContent = 'Participar';
+                btnParticipar.style.backgroundColor = '#17a2b8';
+                btnParticipar.style.color = 'white';
+                btnParticipar.style.border = 'none';
+                btnParticipar.style.padding = '8px 12px';
+                btnParticipar.style.borderRadius = '4px';
+                btnParticipar.style.cursor = 'pointer';
+                btnParticipar.style.transition = 'background-color 0.3s';
+
+                btnParticipar.onclick = function() {
+                    participarBolao(bolao.id);
+                };
+
+                btnParticipar.onmouseover = function() {
+                    btnParticipar.style.backgroundColor = '#138496';
+                };
+
+                btnParticipar.onmouseout = function() {
+                    btnParticipar.style.backgroundColor = '#17a2b8';
+                };
+
+                // Verificar se usuário já está participando
+                if (usuarioLogado && bolao.participantes.includes(usuarioLogado.email)) {
+                    btnParticipar.textContent = 'Participando';
+                    btnParticipar.disabled = true;
+                    btnParticipar.style.backgroundColor = '#6c757d';
+                    btnParticipar.style.cursor = 'default';
+                }
+
+                celulaAcoes.appendChild(btnParticipar);
+                novaLinha.appendChild(celulaAcoes);
+
+                tabelaBolao.appendChild(novaLinha);
+            });
+        }
+
+        // Participar de Bolão
+        function participarBolao(idBolao) {
+            const bolao = bolaoList.find(b => b.id === idBolao);
+            if (!bolao) {
+                alert('Bolão não encontrado.');
+                return;
+            }
+
+            if (bolao.participantes.length >= bolao.participantesMax) {
+                alert('Bolão cheio.');
+                return;
+            }
+
+            if (bolao.participantes.includes(usuarioLogado.email)) {
+                alert('Você já está participando deste bolão.');
+                return;
+            }
+
+            bolao.participantes.push(usuarioLogado.email);
+            usuarioLogado.bolaoParticipando.push(bolao.id);
+            alert('Você entrou no bolão com sucesso!');
+            atualizarBolaoLista();
+            atualizarApostasBolao();
+            atualizarPerfil();
+        }
+
+        // Função para Adicionar Aposta ao Bolão
+        function adicionarApostaBolao(bolaoId, jogo, numeros, data, resultado) {
+            const bolao = bolaoList.find(b => b.id === bolaoId);
+            if (!bolao) return;
+
+            bolao.apostas.push({ jogo, numeros, data, resultado });
+        }
+
+        // Função para Processar Aposta em Bolão
+        function processarApostaBolao(event, bolaoId, jogo, maxNumero, quantidade, custoAposta) {
+            event.preventDefault();
+            if (!usuarioLogado) {
+                alert('Por favor, faça login para realizar apostas.');
+                return;
+            }
+
+            const bolao = bolaoList.find(b => b.id === bolaoId);
+            if (!bolao) {
+                alert('Bolão não encontrado.');
+                return;
+            }
+
+            if (!bolao.participantes.includes(usuarioLogado.email)) {
+                alert('Você não está participando deste bolão.');
+                return;
+            }
+
+            const form = event.target;
+            const numeros = Array.from(form.querySelectorAll('input[type="number"]')).map(input => Number(input.value));
+
+            // Verificar se todos os números estão dentro do intervalo permitido
+            for (let num of numeros) {
+                if (num < 1 || num > maxNumero) {
+                    alert(`Todos os números devem estar entre 1 e ${maxNumero}.`);
+                    return;
+                }
+            }
+
+            // Verificar se há números duplicados
+            const numerosUnicos = new Set(numeros);
+            if (numerosUnicos.size !== numeros.length) {
+                alert('Você não pode repetir números. Por favor, revise sua aposta.');
+                return;
+            }
+
+            // Calcular custo total para o bolão
+            const totalCusto = custoAposta / bolao.participantes.length;
+
+            // Verificar saldo
+            if (usuarioLogado.saldo < totalCusto) {
+                alert('Saldo insuficiente para realizar esta aposta no bolão.');
+                return;
+            }
+
+            // Deduzir saldo
+            usuarioLogado.saldo -= totalCusto;
+            atualizarPerfil();
+
+            // Simular Sorteio
+            const numerosSorteados = simularSorteio(jogo, maxNumero, quantidade);
+            const acertos = verificarPremio(numeros, numerosSorteados);
+
+            // Determinar resultado
+            let resultado;
+            if (acertos === quantidade) {
+                resultado = 'Premiado! Jackpot!';
+                const premio = custoAposta * 1000 / bolao.participantes.length; // Distribuir prêmio
+                bolao.participantes.forEach(email => {
+                    const usuario = usuarios.find(u => u.email === email);
+                    if (usuario) {
+                        usuario.saldo += premio;
+                    }
+                });
+                alert('Parabéns! Seu bolão ganhou o jackpot!');
+            } else if (acertos >= Math.floor(quantidade / 2)) {
+                resultado = `Prêmio menor: ${acertos} acertos.`;
+                const premio = custoAposta * 10 / bolao.participantes.length; // Distribuir prêmio
+                bolao.participantes.forEach(email => {
+                    const usuario = usuarios.find(u => u.email === email);
+                    if (usuario) {
+                        usuario.saldo += premio;
+                    }
+                });
+                alert(`Seu bolão ganhou um prêmio! Acertou ${acertos} números.`);
+            } else {
+                resultado = 'Sem prêmio.';
+                alert('Infelizmente, seu bolão não ganhou desta vez.');
+            }
+
+            atualizarPerfil();
+            adicionarApostaHistorico(`${jogo} (Bolão)`, numeros, new Date().toLocaleString(), resultado);
+            adicionarApostaBolao(bolaoId, jogo, numeros, new Date().toLocaleString(), resultado);
+            mostrarResultado(jogo, numerosSorteados, acertos);
+            form.reset();
+        }
+
+        // Criação de Formulários de Aposta em Bolão
+        function criarFormBolao(bolaoId, jogo, maxNumero, quantidade, custoAposta) {
+            const sectionBolao = document.createElement('section');
+            sectionBolao.innerHTML = `
+                <h2>${jogo} (Bolão)</h2>
+                <div class="cartela">
+                    <h3>Cartela ${jogo} - Bolão</h3>
+                    <form id="form${jogo}Bolao${bolaoId}">
+                        <label>Escolha ${quantidade} números:</label>
+                        <div class="numeros-container" id="numeros${jogo}Bolao${bolaoId}">
+                            <!-- Campos de números gerados dinamicamente -->
+                        </div>
+                        <button type="submit">Enviar Aposta no Bolão</button>
+                    </form>
+                </div>
+            `;
+            document.querySelector('main').appendChild(sectionBolao);
+            gerarCamposNumeros(`numeros${jogo}Bolao${bolaoId}`, quantidade, maxNumero);
+
+            // Adicionar Event Listener ao Formulário
+            document.getElementById(`form${jogo}Bolao${bolaoId}`).addEventListener('submit', function(event) {
+                processarApostaBolao(event, bolaoId, jogo, maxNumero, quantidade, custoAposta);
+            });
+        }
+
+        // Atualizar Bolão Lista
+        function atualizarBolaoLista() {
+            const tabelaBolao = document.getElementById('tabelaBolao');
+            tabelaBolao.innerHTML = '';
+
+            bolaoList.forEach(bolao => {
+                const novaLinha = document.createElement('tr');
+
+                const celulaNome = document.createElement('td');
+                celulaNome.textContent = bolao.nome;
+                novaLinha.appendChild(celulaNome);
+
+                const celulaParticipantes = document.createElement('td');
+                celulaParticipantes.textContent = `${bolao.participantes.length}/${bolao.participantesMax}`;
+                novaLinha.appendChild(celulaParticipantes);
+
+                const celulaAcoes = document.createElement('td');
+                const btnParticipar = document.createElement('button');
+                btnParticipar.textContent = 'Participar';
+                btnParticipar.style.backgroundColor = '#17a2b8';
+                btnParticipar.style.color = 'white';
+                btnParticipar.style.border = 'none';
+                btnParticipar.style.padding = '8px 12px';
+                btnParticipar.style.borderRadius = '4px';
+                btnParticipar.style.cursor = 'pointer';
+                btnParticipar.style.transition = 'background-color 0.3s';
+
+                btnParticipar.onclick = function() {
+                    participarBolao(bolao.id);
+                };
+
+                btnParticipar.onmouseover = function() {
+                    btnParticipar.style.backgroundColor = '#138496';
+                };
+
+                btnParticipar.onmouseout = function() {
+                    btnParticipar.style.backgroundColor = '#17a2b8';
+                };
+
+                // Verificar se usuário já está participando
+                if (usuarioLogado && bolao.participantes.includes(usuarioLogado.email)) {
+                    btnParticipar.textContent = 'Participando';
+                    btnParticipar.disabled = true;
+                    btnParticipar.style.backgroundColor = '#6c757d';
+                    btnParticipar.style.cursor = 'default';
+                }
+
+                celulaAcoes.appendChild(btnParticipar);
+                novaLinha.appendChild(celulaAcoes);
+
+                tabelaBolao.appendChild(novaLinha);
+            });
+        }
+
+        // Função para Adicionar Aposta no Bolão ao Histórico
+        function adicionarApostaHistoricoBolao(bolaoId, jogo, numeros, data, resultado) {
+            const bolao = bolaoList.find(b => b.id === bolaoId);
+            if (!bolao) return;
+
+            bolao.apostas.push({ jogo, numeros, data, resultado });
+            adicionarApostaHistorico(`${jogo} (Bolão)`, numeros, data, resultado);
+        }
+
+        // Função para Adicionar Apostas de Bolão na Seção Principal
+        function atualizarApostasBolao() {
+            // Remover todas as seções de apostas em bolão anteriores
+            const sections = document.querySelectorAll('section');
+            sections.forEach(section => {
+                if (section.id.startsWith('bolao-')) {
+                    section.remove();
+                }
+            });
+
+            bolaoList.forEach(bolao => {
+                const jogosBolao = ['Mega-Sena', 'Quina', 'Lotofácil'];
+                jogosBolao.forEach(jogo => {
+                    criarFormBolao(bolao.id, jogo, 
+                        jogo === 'Mega-Sena' ? 60 : jogo === 'Quina' ? 80 : 25, 
+                        jogo === 'Mega-Sena' ? 6 : jogo === 'Quina' ? 5 : 15, 
+                        jogo === 'Mega-Sena' ? 5.00 : jogo === 'Quina' ? 3.00 : 2.00
+                    );
+                });
+            });
+        }
+
+        // Função para Criar Formulários de Bolão ao Participar
+        function participarBolao(idBolao) {
+            const bolao = bolaoList.find(b => b.id === idBolao);
+            if (!bolao) {
+                alert('Bolão não encontrado.');
+                return;
+            }
+
+            if (bolao.participantes.length >= bolao.participantesMax) {
+                alert('Bolão cheio.');
+                return;
+            }
+
+            if (bolao.participantes.includes(usuarioLogado.email)) {
+                alert('Você já está participando deste bolão.');
+                return;
+            }
+
+            bolao.participantes.push(usuarioLogado.email);
+            usuarioLogado.bolaoParticipando.push(bolao.id);
+            alert('Você entrou no bolão com sucesso!');
+            atualizarBolaoLista();
+            atualizarApostasBolao();
+            atualizarPerfil();
+        }
+
+        // Criação de Bolão já existente (para testes)
+        // Uncomment the lines abaixo para criar bolões pré-definidos
+        /*
+        bolaoList.push({
+            id: Date.now(),
+            nome: 'Bolão da Família',
+            participantesMax: 5,
+            participantes: ['email1@example.com', 'email2@example.com'],
+            apostas: []
+        });
+        bolaoList.push({
+            id: Date.now() + 1,
+            nome: 'Bolão dos Amigos',
+            participantesMax: 3,
+            participantes: ['email3@example.com'],
+            apostas: []
+        });
+        */
+
+        // Função para Inicializar Bolão ao Login
+        document.addEventListener('DOMContentLoaded', function() {
+            atualizarBolaoLista();
+        });
+
+        // Função para Atualizar Bolão ao Login
+        function atualizarBolaoListaAoLogin() {
+            if (usuarioLogado) {
+                atualizarBolaoLista();
+                atualizarApostasBolao();
+            }
+        }
+
+        // Atualizar Bolão Lista ao Login
+        document.getElementById('formLogin').addEventListener('submit', function(event) {
+            setTimeout(() => {
+                atualizarBolaoListaAoLogin();
+            }, 100);
+        });
+    </script>
+</body>
+</html>

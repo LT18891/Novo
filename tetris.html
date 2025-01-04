@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Tetris em Português - Versão Completa</title>
+    <style>
+        /* Reset básico */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: linear-gradient(135deg, #2e3440, #4c566a);
+            color: #d8dee9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #container {
+            display: flex;
+            gap: 20px;
+        }
+
+        #tetris {
+            position: relative;
+            width: 300px;
+            height: 600px;
+            background-color: #3b4252;
+            border: 4px solid #4c566a;
+            box-shadow: 0 0 30px rgba(0,0,0,0.7);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .quadrado {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            box-sizing: border-box;
+            border: 2px solid #2e3440;
+            border-radius: 4px;
+            transition: all 0.1s ease;
+        }
+
+        #plano {
+            display: grid;
+            grid-template-rows: repeat(20, 30px);
+            grid-template-columns: repeat(10, 30px);
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        #pontuacao {
+            margin-top: 20px;
+            font-size: 24px;
+            text-align: center;
+        }
+
+        #proxima {
+            width: 120px;
+            height: 120px;
+            background-color: #3b4252;
+            border: 4px solid #4c566a;
+            border-radius: 10px;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        #proxima .quadrado {
+            width: 24px;
+            height: 24px;
+            border: 1px solid #2e3440;
+        }
+
+        #informacoes {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            color: #eceff4;
+        }
+
+        .info-item {
+            background-color: #4c566a;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+        /* Legenda do Autor */
+        #autor {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #81a1c1;
+            text-align: center;
+        }
+
+        /* Animações */
+        .quadrado.animar {
+            animation: piscar 0.3s alternate infinite;
+        }
+
+        @keyframes piscar {
+            from { opacity: 1; }
+            to { opacity: 0.5; }
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            #container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            #tetris {
+                width: 240px;
+                height: 480px;
+            }
+
+            .quadrado {
+                width: 24px;
+                height: 24px;
+            }
+
+            #proxima {
+                width: 96px;
+                height: 96px;
+            }
+
+            #proxima .quadrado {
+                width: 19px;
+                height: 19px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="tetris">
+            <div id="plano"></div>
+            <div id="pontuacao">Pontos: 0</div>
+        </div>
+        <div id="informacoes">
+            <div class="info-item">
+                <h3>Próxima</h3>
+                <div id="proxima"></div>
+            </div>
+            <div class="info-item">
+                <h3>Nível</h3>
+                <div id="nivel">1</div>
+            </div>
+            <div class="info-item">
+                <h3>Linhas</h3>
+                <div id="linhas">0</div>
+            </div>
+            <!-- Legenda do Autor -->
+            <div id="autor">Autor: <strong>Luiz Tiago Wilcke</strong></div>
+        </div>
+    </div>
+
+    <!-- Sons -->
+    <audio id="audio-mover" src="https://freesound.org/data/previews/65/65654_634166-lq.mp3"></audio>
+    <audio id="audio-colidir" src="https://freesound.org/data/previews/170/170213_2394245-lq.mp3"></audio>
+    <audio id="audio-limpar" src="https://freesound.org/data/previews/331/331912_3248244-lq.mp3"></audio>
+    <audio id="audio-gameover" src="https://freesound.org/data/previews/178/178129_285997-lq.mp3"></audio>
+
+    <script>
+        // Configurações Básicas
+        const altura = 20;
+        const largura = 10;
+        let plano = Array.from({length: altura}, () => Array(largura).fill(0));
+        const cores = ['#bf616a', '#a3be8c', '#ebcb8b', '#81a1c1', '#b48ead'];
+
+        // Definição das Formas com Índices de Cor
+        const formas = [
+            // Forma 1: I
+            [
+                [0, 1, 0, 0],
+                [0, 1, 0, 0],
+                [0, 1, 0, 0],
+                [0, 1, 0, 0]
+            ],
+            // Forma 2: O
+            [
+                [2, 2],
+                [2, 2]
+            ],
+            // Forma 3: T
+            [
+                [0, 3, 0],
+                [3, 3, 3],
+                [0, 0, 0]
+            ],
+            // Forma 4: L
+            [
+                [4, 0, 0],
+                [4, 0, 0],
+                [4, 4, 0]
+            ],
+            // Forma 5: S
+            [
+                [0, 5, 5],
+                [5, 5, 0],
+                [0, 0, 0]
+            ]
+        ];
+
+        // Variáveis do Jogo
+        let pontuacao = 0;
+        let nivel = 1;
+        let linhas = 0;
+        let intervalo;
+        let velocidade = 500;
+        let formaAtual = null;
+        let proximaForma = null;
+        let jogoEmAndamento = true;
+
+        // Sons
+        const somMover = document.getElementById('audio-mover');
+        const somColidir = document.getElementById('audio-colidir');
+        const somLimpar = document.getElementById('audio-limpar');
+        const somGameOver = document.getElementById('audio-gameover');
+
+        // Inicialização do Jogo
+        iniciarJogo();
+
+        function iniciarJogo() {
+            plano = Array.from({length: altura}, () => Array(largura).fill(0));
+            pontuacao = 0;
+            nivel = 1;
+            linhas = 0;
+            jogoEmAndamento = true;
+            atualizarPontuacao();
+            document.getElementById('nivel').innerText = nivel;
+            document.getElementById('linhas').innerText = linhas;
+            proximaForma = novaForma();
+            formaAtual = novaForma();
+            if(colisao(formaAtual)) {
+                finalizarJogo();
+                return;
+            }
+            desenharPlano();
+            desenharProxima();
+            clearInterval(intervalo);
+            intervalo = setInterval(atualizar, velocidade);
+        }
+
+        // Função para Atualizar a Pontuação e Nível
+        function atualizarPontuacao() {
+            document.getElementById('pontuacao').innerText = `Pontos: ${pontuacao}`;
+            document.getElementById('nivel').innerText = nivel;
+            document.getElementById('linhas').innerText = linhas;
+        }
+
+        // Função para Desenhar a Grade com Blocos Bloqueados
+        function desenharPlano() {
+            const planoDiv = document.getElementById('plano');
+            planoDiv.innerHTML = '';
+            for(let y = 0; y < altura; y++) {
+                for(let x = 0; x < largura; x++) {
+                    if(plano[y][x] !== 0) {
+                        const quadrado = document.createElement('div');
+                        quadrado.classList.add('quadrado');
+                        quadrado.style.backgroundColor = cores[plano[y][x]-1];
+                        quadrado.style.gridRowStart = y + 1;
+                        quadrado.style.gridColumnStart = x + 1;
+                        planoDiv.appendChild(quadrado);
+                    }
+                }
+            }
+        }
+
+        // Função para Gerar uma Nova Forma
+        function novaForma() {
+            const indice = Math.floor(Math.random() * formas.length);
+            const forma = JSON.parse(JSON.stringify(formas[indice])); // Deep copy para evitar mutações
+            const cor = indice + 1;
+            return {
+                forma: forma,
+                x: Math.floor((largura - forma[0].length) / 2),
+                y: 0,
+                cor: cor
+            };
+        }
+
+        // Função para Desenhar a Forma Atual
+        function desenharForma() {
+            const planoDiv = document.getElementById('plano');
+            formaAtual.forma.forEach((linha, y) => {
+                linha.forEach((valor, x) => {
+                    if(valor !== 0) {
+                        const quadrado = document.createElement('div');
+                        quadrado.classList.add('quadrado');
+                        quadrado.style.backgroundColor = cores[formaAtual.cor - 1];
+                        quadrado.style.gridRowStart = formaAtual.y + y + 1;
+                        quadrado.style.gridColumnStart = formaAtual.x + x + 1;
+                        planoDiv.appendChild(quadrado);
+                    }
+                });
+            });
+        }
+
+        // Função para Desenhar a Próxima Forma
+        function desenharProxima() {
+            const proximaDiv = document.getElementById('proxima');
+            proximaDiv.innerHTML = '';
+            proximaForma.forma.forEach((linha, y) => {
+                linha.forEach((valor, x) => {
+                    if(valor !== 0) {
+                        const quadrado = document.createElement('div');
+                        quadrado.classList.add('quadrado');
+                        quadrado.style.backgroundColor = cores[proximaForma.cor - 1];
+                        quadrado.style.top = `${y * 24}px`;
+                        quadrado.style.left = `${x * 24}px`;
+                        proximaDiv.appendChild(quadrado);
+                    }
+                });
+            });
+        }
+
+        // Função para Verificar Colisões
+        function colisao(prova) {
+            for(let y = 0; y < prova.forma.length; y++) {
+                for(let x = 0; x < prova.forma[y].length; x++) {
+                    if(prova.forma[y][x] !== 0) {
+                        const novoY = prova.y + y;
+                        const novoX = prova.x + x;
+                        if(novoX < 0 || novoX >= largura || novoY >= altura) {
+                            return true;
+                        }
+                        if(novoY >= 0 && plano[novoY][novoX] !== 0) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+        // Função para Bloquear a Forma no Plano
+        function bloquearForma() {
+            formaAtual.forma.forEach((linha, y) => {
+                linha.forEach((valor, x) => {
+                    if(valor !== 0) {
+                        const novoY = formaAtual.y + y;
+                        const novoX = formaAtual.x + x;
+                        if(novoY >= 0) {
+                            plano[novoY][novoX] = formaAtual.cor;
+                        }
+                    }
+                });
+            });
+            somColidir.play();
+        }
+
+        // Função para Limpar Linhas Completas
+        function limparLinhas() {
+            let linhasCompletas = 0;
+            for(let y = 0; y < altura; y++) {
+                if(plano[y].every(celula => celula !== 0)) {
+                    plano.splice(y, 1);
+                    plano.unshift(Array(largura).fill(0));
+                    linhasCompletas++;
+                }
+            }
+            if(linhasCompletas > 0) {
+                somLimpar.play();
+                linhas += linhasCompletas;
+                pontuacao += (100 * linhasCompletas) * nivel;
+                if(linhas >= nivel * 10) {
+                    nivel++;
+                    velocidade = Math.max(100, velocidade - 50);
+                    clearInterval(intervalo);
+                    intervalo = setInterval(atualizar, velocidade);
+                }
+                atualizarPontuacao();
+            }
+        }
+
+        // Função para Atualizar o Jogo
+        function atualizar() {
+            formaAtual.y += 1;
+            if(colisao(formaAtual)) {
+                formaAtual.y -= 1;
+                bloquearForma();
+                limparLinhas();
+                formaAtual = proximaForma;
+                proximaForma = novaForma();
+                desenharProxima();
+                if(colisao(formaAtual)) {
+                    finalizarJogo();
+                    return;
+                }
+            }
+            desenharPlano();
+            desenharForma();
+        }
+
+        // Função para Finalizar o Jogo
+        function finalizarJogo() {
+            clearInterval(intervalo);
+            somGameOver.play();
+            alert(`Game Over!\nPontuação: ${pontuacao}`);
+            iniciarJogo();
+        }
+
+        // Controle de Teclado
+        document.addEventListener('keydown', event => {
+            if(!jogoEmAndamento) return;
+
+            const tecla = event.key;
+            let formaTeste = JSON.parse(JSON.stringify(formaAtual));
+
+            if(tecla === 'ArrowLeft') {
+                formaTeste.x -= 1;
+                if(!colisao(formaTeste)) {
+                    formaAtual.x -= 1;
+                    somMover.currentTime = 0;
+                    somMover.play();
+                }
+            }
+            else if(tecla === 'ArrowRight') {
+                formaTeste.x += 1;
+                if(!colisao(formaTeste)) {
+                    formaAtual.x += 1;
+                    somMover.currentTime = 0;
+                    somMover.play();
+                }
+            }
+            else if(tecla === 'ArrowDown') {
+                formaTeste.y += 1;
+                if(!colisao(formaTeste)) {
+                    formaAtual.y += 1;
+                    somMover.currentTime = 0;
+                    somMover.play();
+                }
+            }
+            else if(tecla === 'ArrowUp') {
+                // Rotação mais robusta
+                const formaRotacionada = rotacionarForma(formaAtual.forma);
+                formaTeste.forma = formaRotacionada;
+                if(!colisao(formaTeste)) {
+                    formaAtual.forma = formaRotacionada;
+                    somMover.currentTime = 0;
+                    somMover.play();
+                }
+            }
+            desenharPlano();
+            desenharForma();
+        });
+
+        // Função para Rotacionar a Forma (90 graus no sentido horário)
+        function rotacionarForma(matriz) {
+            const rotacionada = matriz[0].map((_, coluna) => matriz.map(linha => linha[coluna]).reverse());
+            // Ajusta a posição após a rotação para evitar sair da grade
+            const formaRotacionada = JSON.parse(JSON.stringify(rotacionada));
+            return formaRotacionada;
+        }
+
+        // Melhorias: Iniciar o Jogo ao Carregar
+        window.onload = () => {
+            desenharPlano();
+            desenharForma();
+            desenharProxima();
+        };
+    </script>
+</body>
+</html>

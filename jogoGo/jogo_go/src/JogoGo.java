@@ -382,9 +382,10 @@ class NodoMCTS {
     }
 
     /**
-     * Realiza uma simulação até o final do jogo.
+     * Realiza uma simulação até o final do jogo utilizando uma política de seleção
+     * heurística que considera capturas e centralidade.
      *
-     * @return 1.0 se BRANCO vencer, 0.0 se PRETO vencer
+     * @return 1.0 se BRANCO vencer, 0.0 se PRETO vencer, 0.5 para empate
      */
     public double simular() {
         Tabuleiro simTabuleiro = tabuleiro.clone();
@@ -411,15 +412,67 @@ class NodoMCTS {
     }
 
     /**
-     * Política de seleção de jogadas: prioriza o centro ou escolhe aleatoriamente.
+     * Política de seleção de jogadas para as simulações.
+     * Em vez de escolher aleatoriamente, utiliza uma escolha ponderada baseada em
+     * uma avaliação heurística que considera capturas e proximidade do centro.
      *
-     * @param tabuleiro Estado do tabuleiro
+     * @param tabuleiro Estado atual do tabuleiro na simulação
      * @param jogadas   Lista de jogadas possíveis
      * @return Jogada selecionada
      */
     private int[] politicaSelecao(Tabuleiro tabuleiro, List<int[]> jogadas) {
-        // Para maior diversidade, vamos escolher aleatoriamente
-        return jogadas.get(random.nextInt(jogadas.size()));
+        double[] pesos = new double[jogadas.size()];
+        double somaPesos = 0.0;
+        for (int i = 0; i < jogadas.size(); i++) {
+            double peso = avaliarJogada(tabuleiro, jogadas.get(i));
+            pesos[i] = peso;
+            somaPesos += peso;
+        }
+        if (somaPesos == 0) {
+            return jogadas.get(random.nextInt(jogadas.size()));
+        }
+        double r = random.nextDouble() * somaPesos;
+        double acumulado = 0.0;
+        for (int i = 0; i < jogadas.size(); i++) {
+            acumulado += pesos[i];
+            if (r <= acumulado) {
+                return jogadas.get(i);
+            }
+        }
+        return jogadas.get(jogadas.size() - 1);
+    }
+
+    /**
+     * Avalia uma jogada na simulação utilizando dois critérios:
+     * - Capturas: se a jogada resultar em capturas, recebe um bônus (multiplicado por 10)
+     * - Centralidade: jogadas próximas ao centro do tabuleiro ganham um bônus adicional
+     *
+     * @param tabuleiro Estado atual do tabuleiro
+     * @param jogada    Jogada a ser avaliada (linha, coluna)
+     * @return Peso (score) da jogada
+     */
+    private double avaliarJogada(Tabuleiro tabuleiro, int[] jogada) {
+        // Se a jogada for "passar", atribui um peso pequeno.
+        if (jogada[0] == -1 && jogada[1] == -1) {
+            return 0.1;
+        }
+        Tabuleiro clone = tabuleiro.clone();
+        boolean valido = clone.fazerJogada(jogada[0], jogada[1]);
+        if (!valido) return 0.0;
+        int capturadas;
+        if (tabuleiro.getJogadorAtual() == Tabuleiro.PRETO) {
+            capturadas = clone.getCapturasBranco() - tabuleiro.getCapturasBranco();
+        } else {
+            capturadas = clone.getCapturasPreto() - tabuleiro.getCapturasPreto();
+        }
+        double bonusCaptura = capturadas * 10.0; // Fator de peso para capturas
+        int tamanho = tabuleiro.getTamanho();
+        double centroX = tamanho / 2.0;
+        double centroY = tamanho / 2.0;
+        double distancia = Math.sqrt(Math.pow(jogada[0] - centroX, 2) + Math.pow(jogada[1] - centroY, 2));
+        double bonusCentralidade = Math.max(0, (tamanho / 2.0 - distancia));
+        double peso = bonusCaptura + bonusCentralidade;
+        return Math.max(peso, 1.0);
     }
 
     /**
@@ -479,7 +532,7 @@ class InterfaceGo extends JFrame {
      */
     public InterfaceGo() {
         tabuleiro = new Tabuleiro();
-        setTitle("Jogo de Go com MCTS");
+        setTitle("Jogo de Go com MCTS - IA Avançada");
         setSize(TAMANHO_CANVAS + 200, TAMANHO_CANVAS + 100); // Ajuste para incluir menus e barra de status
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -575,10 +628,10 @@ class InterfaceGo extends JFrame {
      * Exibe a janela "Sobre" com informações sobre o jogo e o criador.
      */
     private void mostrarSobre() {
-        String sobreTexto = "Jogo de Go com MCTS\n" +
+        String sobreTexto = "Jogo de Go com MCTS - IA Avançada\n" +
                 "Desenvolvido por Luiz Tiago Wilcke\n\n" +
                 "Este é um jogo de Go implementado em Java utilizando a biblioteca Swing.\n" +
-                "O computador utiliza o algoritmo de Monte Carlo Tree Search (MCTS) para determinar suas jogadas.";
+                "A IA utiliza o algoritmo de Monte Carlo Tree Search (MCTS) com uma política de simulação heurística aprimorada.";
         JOptionPane.showMessageDialog(this, sobreTexto, "Sobre", JOptionPane.INFORMATION_MESSAGE);
     }
 
@@ -614,10 +667,10 @@ class InterfaceGo extends JFrame {
         SwingWorker<int[], Void> worker = new SwingWorker<int[], Void>() {
             @Override
             protected int[] doInBackground() throws Exception {
-                // Configuração do MCTS
+                // Configuração do MCTS: você pode ajustar o número de iterações (por exemplo, 2000 ou 5000)
                 Tabuleiro rootTabuleiro = tabuleiro.clone();
                 NodoMCTS rootNodo = new NodoMCTS(rootTabuleiro, null, null);
-                return mcts(rootNodo, 1000); // VIDAS_MAX = 1000
+                return mcts(rootNodo, 1000);
             }
 
             @Override

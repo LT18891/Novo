@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <title>Bitcoin Tracker - Luiz Tiago Wilcke</title>
+  <!-- Importa o Chart.js para exibir os gráficos -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    #price {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+    #chart-container {
+      width: 80%;
+      margin: auto;
+    }
+    #equations {
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      background-color: #f9f9f9;
+      width: 80%;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  </style>
+</head>
+<body>
+  <!-- Cabeçalho com informações iniciais -->
+  <h1>Bitcoin Tracker - Luiz Tiago Wilcke</h1>
+  <p><em>Data: 2025-02-01</em></p>
+  <div id="price">Preço Atual do Bitcoin: Carregando...</div>
+  
+  <!-- Container do gráfico -->
+  <div id="chart-container">
+    <canvas id="priceChart"></canvas>
+  </div>
+  
+  <!-- Área para exibição das equações diferenciais e parâmetros estimados -->
+  <div id="equations">
+    <h3>Equações Diferenciais do Modelo</h3>
+    <p>Equação diferencial: <code>dP/dt = r · P</code></p>
+    <p>Solução: <code>P(t) = P₀ · exp(r · t)</code></p>
+    <p id="modelParams"></p>
+  </div>
+  
+  <script>
+    /***********************************************************************
+     * #!/usr/bin/env python3
+     * # Autor: Luiz Tiago Wilcke
+     * # Data: 2025-02-01
+     * #
+     * # Este script (em JS) captura o preço atual do Bitcoin e seus dados 
+     * # históricos utilizando a API da Binance, gera um gráfico com os dados
+     * # capturados, aplica um modelo matemático simples (crescimento exponencial)
+     * # para prever o preço no dia seguinte e atualiza as informações a cada 10s.
+     ***********************************************************************/
+
+    // Configurações globais
+    const API_CURRENT = "https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT";
+    const API_HISTORICAL = "https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1h&limit=24";
+    let chart; // referência para o gráfico Chart.js
+
+    // Função para obter o preço atual do Bitcoin
+    const fetchCurrentPrice = async () => {
+      try {
+        const response = await fetch(API_CURRENT);
+        const data = await response.json();
+        return parseFloat(data.price);
+      } catch (error) {
+        console.error("Erro ao obter preço atual:", error);
+        return null;
+      }
+    };
+
+    // Função para obter os dados históricos (últimas 24 horas)
+    const fetchHistoricalData = async () => {
+      try {
+        const response = await fetch(API_HISTORICAL);
+        const data = await response.json();
+        const times = [];
+        const prices = [];
+        // Cada item (kline) é um array; usamos o índice 0 (open time) e 4 (close price)
+        data.forEach(kline => {
+          const openTime = new Date(kline[0]);
+          const closePrice = parseFloat(kline[4]);
+          times.push(openTime);
+          prices.push(closePrice);
+        });
+        return { times, prices };
+      } catch (error) {
+        console.error("Erro ao obter dados históricos:", error);
+        return { times: [], prices: [] };
+      }
+    };
+
+    // Função para realizar regressão linear simples em ln(prices) vs. tempo (em horas)
+    const performRegression = (times, prices) => {
+      // Converter os tempos para horas (diferença em horas a partir do primeiro ponto)
+      const t0 = times[0].getTime();
+      const t_hours = times.map(t => (t.getTime() - t0) / (1000 * 3600));
+      const lnPrices = prices.map(p => Math.log(p));
+      const n = t_hours.length;
+      
+      let sumT = 0, sumL = 0, sumT2 = 0, sumTL = 0;
+      for (let i = 0; i < n; i++) {
+        sumT += t_hours[i];
+        sumL += lnPrices[i];
+        sumT2 += t_hours[i] * t_hours[i];
+        sumTL += t_hours[i] * lnPrices[i];
+      }
+      // Cálculo da inclinação (r) e do intercepto (ln(P₀))
+      const r = (n * sumTL - sumT * sumL) / (n * sumT2 - sumT * sumT);
+      const lnP0 = (sumL - r * sumT) / n;
+      return { r, lnP0, t_hours };
+    };
+
+    // Função para prever o preço 24 horas após o último registro
+    const predictNextDayPrice = (regression, t_hours) => {
+      const { r, lnP0 } = regression;
+      const t_pred = t_hours[t_hours.length - 1] + 24; // 24 horas além do último ponto
+      const predicted_ln_price = lnP0 + r * t_pred;
+      return Math.exp(predicted_ln_price);
+    };
+
+    // Função para atualizar a interface: preço atual, gráfico e equações
+    const updateData = async () => {
+      console.log("Robo: Atualizando dados...");
+      // Obtém dados atuais e históricos
+      const currentPrice = await fetchCurrentPrice();
+      const { times, prices } = await fetchHistoricalData();
+
+      // Atualiza o preço atual exibido na página
+      const priceDiv = document.getElementById("price");
+      if (currentPrice !== null) {
+        priceDiv.textContent = `Preço Atual do Bitcoin (USD): ${currentPrice.toFixed(2)}`;
+      } else {
+        priceDiv.textContent = "Preço Atual do Bitcoin: Erro ao obter";
+      }
+
+      // Se os dados históricos foram obtidos com sucesso...
+      if (times.length && prices.length) {
+        // Realiza regressão linear para estimar os parâmetros do modelo
+        const regression = performRegression(times, prices);
+        const predictedPrice = predictNextDayPrice(regression, regression.t_hours);
+        
+        // Atualiza a área de parâmetros do modelo
+        const modelParamsDiv = document.getElementById("modelParams");
+        modelParamsDiv.innerHTML = `
+          <strong>Parâmetros Estimados:</strong><br>
+          r = ${regression.r.toFixed(4)}<br>
+          ln(P₀) = ${regression.lnP0.toFixed(4)}<br>
+          Previsão (24h depois): ${predictedPrice.toFixed(2)} USD
+        `;
+
+        // Prepara os dados para o gráfico
+        const labels = times.map(t => t.toLocaleTimeString());
+        const dataSet = prices;
+        // Adiciona o ponto de predição: horário previsto 24h após o último dado
+        const lastTime = times[times.length - 1];
+        const predictedTime = new Date(lastTime.getTime() + 24 * 3600 * 1000);
+        labels.push(predictedTime.toLocaleTimeString());
+        dataSet.push(predictedPrice);
+
+        // Se o gráfico ainda não foi criado, cria-o; caso contrário, atualiza-o
+        if (!chart) {
+          const ctx = document.getElementById("priceChart").getContext("2d");
+          chart = new Chart(ctx, {
+            type: "line",
+            data: {
+              labels: labels,
+              datasets: [{
+                label: "Preço do Bitcoin (USD)",
+                data: dataSet,
+                borderColor: "blue",
+                backgroundColor: "rgba(0, 0, 255, 0.1)",
+                fill: true,
+                tension: 0.2,
+                pointRadius: 4
+              }]
+            },
+            options: {
+              scales: {
+                x: { title: { display: true, text: "Horário" } },
+                y: { title: { display: true, text: "Preço (USD)" } }
+              }
+            }
+          });
+        } else {
+          // Atualiza os dados do gráfico
+          chart.data.labels = labels;
+          chart.data.datasets[0].data = dataSet;
+          chart.update();
+        }
+      } else {
+        priceDiv.textContent = "Erro ao obter dados históricos";
+      }
+    };
+
+    // Inicia a atualização dos dados imediatamente e depois a cada 10 segundos (10000 ms)
+    updateData();
+    setInterval(updateData, 10000);
+  </script>
+</body>
+</html>

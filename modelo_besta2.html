@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Modelo Probabilístico Sofisticado de Colisão de Asteroides - Luiz Tiago Wilcke</title>
+  <!-- Fonte futurista -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet">
+  <!-- Configuração do MathJax para renderização de equações em LaTeX -->
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <style>
+    /* CSS estilo "Exterminador do Futuro" */
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      background-color: #000;
+      color: #e6e6e6;
+      font-family: 'Orbitron', sans-serif;
+      line-height: 1.6;
+      margin: 0;
+      padding: 0;
+    }
+    header, footer {
+      background-color: #1a1a1a;
+      padding: 20px;
+      text-align: center;
+      border-bottom: 3px solid #c00;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 2.5em;
+      color: #c00;
+    }
+    main {
+      padding: 20px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    h2 {
+      color: #ff3333;
+      border-bottom: 1px solid #c00;
+      padding-bottom: 5px;
+    }
+    p, li {
+      font-size: 1.1em;
+      margin: 10px 0;
+    }
+    .section {
+      margin-bottom: 40px;
+    }
+    pre {
+      background: #111;
+      padding: 10px;
+      border-left: 4px solid #c00;
+      overflow-x: auto;
+    }
+    /* Estilo da calculadora */
+    .calculator {
+      background: #1a1a1a;
+      border: 2px solid #c00;
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+    .calculator label {
+      display: block;
+      margin: 10px 0 5px;
+    }
+    .calculator input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #c00;
+      border-radius: 4px;
+      background: #333;
+      color: #e6e6e6;
+      font-size: 1em;
+    }
+    .calculator button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      font-size: 1em;
+      background-color: #c00;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .calculator button:hover {
+      background-color: #e60000;
+    }
+    #resultado {
+      margin-top: 20px;
+      padding: 15px;
+      background: #333;
+      border: 1px solid #c00;
+      border-radius: 4px;
+    }
+    footer {
+      margin-top: 40px;
+      font-size: 0.9em;
+      border-top: 3px solid #c00;
+    }
+    a {
+      color: #ff3333;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Modelo Probabilístico Sofisticado de Colisão de Asteroides</h1>
+    <p>Autor: Luiz Tiago Wilcke</p>
+  </header>
+
+  <main>
+    <section class="section" id="introducao">
+      <h2>Introdução</h2>
+      <p>
+        A probabilidade de colisão de um asteroide com a Terra pode ser estimada considerando a distribuição de tamanhos dos objetos,
+        que geralmente segue uma lei de potência. Se definirmos que o número de asteroides com diâmetro maior que \(D\) é dado por
+        \[
+          N(>D)= k\,D^{-\alpha}\,,
+        \]
+        então a taxa de colisões para objetos com diâmetro maior que \(D\) pode ser modelada como:
+        \[
+          \lambda(D) = k\,D^{-\alpha}\,.
+        \]
+      </p>
+      <p>
+        Assim, a probabilidade de que ocorra pelo menos uma colisão de um asteroide com diâmetro maior que \(D\) em um período \(T\)
+        (assumindo que os eventos seguem um processo de Poisson) é:
+        \[
+          P(D,T) = 1 - \exp\Bigl[-k\,D^{-\alpha}\,T\Bigr]\,.
+        \]
+      </p>
+      <p>
+        Para incorporar incertezas nos parâmetros \( k \) e \( \alpha \), assumimos que:
+      </p>
+      <ul>
+        <li>\( k \) segue uma distribuição lognormal com parâmetros (em log-escala) definidos por sua média e desvio padrão;</li>
+        <li>\( \alpha \) segue uma distribuição normal com média \(\mu_\alpha\) e desvio padrão \(\sigma_\alpha\).</li>
+      </ul>
+      <p>
+        Em uma simulação Monte Carlo, amostramos \( k \) e \( \alpha \) a partir dessas distribuições e calculamos a probabilidade \( P(D,T) \)
+        para cada realização. A probabilidade final é dada pela média das probabilidades obtidas.
+      </p>
+    </section>
+
+    <section class="section" id="calculadora">
+      <h2>Calculadora do Modelo Sofisticado</h2>
+      <p>
+        Insira os parâmetros abaixo para simular a probabilidade de colisão de um asteroide com diâmetro mínimo \(D\) em um período \(T\).<br>
+        <em>Nota:</em> \( k \) representa a taxa de colisões (colisões/ano) para objetos com \(D=1\, \mathrm{m}\). A função de incerteza
+        de \( k \) é modelada como uma distribuição lognormal (amplitude do ruído em log), e \( \alpha \) segue uma distribuição normal.
+      </p>
+      <div class="calculator">
+        <label for="T">Intervalo de tempo \(T\) (anos):</label>
+        <input type="number" id="T" value="100" step="any">
+        
+        <label for="D">Diâmetro mínimo \(D\) (m):</label>
+        <input type="number" id="D" value="20" step="any">
+        
+        <label for="k">Taxa base \(k\) (colisões/ano para \(D=1\,\mathrm{m}\)):</label>
+        <input type="number" id="k" value="0.001" step="any">
+        
+        <label for="muAlpha">Valor médio de \(\alpha\):</label>
+        <input type="number" id="muAlpha" value="2.0" step="any">
+        
+        <label for="sigmaK">Desvio padrão logarítmico de \(k\) (\(\sigma_k\)):</label>
+        <input type="number" id="sigmaK" value="0.2" step="any">
+        
+        <label for="sigmaAlpha">Desvio padrão de \(\alpha\) (\(\sigma_\alpha\)):</label>
+        <input type="number" id="sigmaAlpha" value="0.1" step="any">
+        
+        <label for="Nsim">Número de simulações Monte Carlo:</label>
+        <input type="number" id="Nsim" value="10000" step="any">
+        
+        <button onclick="simularColisao()">Calcular Probabilidade</button>
+        
+        <div id="resultado"></div>
+      </div>
+    </section>
+
+    <section class="section" id="conclusao">
+      <h2>Conclusões</h2>
+      <p>
+        Este modelo probabilístico sofisticado, que incorpora a distribuição de tamanhos dos asteroides e incertezas nos parâmetros
+        por meio de simulações Monte Carlo, permite uma avaliação mais realista do risco de colisão com a Terra. A partir da média
+        das simulações, obtém-se a probabilidade de ocorrência de pelo menos uma colisão no período considerado, considerando a variabilidade
+        inerente aos parâmetros modelados.
+      </p>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Luiz Tiago Wilcke. Todos os direitos reservados.</p>
+  </footer>
+
+  <script>
+    // Função para gerar número aleatório com distribuição normal padrão (Box-Muller)
+    function sampleNormal(mean, std) {
+      let u = 0, v = 0;
+      while(u === 0) u = Math.random();
+      while(v === 0) v = Math.random();
+      let z = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+      return z * std + mean;
+    }
+
+    // Função para gerar número aleatório a partir de uma distribuição lognormal
+    // Se X ~ N(mu, sigma), então Y = exp(X) é lognormal com parâmetros mu e sigma.
+    function sampleLogNormal(mu, sigma) {
+      return Math.exp(sampleNormal(mu, sigma));
+    }
+
+    // Função principal para simulação Monte Carlo
+    function simularColisao() {
+      // Obter valores dos inputs
+      const T = parseFloat(document.getElementById("T").value);       // Tempo (anos)
+      const D = parseFloat(document.getElementById("D").value);       // Diâmetro mínimo (m)
+      const k_base = parseFloat(document.getElementById("k").value);  // Taxa base para D = 1 m (colisões/ano)
+      const muAlpha = parseFloat(document.getElementById("muAlpha").value);  // Valor médio de α
+      const sigmaK = parseFloat(document.getElementById("sigmaK").value);    // Desvio padrão logarítmico de k
+      const sigmaAlpha = parseFloat(document.getElementById("sigmaAlpha").value);  // Desvio padrão de α
+      const Nsim = parseInt(document.getElementById("Nsim").value);     // Número de simulações
+
+      let somaProb = 0;
+      let somaProb2 = 0;
+      
+      // Realizar simulações Monte Carlo
+      for (let i = 0; i < Nsim; i++) {
+        // Amostra k de uma distribuição lognormal com parâmetro ln(k_base) e sigmaK
+        let k_sample = sampleLogNormal(Math.log(k_base), sigmaK);
+        // Amostra α de uma distribuição normal com média muAlpha e desvio sigmaAlpha
+        let alpha_sample = sampleNormal(muAlpha, sigmaAlpha);
+        // Calcular a taxa de colisão para diâmetro D:
+        // λ = k * D^(-α)
+        let lambda = k_sample * Math.pow(D, -alpha_sample);
+        // Probabilidade de pelo menos uma colisão em T anos
+        let prob = 1 - Math.exp(-lambda * T);
+        somaProb += prob;
+        somaProb2 += prob * prob;
+      }
+      
+      // Média e desvio padrão das probabilidades simuladas
+      let mediaProb = somaProb / Nsim;
+      let varProb = (somaProb2 / Nsim) - (mediaProb * mediaProb);
+      let stdProb = Math.sqrt(varProb);
+      
+      // Exibir resultados
+      document.getElementById("resultado").innerHTML = `
+        <h3>Resultados da Simulação Monte Carlo:</h3>
+        <p>Probabilidade média de colisão em <strong>${T}</strong> anos: <strong>${(mediaProb * 100).toFixed(2)}%</strong></p>
+        <p>Desvio padrão estimado: <strong>${(stdProb * 100).toFixed(2)}%</strong></p>
+        <p>(Considerando <em>N = ${Nsim}</em> simulações, para asteroides com \(D \\geq ${D}\\,m\))</p>
+        <p>
+          Modelo: 
+          $$P(D,T)=1-\\exp\\Bigl[-k\\,D^{-\\alpha}\\,T\\Bigr]$$
+        </p>
+      `;
+      MathJax.typesetPromise();
+    }
+  </script>
+
+</body>
+</html>
+
+

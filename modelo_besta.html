@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Modelo de Impacto de Asteroides - Luiz Tiago Wilcke</title>
+  <!-- Fonte futurista -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet">
+  <!-- Configuração do MathJax para renderização de equações em LaTeX -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <style>
+    /* CSS estilo "Exterminador do Futuro" */
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      background-color: #000;
+      color: #e6e6e6;
+      font-family: 'Orbitron', sans-serif;
+      line-height: 1.6;
+      margin: 0;
+      padding: 0;
+    }
+    header, footer {
+      background-color: #1a1a1a;
+      padding: 20px;
+      text-align: center;
+      border-bottom: 3px solid #c00;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 2.5em;
+      color: #c00;
+    }
+    main {
+      padding: 20px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    h2 {
+      color: #ff3333;
+      border-bottom: 1px solid #c00;
+      padding-bottom: 5px;
+    }
+    p, li {
+      font-size: 1.1em;
+      margin: 10px 0;
+    }
+    .section {
+      margin-bottom: 40px;
+    }
+    pre {
+      background: #111;
+      padding: 10px;
+      border-left: 4px solid #c00;
+      overflow-x: auto;
+    }
+    /* Estilo da calculadora */
+    .calculator {
+      background: #1a1a1a;
+      border: 2px solid #c00;
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+    .calculator label {
+      display: block;
+      margin: 10px 0 5px;
+    }
+    .calculator input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #c00;
+      border-radius: 4px;
+      background: #333;
+      color: #e6e6e6;
+      font-size: 1em;
+    }
+    .calculator button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      font-size: 1em;
+      background-color: #c00;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .calculator button:hover {
+      background-color: #e60000;
+    }
+    #resultado {
+      margin-top: 20px;
+      padding: 15px;
+      background: #333;
+      border: 1px solid #c00;
+      border-radius: 4px;
+    }
+    footer {
+      margin-top: 40px;
+      font-size: 0.9em;
+      border-top: 3px solid #c00;
+    }
+    a {
+      color: #ff3333;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Modelo de Impacto de Asteroides</h1>
+    <p>Autor: Luiz Tiago Wilcke</p>
+  </header>
+
+  <main>
+    <section class="section" id="introducao">
+      <h2>Introdução</h2>
+      <p>
+        A modelagem de impactos de asteroides envolve a resolução de um conjunto acoplado de equações diferenciais que descrevem a dinâmica gravitacional, o arrasto atmosférico, a ablação (perda de massa) e, quando necessário, a fragmentação do corpo. Este artigo apresenta um framework avançado – integrando abordagens determinísticas e probabilísticas – para avaliar o risco e as consequências de um impacto na Terra.
+      </p>
+    </section>
+
+    <section class="section" id="modelo-diferencial">
+      <h2>Modelo Diferencial Completo</h2>
+      <p>
+        Considerando um asteroide esférico, definimos as seguintes equações diferenciais (supondo movimento unidimensional, com direção vertical, positiva para o movimento descendente):
+      </p>
+      <p>
+        A altitude \( h(t) \), a velocidade \( v(t) \) (positiva para baixo) e a massa \( m(t) \) evoluem de acordo com:
+      </p>
+      <p>
+        $$\frac{dh}{dt} = -v(t)$$
+      </p>
+      <p>
+        $$\frac{dv}{dt} = g(h) - \frac{1}{2}\frac{C_D\,\rho(h)\,A(t)}{m(t)}\,v(t)^2$$
+      </p>
+      <p>
+        $$\frac{dm}{dt} = -\frac{1}{2}\frac{C_H\,\rho(h)\,A(t)\,v(t)^3}{Q}$$
+      </p>
+      <p>
+        Onde:
+      </p>
+      <ul>
+        <li>\(g(h) = \dfrac{GM_E}{(R_E + h)^2}\) é a aceleração gravitacional, com \(GM_E = 3.986 \times 10^{14}\, \mathrm{m^3/s^2}\) e \(R_E = 6.371 \times 10^6\, \mathrm{m}\);</li>
+        <li>\(\rho(h) = \rho_0 \exp(-h/h_0)\) é a densidade atmosférica, com \(\rho_0 \approx 1.225\, \mathrm{kg/m^3}\) e \(h_0 \approx 8000\, \mathrm{m}\);</li>
+        <li>\(A(t) = \pi R(t)^2\) é a área de seção do asteroide, onde o raio \( R(t) \) está relacionado à massa por:
+          $$R(t) = \left(\frac{3\,m(t)}{4\pi\,\rho_a}\right)^{\frac{1}{3}},$$
+          com \(\rho_a\) sendo a densidade do asteroide (ex.: \(3000\,\mathrm{kg/m^3}\)).</li>
+      </ul>
+      <p>
+        As constantes \( C_D \) e \( C_H \) são os coeficientes de arrasto e transferência de calor, respectivamente, e \( Q \) é o calor de ablação.
+      </p>
+    </section>
+
+    <section class="section" id="modelo-probabilistico">
+      <h2>Integração de Incertezas</h2>
+      <p>
+        Devido às incertezas em parâmetros como a velocidade inicial, ângulo de entrada e propriedades do asteroide, é comum utilizar abordagens probabilísticas – incluindo simulações Monte Carlo e equações diferenciais estocásticas – para quantificar a probabilidade de um impacto significativo. Por exemplo, realizando 10.000 simulações com parâmetros amostrados a partir de distribuições (como normal para \(v_0\) e lognormal para \(m_0\)), estima-se que cerca de 5% dos cenários resultam em remanescentes impactantes com energia na ordem de \(5 \times 10^{14}\, \mathrm{J}\).
+      </p>
+    </section>
+
+    <section class="section" id="resultados">
+      <h2>Resultados Numéricos e Simulação</h2>
+      <p>
+        Em um cenário ilustrativo, considere:
+      </p>
+      <ul>
+        <li>Diâmetro inicial: 20 m (correspondendo a \(R_0 = 10\, \mathrm{m}\))</li>
+        <li>Densidade do asteroide: \(3000\, \mathrm{kg/m^3}\)  →  \(m_0 \approx 1.26 \times 10^7\, \mathrm{kg}\)</li>
+        <li>Velocidade inicial: \(20\,000\, \mathrm{m/s}\)</li>
+        <li>Altitude inicial: \(100\, \mathrm{km}\) (100.000 m)</li>
+      </ul>
+      <p>
+        A integração numérica (usando o método de Runge–Kutta de 4ª ordem) permite estimar que, durante a descida atmosférica, a ablação e o arrasto reduzem significativamente tanto a massa quanto a velocidade do objeto. Assim, mesmo que o remanescente seja apenas uma fração do \(m_0\) original, ele pode atingir a superfície com velocidades da ordem de \(200\)–\(500\, \mathrm{m/s}\) e uma energia de impacto dada por:
+      </p>
+      <p>
+        $$E = \frac{1}{2}\,m\,v^2$$
+      </p>
+      <p>
+        Valores medianos estimados podem ser, por exemplo, uma energia de impacto em torno de \(5 \times 10^{14}\, \mathrm{J}\) e uma altitude de fragmentação de cerca de \(35\, \mathrm{km}\).
+      </p>
+    </section>
+
+    <section class="section" id="simulacao">
+      <h2>Simulação Completa de Equações Diferenciais</h2>
+      <p>
+        Utilize a calculadora abaixo para simular o impacto do asteroide, resolvendo as equações diferenciais para a altitude \( h(t) \), velocidade \( v(t) \) e massa \( m(t) \). Insira os parâmetros iniciais e o tempo de passo para a integração.
+      </p>
+      <div class="calculator">
+        <label for="mass0">Massa inicial do asteroide (\(m_0\) em kg):</label>
+        <input type="number" id="mass0" value="12600000" step="any">
+        
+        <label for="velocity0">Velocidade inicial (\(v_0\) em m/s):</label>
+        <input type="number" id="velocity0" value="20000" step="any">
+        
+        <label for="altitude0">Altitude inicial (\(h_0\) em m):</label>
+        <input type="number" id="altitude0" value="100000" step="any">
+        
+        <label for="timeStep">Tempo de passo (\(\Delta t\) em s):</label>
+        <input type="number" id="timeStep" value="0.05" step="any">
+        
+        <button onclick="simularImpacto()">Simular Impacto</button>
+        
+        <div id="resultado"></div>
+      </div>
+    </section>
+
+    <section class="section" id="conclusao">
+      <h2>Conclusões</h2>
+      <p>
+        A integração de modelos determinísticos e probabilísticos permite uma avaliação robusta dos riscos de impactos de asteroides. Através de simulações numéricas com resolução de equações diferenciais, observa-se que mesmo cenários com intensa ablação podem resultar em remanescentes impactantes – embora com massa e velocidade significativamente reduzidas. Esses modelos fornecem uma base para estratégias de monitoramento e mitigação de riscos planetários.
+      </p>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Luiz Tiago Wilcke. Todos os direitos reservados.</p>
+  </footer>
+
+  <script>
+    // Constantes do modelo
+    const GM_E = 3.986004418e14; // m³/s²
+    const R_E = 6371000;         // m
+    const rho0 = 1.225;          // kg/m³ (densidade ao nível do mar)
+    const h0Atmos = 8000;        // m (altura de escala da atmosfera)
+    const C_D = 1.0;             // coeficiente de arrasto
+    const C_H = 0.1;             // coeficiente de transferência de calor
+    const Q = 8e6;               // J/kg (calor de ablação)
+    const rho_a = 3000;          // kg/m³ (densidade do asteroide)
+
+    // Função que calcula a área de seção do asteroide em função da massa m
+    function area(m) {
+      return Math.PI * Math.pow((3 * m) / (4 * Math.PI * rho_a), 2/3);
+    }
+
+    // Função que retorna as derivadas do sistema: {dh, dv, dm}
+    function derivatives(state) {
+      let h = state.h; // altitude (m)
+      let v = state.v; // velocidade (m/s), positiva para baixo
+      let m = state.m; // massa (kg)
+      
+      // Aceleração gravitacional em função de h
+      let g = GM_E / Math.pow(R_E + h, 2);
+      // Densidade atmosférica
+      let rho = rho0 * Math.exp(-h / h0Atmos);
+      // Área de seção
+      let A = area(m);
+      // Força de arrasto (deceleração)
+      let drag = 0.5 * C_D * rho * A * v * v / m;
+      
+      return {
+        dh: -v,           // A altitude diminui com a velocidade
+        dv: g - drag,     // aceleração: gravidade menos arrasto
+        dm: -0.5 * C_H * rho * A * Math.pow(v, 3) / Q  // perda de massa por ablação
+      };
+    }
+
+    // Função para realizar um passo do método Runge-Kutta de 4ª ordem
+    function rk4Step(state, dt) {
+      let k1 = derivatives(state);
+      let s2 = {
+        h: state.h + 0.5 * dt * k1.dh,
+        v: state.v + 0.5 * dt * k1.dv,
+        m: state.m + 0.5 * dt * k1.dm
+      };
+      let k2 = derivatives(s2);
+      let s3 = {
+        h: state.h + 0.5 * dt * k2.dh,
+        v: state.v + 0.5 * dt * k2.dv,
+        m: state.m + 0.5 * dt * k2.dm
+      };
+      let k3 = derivatives(s3);
+      let s4 = {
+        h: state.h + dt * k3.dh,
+        v: state.v + dt * k3.dv,
+        m: state.m + dt * k3.dm
+      };
+      let k4 = derivatives(s4);
+      return {
+        h: state.h + dt/6 * (k1.dh + 2*k2.dh + 2*k3.dh + k4.dh),
+        v: state.v + dt/6 * (k1.dv + 2*k2.dv + 2*k3.dv + k4.dv),
+        m: state.m + dt/6 * (k1.dm + 2*k2.dm + 2*k3.dm + k4.dm)
+      };
+    }
+
+    // Função principal que simula o impacto do asteroide
+    function simularImpacto() {
+      // Obter os valores dos inputs
+      const m0 = parseFloat(document.getElementById("mass0").value);
+      const v0 = parseFloat(document.getElementById("velocity0").value);
+      const h0 = parseFloat(document.getElementById("altitude0").value);
+      const dt = parseFloat(document.getElementById("timeStep").value) || 0.05;
+      
+      // Condições iniciais
+      let state = { h: h0, v: v0, m: m0 };
+      let t = 0;
+      const maxTime = 10000; // limite máximo de tempo (s) para evitar loop infinito
+      
+      // Loop de integração enquanto o asteroide não atingir o solo (h <= 0)
+      while (state.h > 0 && t < maxTime && state.m > 0) {
+        state = rk4Step(state, dt);
+        t += dt;
+      }
+      
+      // Estado final: impacto (h <= 0)
+      let impactState = state;
+      let impactEnergy = 0.5 * impactState.m * Math.pow(impactState.v, 2);
+      
+      // Exibir os resultados
+      const resultadoDiv = document.getElementById("resultado");
+      resultadoDiv.innerHTML = `
+        <h3>Resultados da Simulação:</h3>
+        <p>Tempo até impacto: <strong>${t.toFixed(2)} s</strong></p>
+        <p>Velocidade de impacto: <strong>${impactState.v.toFixed(2)} m/s</strong></p>
+        <p>Massa remanescente: <strong>${impactState.m.toExponential(3)} kg</strong></p>
+        <p>Energia de impacto: <strong>${impactEnergy.toExponential(3)} J</strong></p>
+      `;
+    }
+  </script>
+
+</body>
+</html>
+

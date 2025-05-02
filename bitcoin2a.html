@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Modelos Matemáticos para Ficar Rico com Criptomoedas</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script type="text/javascript" id="MathJax-script" async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+    </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f9f9f9;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .content {
+            max-width: 800px;
+            background-color: #fff;
+            padding: 30px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+        }
+        input, button {
+            margin-top: 10px;
+            padding: 8px;
+        }
+        .equation {
+            background: #eef;
+            padding: 10px;
+            margin: 10px 0;
+            border-left: 4px solid #88f;
+        }
+    </style>
+</head>
+<body>
+<div class="content">
+    <h1>Modelos Matemáticos para Enriquecer com Criptomoedas</h1>
+    <p><strong>Autor:</strong> LT</p>
+
+    <h2>📘 Introdução</h2>
+    <p>O mercado de criptomoedas é altamente volátil, mas permite o uso de modelos matemáticos para estimar retornos esperados e tomar decisões inteligentes de investimento. Um dos modelos mais básicos e úteis é baseado na distribuição log-normal dos preços e no retorno geométrico médio.</p>
+
+    <h2>📐 Fórmulas Matemáticas Utilizadas</h2>
+    <div class="equation">
+        $$ R(t) = P_0 \cdot e^{\mu t + \sigma \sqrt{t} Z} $$
+    </div>
+    <p>Onde:</p>
+    <ul>
+        <li>\( R(t) \) é o preço futuro da criptomoeda</li>
+        <li>\( P_0 \) é o preço inicial</li>
+        <li>\( \mu \) é o retorno médio esperado</li>
+        <li>\( \sigma \) é a volatilidade (desvio padrão dos retornos)</li>
+        <li>\( Z \sim \mathcal{N}(0,1) \) é uma variável aleatória normal padrão</li>
+    </ul>
+
+    <h2>🧮 Simulador de Preço Futuro</h2>
+    <p>Digite os valores abaixo para simular o preço futuro de uma criptomoeda:</p>
+
+    <label for="p0">Preço Inicial (P₀):</label><br>
+    <input type="number" id="p0" value="100"><br>
+
+    <label for="mu">Retorno Médio Esperado Anual (μ):</label><br>
+    <input type="number" id="mu" step="0.01" value="0.15"><br>
+
+    <label for="sigma">Volatilidade Anual (σ):</label><br>
+    <input type="number" id="sigma" step="0.01" value="0.6"><br>
+
+    <label for="t">Tempo em anos (t):</label><br>
+    <input type="number" id="t" step="0.1" value="1"><br>
+
+    <button onclick="simular()">Simular</button>
+
+    <h3>Resultado:</h3>
+    <div id="resultado" style="font-weight: bold;"></div>
+
+    <script>
+        function simular() {
+            const P0 = parseFloat(document.getElementById("p0").value);
+            const mu = parseFloat(document.getElementById("mu").value);
+            const sigma = parseFloat(document.getElementById("sigma").value);
+            const t = parseFloat(document.getElementById("t").value);
+
+            const Z = Math.random() * 2 - 1; // aproximação de N(0,1)
+            const Rt = P0 * Math.exp(mu * t + sigma * Math.sqrt(t) * Z);
+            const resultadoDiv = document.getElementById("resultado");
+            resultadoDiv.innerHTML = "Preço Futuro Estimado: R$ " + Rt.toFixed(2);
+        }
+    </script>
+
+    <h2>📊 Conclusão</h2>
+    <p>Compreender os modelos de crescimento exponencial, retorno geométrico e volatilidade é essencial para quem deseja investir de forma estratégica em criptomoedas. Embora os riscos sejam elevados, o uso da matemática pode oferecer vantagens na tomada de decisão.</p>
+
+    <p><em>Este modelo é uma simplificação. Em aplicações reais, recomenda-se usar simulações de Monte Carlo, GARCH ou redes neurais para previsões mais robustas.</em></p>
+</div>
+</body>
+</html>

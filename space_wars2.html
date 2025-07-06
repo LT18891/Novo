@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<!--
+  Space Wars Hyperdrive - Versão Máxima
+  Autor: LT
+-->
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Space Wars Hyperdrive - LT</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { overflow:hidden; background:#000; font-family:'Courier New', monospace; color:#0f0; }
+    canvas { display:block; margin:20px auto; background:radial-gradient(circle at center,#001 0%,#000 90%); border:5px solid #0f0; border-radius:12px; }
+    #ui { position:absolute; top:10px; left:10px; right:10px; display:flex; justify-content:space-between; pointer-events:none; }
+    .status { background:rgba(0,0,0,0.7); padding:6px 12px; border:2px solid #0f0; border-radius:6px; font-size:18px; pointer-events:auto; }
+    #fimJogo { display:none; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+               background:rgba(0,0,0,0.9); padding:30px 40px; border:3px solid #f00;
+               border-radius:10px; color:#f00; text-align:center; font-size:30px; box-shadow:0 0 15px #f00; }
+    #fimJogo button { margin-top:20px; padding:10px 20px; font-size:18px; border:none;
+                      background:#f00; color:#000; border-radius:6px; cursor:pointer; box-shadow:0 0 8px #f00; }
+    #fimJogo button:hover { background:#fff; color:#f00; }
+    #legenda {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.7);
+      padding: 8px 16px;
+      border: 2px solid #0f0;
+      border-radius: 8px;
+      font-size: 16px;
+      color: #0f0;
+      font-style: normal;
+      display: flex;
+      gap: 24px;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+  <div id="ui">
+    <div id="placar" class="status">Pontuação: 0</div>
+    <div id="vidas" class="status">Vidas: 3</div>
+    <div id="nivel" class="status">Nível: 1</div>
+  </div>
+  <div id="fimJogo">
+    <p>-- FIM DE JOGO --</p>
+    <button id="btnReiniciar">Reiniciar</button>
+  </div>
+  <canvas id="canvasJogo" width="1000" height="700"></canvas>
+  <div id="legenda">
+    <span>← → Mover | Espaço: Atirar | S: Escudo</span>
+    <span>Autor: LT</span>
+  </div>
+
+  <script>
+    window.addEventListener('load', () => {
+      const canvas = document.getElementById('canvasJogo');
+      const ctx = canvas.getContext('2d');
+      const elPlacar = document.getElementById('placar');
+      const elVidas  = document.getElementById('vidas');
+      const elNivel  = document.getElementById('nivel');
+      const elFim    = document.getElementById('fimJogo');
+      const btnRein  = document.getElementById('btnReiniciar');
+
+      // Parameters
+      const largura = canvas.width, altura = canvas.height;
+      let pontuacao, vidas, nivel, jogoAtivo;
+      let parallaxCamadas, inimigos, velInimigo, direcao, powerUps, particulas;
+
+      // Player
+      const jogador = { x:largura/2, y:altura-80, w:60, h:35, vel:8, tiros:[], recarga:0, escudo:false, cdEscudo:0, multiplo:1 };
+
+      // Input
+      const teclas={ArrowLeft:false,ArrowRight:false,Space:false,KeyS:false};
+      document.addEventListener('keydown', e => { if(teclas[e.code]!==undefined) teclas[e.code]=true; });
+      document.addEventListener('keyup',   e => { if(teclas[e.code]!==undefined) teclas[e.code]=false; });
+
+      // Init & Restart
+      function iniciar() {
+        pontuacao=0; vidas=3; nivel=1; jogoAtivo=true;
+        jogador.tiros=[]; jogador.escudo=false; jogador.cdEscudo=0; jogador.multiplo=1;
+        elPlacar.textContent = `Pontuação: ${pontuacao}`;
+        elVidas.textContent  = `Vidas: ${vidas}`;
+        elNivel.textContent  = `Nível: ${nivel}`;
+        parallaxCamadas = [200,150,100,50].map(q => Array.from({ length:q },() => ({ x:Math.random()*largura, y:Math.random()*altura, r:Math.random()*1.5+0.5 })));
+        velInimigo=1.2; direcao=1;
+        powerUps=[]; particulas=[];
+        criarInimigos();
+        elFim.style.display='none';
+      }
+      btnRein.addEventListener('click', iniciar);
+      iniciar();
+
+      // Enemies
+      function criarInimigos() {
+        inimigos=[];
+        const rows = 3 + nivel, cols = 6 + Math.floor(nivel/2);
+        for(let r=0;r<rows;r++) for(let c=0;c<cols;c++) inimigos.push({ x:60+c*80, y:60+r*60, w:60, h:40, atk:[], cd:50+Math.random()*150, ativo:true });
+      }
+
+      // Game Loop
+      function loop() {
+        ctx.clearRect(0,0,largura,altura);
+        desenharFundo(); desenharJogador(); desenharInimigos(); desenharTiros(); desenharPowerUps(); desenharParticulas();
+        if(jogoAtivo) atualizar();
+        requestAnimationFrame(loop);
+      }
+      loop();
+
+      // Draws
+      function desenharFundo() {
+        parallaxCamadas.forEach((layer,i)=>{
+          layer.forEach(s=>{ ctx.fillStyle='#222'; ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,2*Math.PI); ctx.fill(); s.y+=(i+1)*0.5; if(s.y>altura) s.y=0; });
+        });
+      }
+      function desenharJogador() {
+        ctx.fillStyle=jogador.escudo?'#0ff':'#0f0'; ctx.beginPath(); ctx.moveTo(jogador.x,jogador.y);
+        ctx.lineTo(jogador.x-jogador.w/2,jogador.y+jogador.h); ctx.lineTo(jogador.x+ jogador.w/2,jogador.y+jogador.h);
+        ctx.closePath(); ctx.fill(); ctx.strokeStyle='#004400'; ctx.lineWidth=2; ctx.stroke();
+      }
+      function desenharInimigos() {
+        inimigos.forEach(e=>{
+          if(!e.ativo) return;
+          ctx.fillStyle='#f00'; ctx.fillRect(e.x,e.y,e.w,e.h);
+          ctx.fillStyle='#000'; ctx.fillText('E', e.x+e.w/3, e.y+e.h/1.5);
+        });
+      }
+      function desenharTiros() {
+        jogador.tiros.forEach(t=>{ ctx.fillStyle='#ff0'; ctx.fillRect(t.x-2,t.y,4,12); });
+        inimigos.forEach(e=> e.atk.forEach(b=>{ ctx.fillStyle='#f0f'; ctx.fillRect(b.x,b.y,4,12); }));
+      }
+      function desenharPowerUps() { powerUps.forEach(p=>{ ctx.fillStyle=p.tipo==='multiplo'?'#f80':'#0ff'; ctx.beginPath(); ctx.arc(p.x,p.y,8,0,2*Math.PI); ctx.fill(); }); }
+      function desenharParticulas(){ particulas.forEach((p,i)=>{ ctx.fillStyle=p.cor; ctx.fillRect(p.x,p.y,2,2); p.x+=p.vx; p.y+=p.vy; p.life--; if(p.life<=0) particulas.splice(i,1); }); }
+
+      // Updates
+      function atualizar() { atualizarJogador(); atualizarTiros(); atualizarInimigos(); atualizarPowerUps(); verificarNivel(); }
+      function atualizarJogador(){
+        if(teclas.ArrowLeft && jogador.x-jogador.w/2>0) jogador.x-=jogador.vel;
+        if(teclas.ArrowRight&& jogador.x+jogador.w/2<largura) jogador.x+=jogador.vel;
+        if(teclas.Space&& jogador.recarga<=0){
+          for(let i=0;i<jogador.multiplo;i++){ const dx=(i-(jogador.multiplo-1)/2)*6; jogador.tiros.push({x:jogador.x+dx,y:jogador.y,vy:15}); }
+          jogador.recarga=10;
+        }
+        if(teclas.KeyS&& jogador.cdEscudo<=0){ jogador.escudo=true; jogador.cdEscudo=600; }
+        jogador.recarga=Math.max(0,jogador.recarga-1);
+        if(jogador.cdEscudo>0){ jogador.cdEscudo--; if(jogador.cdEscudo<450) jogador.escudo=false; }
+      }
+      function atualizarTiros(){
+        jogador.tiros= jogador.tiros.filter(t=>t.y> -20);
+        jogador.tiros.forEach((t,i)=>{ t.y-=t.vy; inimigos.forEach(e=>{ if(e.ativo && t.x>e.x && t.x<e.x+e.w && t.y>e.y && t.y<e.y+e.h){ e.ativo=false; pontuacao+=100* jogador.multiplo; elPlacar.textContent=`Pontuação: ${pontuacao}`; criarParticulas(e.x,e.y,'#f00'); if(Math.random()<0.2) powerUps.push({x:e.x+e.w/2,y:e.y+10,tipo:Math.random()<0.5?'escudo':'multiplo',vy:2}); jogador.tiros.splice(i,1);} }); });
+      }
+      function atualizarInimigos(){ let change=false;
+        inimigos.forEach(e=>{ if(!e.ativo) return; e.x+=velInimigo*direcao; if(e.x<=0||e.x+e.w>=largura) change=true; e.cd--; if(e.cd<=0){ e.atk.push({x:e.x+e.w/2,y:e.y+e.h,vy:7}); e.cd=80+Math.random()*120;} });
+        if(change){ direcao*=-1; inimigos.forEach(e=> e.ativo&&(e.y+=30)); }
+        inimigos.forEach(e=>{ e.atk=e.atk.filter(b=>b.y<altura+20); e.atk.forEach(b=>{ b.y+=b.vy; if(b.x>jogador.x-jogador.w/2 && b.x<jogador.x+jogador.w/2 && b.y>jogador.y && b.y<jogador.y+jogador.h){ if(!jogador.escudo){ vidas--; elVidas.textContent=`Vidas: ${vidas}`; criarParticulas(jogador.x,jogador.y,'#ff0'); if(vidas<=0) gameOver(); } else criarParticulas(b.x,b.y,'#0ff'); } }); });
+      }
+      function atualizarPowerUps(){ powerUps.forEach((p,i)=>{ p.y+=p.vy; if(p.y>altura) powerUps.splice(i,1); if(Math.hypot(p.x-jogador.x,p.y-jogador.y)<20){ if(p.tipo==='escudo'){ jogador.escudo=true; jogador.cdEscudo=600;} else { jogador.multiplo=Math.min(5,jogador.multiplo+1);} powerUps.splice(i,1);} }); }
+      function verificarNivel(){ if(inimigos.every(e=>!e.ativo)){ nivel++; velInimigo+=0.3; elNivel.textContent=`Nível: ${nivel}`; iniciar(); }}
+      function gameOver(){ jogoAtivo=false; elFim.style.display='block'; }
+      function criarParticulas(x,y,cor){ for(let i=0;i<15;i++){ particulas.push({x,y,vx:(Math.random()-0.5)*4,vy:(Math.random()-0.5)*4,cor,life:20+Math.random()*20}); }}
+    });
+  </script>
+</body>
+</html>
+
+

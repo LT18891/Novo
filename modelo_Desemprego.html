@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modelo Avançado de Previsão de Desemprego</title>
+    <!-- MathJax -->
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f9f9f9; color: #333; padding: 20px; max-width: 800px; margin: auto; }
+        h1, h2 { color: #2c3e50; }
+        section { margin-bottom: 20px; }
+        label { display: block; margin: 8px 0 4px; }
+        input { width: 100%; padding: 8px; margin-bottom: 10px; }
+        button { padding: 10px 20px; font-size: 1em; }
+        #resultado { font-weight: bold; margin-top: 10px; }
+        .formula { background: #eef; padding: 10px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Modelo Avançado de Previsão de Desemprego</h1>
+    <p><em>Autor: Luiz Tiago Wilcke</em></p>
+
+    <section>
+        <h2>1. Introdução e Explicação</h2>
+        <p>Este modelo utiliza uma regressão autoregressiva distribuída (ARDL) para prever a taxa de desemprego com base em variáveis macroeconômicas-chave.</p>
+        <p>As variáveis explicativas consideradas são:</p>
+        <ul>
+            <li>\(\text{GDPG}\): Gap do Produto Interno Bruto (%)</li>
+            <li>\(\pi\): Taxa de inflação anual (%)</li>
+            <li>\(i\): Taxa básica de juros anual (%)</li>
+            <li>\(\Delta LF\): Crescimento da força de trabalho (%)</li>
+            <li>\(U_{t-1}\): Taxa de desemprego do período anterior (%)</li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>2. Modelo Matemático</h2>
+        <div class="formula">
+            \[
+                U_t = \alpha + \beta_1 \mathrm{GDPG}_t + \beta_2 \pi_t + \beta_3 i_t + \beta_4 \Delta LF_t + \beta_5 U_{t-1} + \varepsilon_t
+            \]
+        </div>
+        <p>Onde:</p>
+        <ul>
+            <li>\(U_t\): Taxa de desemprego prevista no período \(t\).</li>
+            <li>\(\alpha, \beta_i\): Coeficientes estimados via regressão.</li>
+            <li>\(\varepsilon_t\): Termo de erro.</li>
+    </section>
+
+    <section>
+        <h2>3. Calculadora Interativa</h2>
+        <form id="calcForm">
+            <label for="alph">α (Intercepto):</label>
+            <input type="number" step="0.0001" id="alpha" value="5.0">
+
+            <label for="b1">β₁ (GDP Gap):</label>
+            <input type="number" step="0.0001" id="b1" value="-0.3">
+
+            <label for="b2">β₂ (Inflação):</label>
+            <input type="number" step="0.0001" id="b2" value="0.2">
+
+            <label for="b3">β₃ (Juros):</label>
+            <input type="number" step="0.0001" id="b3" value="0.1">
+
+            <label for="b4">β₄ (Crescimento Força de Trabalho):</label>
+            <input type="number" step="0.0001" id="b4" value="-0.2">
+
+            <label for="b5">β₅ (Desemprego t-1):</label>
+            <input type="number" step="0.0001" id="b5" value="0.6">
+
+            <label for="gdpg">GDP Gap (%):</label>
+            <input type="number" step="0.01" id="gdpg" value="1.5">
+
+            <label for="infla">Inflação (%):</label>
+            <input type="number" step="0.01" id="infla" value="4.2">
+
+            <label for="juros">Taxa de Juros (%):</label>
+            <input type="number" step="0.01" id="juros" value="6.5">
+
+            <label for="lf">Crescimento da Força de Trabalho (%):</label>
+            <input type="number" step="0.01" id="lf" value="1.0">
+
+            <label for="prevU">Desemprego t-1 (%):</label>
+            <input type="number" step="0.01" id="prevU" value="8.0">
+
+            <button type="button" onclick="calcular()">Calcular Previsão</button>
+        </form>
+        <div id="resultado"></div>
+    </section>
+
+    <script>
+        function calcular() {
+            const α = parseFloat(document.getElementById('alpha').value);
+            const β1 = parseFloat(document.getElementById('b1').value);
+            const β2 = parseFloat(document.getElementById('b2').value);
+            const β3 = parseFloat(document.getElementById('b3').value);
+            const β4 = parseFloat(document.getElementById('b4').value);
+            const β5 = parseFloat(document.getElementById('b5').value);
+            const GDPG = parseFloat(document.getElementById('gdpg').value);
+            const π = parseFloat(document.getElementById('infla').value);
+            const i = parseFloat(document.getElementById('juros').value);
+            const ΔLF = parseFloat(document.getElementById('lf').value);
+            const Ulag = parseFloat(document.getElementById('prevU').value);
+
+            const Ut = α + β1 * GDPG + β2 * π + β3 * i + β4 * ΔLF + β5 * Ulag;
+            document.getElementById('resultado').innerText = `Taxa de Desemprego Prevista: ${Ut.toFixed(2)}%`;
+        }
+    </script>
+</body>
+</html>

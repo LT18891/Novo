@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora de Inflação - Luiz Tiago Wilcke</title>
+  <!-- MathJax -->
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <style>
+    /* Estilo "Exterminador do Futuro" com fontes maiores */
+    body {
+      background-color: #000;
+      color: #e60000;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding: 30px;
+    }
+    h1 {
+      font-size: 3em;
+      text-shadow: 0 0 8px #e60000;
+      margin-bottom: 0.5em;
+    }
+    .author {
+      font-size: 1.2em;
+      margin-bottom: 1em;
+      color: #ffffff;
+    }
+    .calculator {
+      background: #111;
+      border: 2px solid #e60000;
+      border-radius: 8px;
+      padding: 30px;
+      width: 100%;
+      max-width: 450px;
+      box-shadow: 0 0 12px #e60000;
+    }
+    .calculator label {
+      display: block;
+      margin-top: 1.2em;
+      font-weight: bold;
+      font-size: 1.1em;
+    }
+    .calculator input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 6px;
+      background: #000;
+      border: 1px solid #e60000;
+      color: #e60000;
+      border-radius: 4px;
+      font-size: 1em;
+    }
+    .calculator button {
+      margin-top: 2em;
+      width: 100%;
+      padding: 12px;
+      background: #e60000;
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      font-size: 1.1em;
+      font-weight: bold;
+      cursor: pointer;
+      text-shadow: 0 0 4px #000;
+    }
+    .calculator button:hover {
+      background: #ff1a1a;
+    }
+    .result {
+      margin-top: 1.5em;
+      font-size: 1.5em;
+      text-align: center;
+      color: #ffffff;
+    }
+    .explanation {
+      margin-top: 2.5em;
+      max-width: 700px;
+      background: #111;
+      padding: 20px;
+      border: 2px solid #e60000;
+      border-radius: 8px;
+      box-shadow: 0 0 8px #e60000;
+      line-height: 1.6;
+      font-size: 1.05em;
+    }
+    .equation {
+      text-align: center;
+      margin: 1.2em 0;
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <h1>Calculadora de Inflação</h1>
+  <div class="author">Autor: Luiz Tiago Wilcke</div>
+  <div class="equation">
+    <!-- Equação renderizada -->
+    <p>Modelo: \[ \pi_t = \beta_0 + \beta_1 \pi_{t-1} + \beta_2 r_{t-1} + \beta_3 e_{t-1} + \varepsilon_t \]</p>
+  </div>
+  <div class="calculator">
+    <label for="beta0">β₀ (intercepto):</label>
+    <input type="number" id="beta0" step="any" value="0.5">
+
+    <label for="beta1">β₁ (inflação defasada πₜ₋₁):</label>
+    <input type="number" id="beta1" step="any" value="0.7">
+
+    <label for="beta2">β₂ (Selic defasada rₜ₋₁):</label>
+    <input type="number" id="beta2" step="any" value="0.1">
+
+    <label for="beta3">β₃ (Câmbio defasado eₜ₋₁):</label>
+    <input type="number" id="beta3" step="any" value="0.2">
+
+    <label for="piPrev">Inflação anterior πₜ₋₁ (%):</label>
+    <input type="number" id="piPrev" step="any" value="4.5">
+
+    <label for="selicPrev">Selic anterior rₜ₋₁ (%):</label>
+    <input type="number" id="selicPrev" step="any" value="13.75">
+
+    <label for="cambioPrev">Câmbio anterior eₜ₋₁ (R$):</label>
+    <input type="number" id="cambioPrev" step="any" value="5.10">
+
+    <button onclick="calcularInflacao()">Calcular Inflação</button>
+    <div class="result" id="result">--</div>
+  </div>
+
+  <div class="explanation">
+    <h2>Como o Modelo Funciona</h2>
+    <p>Este modelo linear múltiplo prevê a inflação atual (<em>πₜ</em>) com base em quatro componentes principais:</p>
+    <ol>
+      <li><strong>Intercepto (β₀):</strong> valor de referência da inflação quando todas as variáveis independentes são zero.</li>
+      <li><strong>Inflação defasada (πₜ₋₁):</strong> representa a inércia da inflação—isto é, como o valor passado impacta o presente. O coeficiente β₁ mede essa persistência.</li>
+      <li><strong>Taxa Selic defasada (rₜ₋₁):</strong> a política monetária anterior influencia a inflação atual. O coeficiente β₂ mostra essa sensibilidade.</li>
+      <li><strong>Câmbio defasado (eₜ₋₁):</strong> variações no câmbio passado afetam preços de bens importados. O coeficiente β₃ quantifica esse efeito.</li>
+    </ol>
+    <p>A equação matemática do modelo é:</p>
+    <div class="equation">\[ \pi_t = \beta_0 + \beta_1 \pi_{t-1} + \beta_2 r_{t-1} + \beta_3 e_{t-1} \]</div>
+    <p>Para usar, insira os valores nos campos acima e clique em <em>Calcular Inflação</em>. O resultado exibirá a previsão de inflação (<em>πₜ</em>) em porcentagem.</p>
+  </div>
+
+  <script>
+    function calcularInflacao() {
+      const b0 = parseFloat(document.getElementById('beta0').value);
+      const b1 = parseFloat(document.getElementById('beta1').value);
+      const b2 = parseFloat(document.getElementById('beta2').value);
+      const b3 = parseFloat(document.getElementById('beta3').value);
+      const piPrev = parseFloat(document.getElementById('piPrev').value);
+      const selicPrev = parseFloat(document.getElementById('selicPrev').value);
+      const cambioPrev = parseFloat(document.getElementById('cambioPrev').value);
+
+      const piT = b0 + b1 * piPrev + b2 * selicPrev + b3 * cambioPrev;
+      document.getElementById('result').textContent = piT.toFixed(2) + '%';
+    }
+  </script>
+</body>
+</html>
+

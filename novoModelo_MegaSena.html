@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HADES-60 — Mega-Sena (Autor: Luiz Tiago Wilcke)</title>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" defer></script>
+  <style>
+    :root{
+      --bg:#0b0f14; --card:#121821; --ink:#eaf2ff; --muted:#98a6b3; --acc:#6bd0ff; --acc2:#ffb86b; --bad:#ff6b6b;
+      --ok:#7df1b9; --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0; font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial; color:var(--ink); background:linear-gradient(180deg,#0b0f14,#0a0d12 40%, #0b0f14)}
+    header{max-width:1100px; margin:24px auto 12px; padding:0 16px}
+    .title{display:flex; gap:12px; align-items:center; flex-wrap:wrap}
+    .title h1{margin:0; font-size:clamp(20px,3.8vw,36px); letter-spacing:0.2px}
+    .badge{padding:6px 10px; border:1px solid #253244; border-radius:999px; color:var(--muted);}
+    .wrap{max-width:1100px; margin:0 auto 80px; padding:0 16px; display:grid; grid-template-columns: 1.2fr 1fr; gap:18px}
+    @media(max-width:1020px){.wrap{grid-template-columns:1fr}}
+    .card{background:linear-gradient(180deg,#0f1622,#0d131d); border:1px solid #1c2836; border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,.25)}
+    .card h2{margin:0 0 8px; font-size:20px}
+    .card h3{margin:18px 0 8px; font-size:16px; color:var(--acc)}
+    .card .hd{padding:16px 16px 0}
+    .card .bd{padding:16px}
+    p{color:#cfe2ff; line-height:1.58; margin:10px 0}
+    code, .mono{font-family:var(--mono); font-size:13px}
+    textarea, input, select, button{background:#0c121a; color:var(--ink); border:1px solid #1f2a39; border-radius:12px; padding:10px 12px; outline:none}
+    textarea{width:100%; min-height:140px; resize:vertical}
+    .grid{display:grid; grid-template-columns:repeat(2,1fr); gap:10px}
+    .grid3{display:grid; grid-template-columns:repeat(3,1fr); gap:10px}
+    .grid4{display:grid; grid-template-columns:repeat(4,1fr); gap:10px}
+    .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+    label{font-size:12px; color:var(--muted)}
+    .muted{color:var(--muted)}
+    .btn{cursor:pointer; border:1px solid #2a3a4e; padding:10px 14px; border-radius:12px}
+    .btn:hover{border-color:#3d516b}
+    .btn.primary{background:linear-gradient(180deg,#18324a,#15293e); border-color:#2b4561}
+    .pill{padding:6px 10px; border-radius:999px; background:#0e1520; border:1px solid #1f2a39; color:#a9b8c7}
+    .small{font-size:12px}
+    .good{color:var(--ok)}
+    .bad{color:var(--bad)}
+    .out{font-family:var(--mono); background:#0b121a; border:1px dashed #2a3a4e; border-radius:12px; padding:10px; white-space:pre-wrap}
+    .kitem{display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border:1px solid #263347; border-radius:999px; background:#0e1520; margin:4px 4px 0 0}
+    .num{display:inline-block; min-width:24px; text-align:center; padding:6px 8px; border-radius:10px; background:#0b121a; border:1px solid #213045}
+    .tag{font-size:12px; color:#9cb3c9}
+    .sep{height:1px; background:linear-gradient(90deg,transparent,#1c2836,transparent); margin:14px 0}
+    details{border:1px solid #1c2836; border-radius:12px; padding:8px 12px; background:#0f1622}
+    details summary{cursor:pointer}
+    .footer{max-width:1100px; margin:30px auto 80px; padding:0 16px; color:#93a5bb}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="title">
+      <h1>HADES-60 — Amostrador Determinantal Adaptativo Hierárquico</h1>
+      <span class="badge">Mega-Sena · Autor: <strong>Luiz Tiago Wilcke</strong></span>
+      <span class="badge">HTML + JavaScript</span>
+    </div>
+    <p class="muted">Modelo probabilístico novo para conjuntos de 6 números em {1..60}. Foca em detectar micro-vieses; converge ao uniforme se não houver sinal. Fórmulas renderizadas com \(\LaTeX\) e calculadora interativa.</p>
+  </header>
+
+  <div class="wrap">
+    <!-- Lado Esquerdo: Artigo -->
+    <article class="card" id="artigo">
+      <div class="hd"><h2>Artigo — Formulação do HADES-60</h2></div>
+      <div class="bd">
+        <h3>1) Campo de viés espectral</h3>
+        <p>Para cada número \(i\in\{1,\dots,60\}\), definimos um potencial latente
+        \[ f(i)=\alpha_0+\sum_{h=1}^{H}\Big[\alpha_h\cos\!\Big(\tfrac{2\pi h i}{60}\Big)+\beta_h\sin\!\Big(\tfrac{2\pi h i}{60}\Big)\Big]+c_i, \]
+        onde termos senoidais capturam padrões circulares e \(c_i\) (esparso via L1) permite viés por número. Os pesos e probabilidades marginais (antes de impor “sem reposição”) são
+        \[ w_i = e^{f(i)},\qquad p_i = \frac{w_i}{\sum_{j=1}^{60} w_j}. \]
+        Quando não há viés, \(f(i)\to 0\) e \(p_i\) torna-se uniforme.</p>
+        <h3>2) k-DPP inclinada (repulsão + viés)</h3>
+        <p>Para um conjunto \(S\) de 6 números sem repetição, modelamos
+        \[ \mathbb{P}(S)\ \propto\ \det(K_{S})\, \prod_{i\in S} p_i,\quad |S|=6, \]
+        com kernel repulsivo no círculo \(1..60\):
+        \[ K_{ij}=\exp\!\Big(-\frac{d_\circ(i,j)^2}{2\ell^2}\Big)+\varepsilon\,\mathbf{1}\{i=j\}, \]
+        onde \(d_\circ\) é a distância circular. A parte \(\prod p_i\) injeta viés aprendido; \(\det K_S\) evita aglomerados.</p>
+        <h3>3) Probabilidades de inclusão preditivas</h3>
+        <p>Aproximamos as marginais combinando o viés \(p_i\) e uma medida de alavancagem do kernel \(u_i\):
+        \[ m_i \approx u_i\, p_i, \quad \text{com } \; u_i \approx \operatorname{diag}\big((K+\tau I)^{-1}K\big)_i, \]
+        escolhendo \(\tau\) para que \(\sum_i u_i\approx 6\) (cardinalidade alvo).</p>
+        <h3>4) Conjuntos preditivos conformais</h3>
+        <p>Definindo pontuações \( s(i)=-\log m_i \), calibramos um \emph{top-\(k\)} mínimo que cobre (tem pelo menos um acerto) em \(1-\alpha\) dos concursos recentes. Esse \(k\) ajusta o tamanho do conjunto candidato \(\mathcal{C}_\alpha\).</p>
+        <details>
+          <summary><strong>Inferência prática nesta página (resumo numérico)</strong></summary>
+          <p>Usamos um ajuste log-linear (Poisson) com base de Fourier até ordem \(H\) e regularização ridge para \(\alpha_h,\beta_h\). Em seguida, aplicamos limiarização suave (L1) nos resíduos para obter \(c_i\). A seleção do conjunto \(S^*\) usa um <em>greedy MAP</em> submodular que maximiza \(\log\det K_S + \sum_{i\in S}\log p_i\) via atualizações de Cholesky, adequado para \(n=60, k=6\).</p>
+        </details>
+        <div class="sep"></div>
+        <p class="small muted">Aviso honesto: se o sorteio é ideal, não existe vantagem estável sobre escolher números ao acaso. O HADES-60 converge para o uniforme quando não detecta sinal.</p>
+      </div>
+    </article>
+
+    <!-- Lado Direito: Calculadora -->
+    <section class="card" id="calc">
+      <div class="hd"><h2>Calculadora · HADES-60</h2></div>
+      <div class="bd">
+        <h3>Entrada: histórico de concursos</h3>
+        <p class="muted small">Cole concursos anteriores, um por linha, com 6 números (1..60) separados por espaço. Ex.: <span class="mono">01 06 14 22 39 58</span></p>
+        <textarea id="historico" spellcheck="false"></textarea>
+        <div class="row" style="margin-top:8px">
+          <button class="btn" id="btExemplo">Inserir exemplo</button>
+          <span class="pill small">N linhas: <span id="nlin">0</span></span>
+        </div>
+        <div class="sep"></div>
+        <h3>Hiperparâmetros</h3>
+        <div class="grid4">
+          <label>Ordem harmônica H<br><input type="number" id="H" value="6" min="0" max="20"></label>
+          <label>Ridge (Fourier) \(\lambda_{\mathrm{ridge}}\)<br><input type="number" id="lambdaRidge" value="1.0" step="0.1" min="0"></label>
+          <label>L1 (viés por número) \(\lambda_{\mathrm{L1}}\)<br><input type="number" id="lambdaL1" value="0.15" step="0.05" min="0"></label>
+          <label>Decaimento temporal (\(\gamma\))<br><input type="number" id="gamma" value="0.98" step="0.01" min="0.8" max="1"></label>
+        </div>
+        <div class="grid4" style="margin-top:10px">
+          <label>Comprimento \(\ell\) do kernel<br><input type="number" id="ell" value="5" step="0.5" min="0.5" max="30"></label>
+          <label>Jitter \(\varepsilon\) (diag K)<br><input type="number" id="epsK" value="1e-6" step="1e-6"></label>
+          <label>Conformal \(\alpha\)<br><input type="number" id="alpha" value="0.1" step="0.05" min="0.01" max="0.5"></label>
+          <label>Janela calibração (ultimos N)<br><input type="number" id="Ncalib" value="120" step="10" min="12"></label>
+        </div>
+        <div class="row" style="margin-top:12px">
+          <button class="btn primary" id="btAjustar">Ajustar modelo</button>
+          <button class="btn" id="btPalpite">Gerar palpite (k-DPP MAP)</button>
+          <button class="btn" id="btConjunto">Conjunto conformal</button>
+        </div>
+        <div class="sep"></div>
+        <h3>Saídas</h3>
+        <div class="row">
+          <span class="tag">Palpite MAP:</span>
+          <div id="palpite" class="row"></div>
+        </div>
+        <div class="row" style="margin-top:6px">
+          <span class="tag">\(\mathcal{C}_\alpha\) (top-<span id="topk">–</span>):</span>
+          <div id="candidatos" class="row"></div>
+        </div>
+        <div class="sep"></div>
+        <details>
+          <summary><strong>Diagnósticos e probabilidades</strong></summary>
+          <div class="grid">
+            <div>
+              <p class="small muted">Probabilidades marginais \(p_i\) (viés espectral) e inclusões aproximadas \(m_i\):</p>
+              <div id="tabelaProbs" class="out small"></div>
+            </div>
+            <div>
+              <p class="small muted">Logs: </p>
+              <div id="logs" class="out small"></div>
+            </div>
+          </div>
+        </details>
+      </div>
+    </section>
+  </div>
+
+  <section class="footer small">
+    <p><strong>Autor:</strong> Luiz Tiago Wilcke · <span class="muted">Este material é acadêmico/experimental. Loterias podem não apresentar vieses exploráveis; jogue com responsabilidade.</span></p>
+  </section>
+
+  <script>
+  // =============================
+  // Utilidades numéricas básicas
+  // =============================
+  function zeros(n){return Array(n).fill(0)}
+  function argSortDesc(arr){return [...arr.keys()].sort((a,b)=>arr[b]-arr[a])}
+  function sum(arr){return arr.reduce((a,b)=>a+b,0)}
+  function softmax(v){
+    const m=Math.max(...v); const ex=v.map(x=>Math.exp(x-m)); const s=sum(ex);
+    return ex.map(x=>x/s);
+  }
+  function dot(a,b){let s=0; for(let i=0;i<a.length;i++) s+=a[i]*b[i]; return s}
+  function add(a,b){return a.map((x,i)=>x+b[i])}
+  function sub(a,b){return a.map((x,i)=>x-b[i])}
+  function muls(a,c){return a.map(x=>x*c)}
+  function matMul(A,B){const n=A.length, p=A[0].length, m=B[0].length; const C=Array(n).fill(0).map(()=>Array(m).fill(0));
+    for(let i=0;i<n;i++){for(let k=0;k<p;k++){const aik=A[i][k]; if(aik===0) continue; for(let j=0;j<m;j++){C[i][j]+=aik*B[k][j];}}}
+    return C;
+  }
+  function matVec(A,x){const n=A.length, p=A[0].length; const y=Array(n).fill(0); for(let i=0;i<n;i++){let s=0; for(let k=0;k<p;k++) s+=A[i][k]*x[k]; y[i]=s;} return y}
+  function vecMat(x,A){const p=A.length, m=A[0].length; const y=Array(m).fill(0); for(let j=0;j<m;j++){let s=0; for(let k=0;k<p;k++) s+=x[k]*A[k][j]; y[j]=s;} return y}
+  function eye(n){const I=Array(n).fill(0).map(()=>Array(n).fill(0)); for(let i=0;i<n;i++) I[i][i]=1; return I}
+  function transpose(A){const n=A.length, m=A[0].length; const T=Array(m).fill(0).map(()=>Array(n).fill(0)); for(let i=0;i<n;i++){for(let j=0;j<m;j++) T[j][i]=A[i][j]} return T}
+  function cholesky(A){const n=A.length; const L=Array(n).fill(0).map(()=>Array(n).fill(0));
+    for(let i=0;i<n;i++){
+      for(let j=0;j<=i;j++){
+        let s=A[i][j];
+        for(let k=0;k<j;k++) s -= L[i][k]*L[j][k];
+        if(i===j){if(s<=0) return null; L[i][j]=Math.sqrt(s);} else {L[i][j]=s/L[j][j];}
+      }
+    }
+    return L;
+  }
+  function solveCholesky(L,b){ // resolve (LL^T)x=b
+    const n=L.length; const y=Array(n).fill(0), x=Array(n).fill(0);
+    for(let i=0;i<n;i++){let s=b[i]; for(let k=0;k<i;k++) s-=L[i][k]*y[k]; y[i]=s/L[i][i];}
+    for(let i=n-1;i>=0;i--){let s=y[i]; for(let k=i+1;k<n;k++) s-=L[k][i]*x[k]; x[i]=s/L[i][i];}
+    return x;
+  }
+  function invertSPD(A){const L=cholesky(A); if(!L) return null; const n=A.length; const inv=Array(n).fill(0).map(()=>Array(n).fill(0));
+    for(let i=0;i<n;i++){const e=Array(n).fill(0); e[i]=1; const x=solveCholesky(L,e); for(let j=0;j<n;j++) inv[j][i]=x[j];}
+    return inv; // A^{-1}
+  }
+
+  // Distância circular no domínio 1..60 (índices 0..59 nesta implementação)
+  function distCirc(a,b,n=60){const d=Math.abs(a-b); return Math.min(d,n-d)}
+
+  // =============================
+  // Parsing do histórico
+  // =============================
+  function parseHistorico(txt){
+    const linhas = txt.split(/\n+/).map(s=>s.trim()).filter(s=>s.length>0);
+    const concursos = [];
+    for(const ln of linhas){
+      const nums = ln.split(/[^0-9]+/).filter(s=>s.length>0).map(x=>parseInt(x,10));
+      if(nums.length!==6) continue; // ignora linhas inválidas
+      const ok = nums.every(v=>v>=1 && v<=60);
+      if(!ok) continue;
+      const set = Array.from(new Set(nums)); if(set.length!==6) continue;
+      concursos.push(set.map(v=>v-1)); // normaliza para 0..59
+    }
+    return concursos;
+  }
+
+  // =============================
+  // Ajuste do campo f(i) via base de Fourier + Poisson com ridge
+  // =============================
+  function designFourier(n=60, H=6){
+    // Matriz X: n x (1 + 2H)
+    const p = 1 + 2*H; const X = Array(n).fill(0).map(()=>Array(p).fill(0));
+    for(let i=0;i<n;i++){
+      X[i][0]=1; let col=1; for(let h=1; h<=H; h++){
+        const ang = 2*Math.PI*h*(i+1)/60; // i+1 pois números são 1..60
+        X[i][col++] = Math.cos(ang); X[i][col++] = Math.sin(ang);
+      }
+    }
+    return X;
+  }
+
+  function contagensPonderadas(concursos, gamma=0.98){
+    // expoente mais alto para concursos recentes
+    const n=60; const c=Array(n).fill(0);
+    const T = concursos.length;
+    for(let t=0;t<T;t++){
+      const peso = Math.pow(gamma, T-1-t);
+      for(const v of concursos[t]) c[v]+=peso;
+    }
+    return c;
+  }
+
+  function ajustePoissonFourier(c, H, lambdaRidge, lambdaL1){
+    const n=60; const X = designFourier(n,H); const p = X[0].length;
+    // alvo y_i = c_i + 1 (suavização de Laplace)
+    const y = c.map(v=>v+1e-3);
+    // Inicialização: solve ridge linear em log(y)
+    const logy = y.map(v=>Math.log(v));
+    const Xt = transpose(X);
+    const XtX = matMul(Xt,X);
+    for(let j=0;j<p;j++) XtX[j][j]+=lambdaRidge;
+    const Xtlogy = matVec(Xt, logy);
+    let theta = solveLinearSPD(XtX, Xtlogy);
+    if(!theta){ theta = Array(p).fill(0); }
+
+    // Newton (IRLS) poucas iterações
+    for(let it=0; it<8; it++){
+      const f = matVec(X, theta);
+      const mu = f.map(v=>Math.exp(v));
+      const r = mu.map((m,i)=>m - y[i]); // grad no espaço natural (Poisson)
+      const g = matVec(Xt, r); // grad
+      // Hessiano aproximado: X^T diag(mu) X + lambda I
+      const W = mu; // diag
+      const XtWX = Array(p).fill(0).map(()=>Array(p).fill(0));
+      for(let i=0;i<n;i++){
+        const wi = W[i]; const xi = X[i];
+        for(let a=0;a<p;a++){
+          const xia = xi[a]*wi; // pesa linha
+          for(let b=0;b<p;b++) XtWX[a][b]+= xia*xi[b];
+        }
+      }
+      for(let j=0;j<p;j++) XtWX[j][j]+=lambdaRidge;
+      const delta = solveLinearSPD(XtWX, g);
+      if(!delta) break;
+      theta = sub(theta, delta);
+      const step = Math.sqrt(dot(delta,delta));
+      if(step<1e-6) break;
+    }
+
+    // f base
+    let f = matVec(X, theta);
+
+    // Correção esparsa por número via limiarização suave
+    // r_i = log(y_i) - f_i, c_i = soft(r_i, lambdaL1)
+    const rnum = logy.map((v,i)=>v - f[i]);
+    const cnum = rnum.map(v=>Math.sign(v)*Math.max(Math.abs(v)-lambdaL1,0));
+    f = f.map((v,i)=>v + cnum[i]);
+
+    const w = f.map(Math.exp);
+    const pvec = softmax(f);
+    return {f, w, pvec, theta, cnum, H};
+  }
+
+  function solveLinearSPD(A,b){ // tenta Cholesky; se falhar, jitter
+    let L = cholesky(A);
+    if(!L){
+      const n=A.length; const B=A.map(row=>row.slice());
+      for(let i=0;i<n;i++) B[i][i]+=1e-6;
+      L = cholesky(B); if(!L) return null; return solveCholesky(L,b);
+    }
+    return solveCholesky(L,b);
+  }
+
+  // =============================
+  // Kernel K e seleção MAP k-DPP tilted
+  // =============================
+  function kernelK(ell, eps){
+    const n=60; const K=Array(n).fill(0).map(()=>Array(n).fill(0));
+    for(let i=0;i<n;i++){
+      for(let j=0;j<n;j++){
+        const d = distCirc(i,j,60);
+        K[i][j] = Math.exp(-(d*d)/(2*ell*ell));
+      }
+      K[i][i]+=Number(eps);
+    }
+    return K;
+  }
+
+  // Seleção greedy que maximiza logdet(K_S) + sum log p_i
+  function selecionarMAP(K, logp, k=6){
+    const n=K.length; const escol=[]; const usado=Array(n).fill(false);
+    const L=[]; // Cholesky incremental de K_S
+    const indices = [...Array(n).keys()];
+    for(let t=0;t<k;t++){
+      let best=-Infinity, besti=-1, bestRow=null;
+      for(const i of indices){ if(usado[i]) continue; const gain = ganhoLogDet(i, K, L); const sc = gain + logp[i];
+        if(sc>best){best=sc; besti=i; bestRow=null;}
+      }
+      if(besti<0){ // fallback
+        for(let i=0;i<n;i++) if(!usado[i]){besti=i; break}
+      }
+      usado[besti]=true; escol.push(besti);
+      // atualiza Cholesky com i
+      atualizaCholeskyComIndice(L, K, escol);
+    }
+    return escol.sort((a,b)=>a-b);
+  }
+
+  function ganhoLogDet(i, K, L){
+    // Retorna log(Schur) usando fatoração L de K_S atual.
+    if(L.length===0){return Math.log(K[i][i]);}
+    // k_iS: vetor de correlação com os já escolhidos (ordem de L)
+    const S = L.length; const idxSel = L._idxSel || [];
+    const k_iS = idxSel.map(j=>K[i][j]);
+    // resolve L y = k_iS
+    const y = forwardSolve(L, k_iS);
+    // schur = K_ii - y^T y
+    let yt2=0; for(let t=0;t<S;t++) yt2+=y[t]*y[t];
+    const schur = Math.max(1e-12, K[i][i]-yt2);
+    return Math.log(schur);
+  }
+  function forwardSolve(L,b){
+    const n=L.length; const y=Array(n).fill(0);
+    for(let i=0;i<n;i++){let s=b[i]; for(let k=0;k<i;k++) s-=L[i][k]*y[k]; y[i]=s/L[i][i];}
+    return y;
+  }
+  function atualizaCholeskyComIndice(L, K, escol){
+    // Reconstrói incrementalmente a linha/coluna adicionada
+    const m = escol.length; const idx = escol[m-1];
+    if(m===1){ L.length=1; L[0]=[Math.sqrt(K[idx][idx])]; L._idxSel=[idx]; return; }
+    const prev = L._idxSel;
+    const k_s = prev.map(j=>K[idx][j]);
+    // resolve L y = k_s
+    const y = forwardSolve(L, k_s);
+    // schur
+    let yt2=0; for(let t=0;t<y.length;t++) yt2+=y[t]*y[t];
+    const schur = Math.max(1e-12, K[idx][idx]-yt2);
+    const diag = Math.sqrt(schur);
+    // amplia L
+    for(let r=0;r<L.length;r++) L[r].push(0);
+    const nova = y.slice(); nova.push(diag); L.push(nova);
+    L._idxSel = prev.concat([idx]);
+  }
+
+  // =============================
+  // Alavancagem u_i via (K+tau I)^{-1}K e escolha de tau
+  // =============================
+  function diagB_dadoTau(K, tau){
+    const n=K.length; const A = K.map((row,i)=>row.map((v,j)=> v + (i===j? tau:0)));
+    const Ainv = invertSPD(A); if(!Ainv) return null;
+    const B = matMul(Ainv, K);
+    const diag = Array(n).fill(0); for(let i=0;i<n;i++) diag[i]=B[i][i];
+    return diag;
+  }
+  function escolheTauParaSoma6(K){
+    let lo=1e-6, hi=1e3; let dlo=diagB_dadoTau(K,lo), dhi=diagB_dadoTau(K,hi);
+    if(!dlo || !dhi) return {tau:1, diag:diagB_dadoTau(K,1)};
+    for(let it=0; it<40; it++){
+      const mid = Math.sqrt(lo*hi);
+      const dmid = diagB_dadoTau(K, mid); if(!dmid) break;
+      const s = sum(dmid);
+      if(Math.abs(s-6)<1e-4) return {tau:mid, diag:dmid};
+      if(s>6) lo=mid; else hi=mid;
+    }
+    const tau=(lo+hi)/2; return {tau, diag:diagB_dadoTau(K,tau)};
+  }
+
+  // =============================
+  // Conformal: top-k mínimo com cobertura 1-alpha (pelo menos 1 acerto)
+  // =============================
+  function topkConformal(concursos, m, alpha, Njanela){
+    const T = concursos.length; const J = Math.max(1, Math.min(Njanela, T));
+    const ult = concursos.slice(T-J);
+    const ordem = argSortDesc(m); // maiores m primeiro
+    // Pré-computa posição (ranking) de cada número
+    const pos = Array(60).fill(0); for(let r=0;r<60;r++) pos[ordem[r]]=r;
+    // Queremos k mínimo tal que fração>=1-alpha
+    let k=1; let melhor=60;
+    for(k=1;k<=60;k++){
+      let acertos=0;
+      for(const s of ult){ if(s.some(v=>pos[v]<k)) acertos++; }
+      const frac = acertos/ult.length;
+      if(frac >= 1 - alpha){ melhor = k; break; }
+    }
+    return melhor;
+  }
+
+  // =============================
+  // Estado global simples
+  // =============================
+  const estado = {
+    concursos:[], H:6, lambdaRidge:1.0, lambdaL1:0.15, gamma:0.98,
+    ell:5, epsK:1e-6, alpha:0.1, Ncalib:120,
+    p:[], m:[], K:[], logp:[], f:[], u:[], tau:1.0
+  };
+
+  // =============================
+  // UI e ação dos botões
+  // =============================
+  const elHist = document.getElementById('historico');
+  const elNlin = document.getElementById('nlin');
+  const elLogs = document.getElementById('logs');
+  const elTab = document.getElementById('tabelaProbs');
+  function log(msg){ elLogs.textContent += msg+"\n"; elLogs.scrollTop = elLogs.scrollHeight; }
+  function setN(){ elNlin.textContent = parseHistorico(elHist.value).length; }
+  elHist.addEventListener('input', setN);
+  document.getElementById('btExemplo').addEventListener('click', ()=>{
+    // Pequeno histórico artificial (apenas para demonstração UI)
+    const exemplo = `01 06 14 22 39 58\n02 07 15 23 40 59\n03 09 12 24 41 60\n04 10 16 28 36 45\n05 11 17 25 33 55\n08 13 18 27 42 49\n14 19 21 31 44 57\n12 22 27 38 43 54\n01 03 20 29 47 52\n06 16 26 34 48 56\n07 17 24 32 41 50\n05 18 23 35 46 53`;
+    elHist.value = exemplo; setN();
+  });
+
+  function lerHiper(){
+    estado.H = +document.getElementById('H').value;
+    estado.lambdaRidge = +document.getElementById('lambdaRidge').value;
+    estado.lambdaL1 = +document.getElementById('lambdaL1').value;
+    estado.gamma = +document.getElementById('gamma').value;
+    estado.ell = +document.getElementById('ell').value;
+    estado.epsK = +document.getElementById('epsK').value;
+    estado.alpha = +document.getElementById('alpha').value;
+    estado.Ncalib = +document.getElementById('Ncalib').value;
+  }
+
+  function ajustarModelo(){
+    elLogs.textContent="";
+    const concursos = parseHistorico(elHist.value);
+    if(concursos.length===0){ log('Forneça ao menos 1 linha válida de 6 números.'); return; }
+    lerHiper();
+    estado.concursos = concursos;
+    // contagens ponderadas
+    const c = contagensPonderadas(concursos, estado.gamma);
+    log(`Concursos lidos: ${concursos.length}. Soma das contagens ponderadas: ${sum(c).toFixed(3)}`);
+    // ajuste f e p
+    const ajust = ajustePoissonFourier(c, estado.H, estado.lambdaRidge, estado.lambdaL1);
+    estado.f = ajust.f; estado.p = ajust.pvec; const logp= ajust.pvec.map(x=>Math.log(x)); estado.logp = logp;
+    log(`Ajuste Fourier H=${estado.H}.`);
+    // Kernel e u_i
+    estado.K = kernelK(estado.ell, estado.epsK);
+    const {tau, diag} = escolheTauParaSoma6(estado.K);
+    estado.tau = tau; estado.u = diag;
+    // m_i = u_i * p_i e normaliza para soma=6 (opcional)
+    let m = estado.p.map((pi,i)=>pi * Math.max(1e-12, estado.u[i]));
+    const esc = 6/sum(m); m = m.map(x=>x*esc); estado.m = m;
+    log(`Kernel: ell=${estado.ell}, eps=${estado.epsK}. tau≈${tau.toFixed(4)}. Soma u_i≈${sum(estado.u).toFixed(4)}.`);
+    montarTabelaProb();
+  }
+
+  function montarTabelaProb(){
+    if(!estado.p.length) return;
+    const linhas=[]; linhas.push("i  p_i     m_i     f(i)");
+    for(let i=0;i<60;i++){
+      linhas.push(`${(i+1).toString().padStart(2,'0')}  ${estado.p[i].toFixed(4).padStart(6)}  ${estado.m[i].toFixed(4).padStart(6)}  ${estado.f[i].toFixed(3).padStart(6)}`);
+    }
+    elTab.textContent = linhas.join("\n");
+  }
+
+  function mostrarNumeros(el, nums){
+    el.innerHTML = '';
+    nums.sort((a,b)=>a-b).forEach(v=>{
+      const span=document.createElement('span'); span.className='kitem';
+      span.innerHTML = `<span class="num">${(v+1).toString().padStart(2,'0')}</span>`;
+      el.appendChild(span);
+    });
+  }
+
+  document.getElementById('btAjustar').addEventListener('click', ajustarModelo);
+
+  document.getElementById('btPalpite').addEventListener('click', ()=>{
+    if(!estado.p.length){ ajustarModelo(); if(!estado.p.length) return; }
+    const S = selecionarMAP(estado.K, estado.logp, 6);
+    mostrarNumeros(document.getElementById('palpite'), S);
+    log('Palpite MAP (k-DPP tilted) gerado.');
+  });
+
+  document.getElementById('btConjunto').addEventListener('click', ()=>{
+    if(!estado.p.length){ ajustarModelo(); if(!estado.p.length) return; }
+    const k = topkConformal(estado.concursos, estado.m, estado.alpha, estado.Ncalib);
+    document.getElementById('topk').textContent = k;
+    const ord = argSortDesc(estado.m).slice(0,k);
+    mostrarNumeros(document.getElementById('candidatos'), ord);
+    log(`Conjunto conformal calculado com cobertura alvo 1-alpha=${(1-estado.alpha).toFixed(2)}. top-k=${k}`);
+  });
+
+  // Inicial
+  setN();
+  </script>
+</body>
+</html>

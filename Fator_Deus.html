@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Algoritmo de Aleatoriedade para a Existência de Deus — Protótipo Bayesiano</title>
+  <meta name="author" content="Luiz Tiago Wilcke" />
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #111831;
+      --muted: #96a0c7;
+      --text: #f2f4ff;
+      --accent: #7aa2ff;
+      --accent-2: #86efac;
+      --danger: #fda4af;
+      --card: #0f172a;
+      --border: #1f2a44;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica Neue, Arial;
+      color: var(--text); background: radial-gradient(1200px 600px at 10% -10%, #1a2455 0%, transparent 40%), var(--bg);
+      line-height: 1.6; letter-spacing: 0.2px;
+    }
+    header { padding: 32px 20px; text-align: center; }
+    h1 { margin: 0 0 8px; font-weight: 800; font-size: clamp(1.4rem, 1.2rem + 1.5vw, 2.2rem); }
+    .subtitle { color: var(--muted); }
+    main { max-width: 1100px; margin: 0 auto; padding: 0 20px 60px; }
+    .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+    .card { background: linear-gradient(180deg, #0c1431 0, var(--panel) 100%); border: 1px solid var(--border); border-radius: 16px; padding: 16px; box-shadow: 0 10px 30px rgba(0,0,0,.3); }
+    .card h2, .card h3 { margin-top: 0; }
+    label { display: block; font-size: 0.9rem; color: var(--muted); margin-bottom: 6px; }
+    input[type="number"], input[type="range"], input[type="text"] { width: 100%; background: var(--card); border: 1px solid var(--border); color: var(--text); border-radius: 10px; padding: 10px; }
+    input[type="range"] { padding: 0; height: 32px; }
+    .row { display: grid; grid-template-columns: 1fr 110px; gap: 10px; align-items: center; }
+    .hint { font-size: 0.83rem; color: var(--muted); margin-top: 6px; }
+    .btns { display: flex; gap: 12px; flex-wrap: wrap; }
+    button { background: var(--accent); border: 0; color: #09112c; font-weight: 700; padding: 12px 16px; border-radius: 12px; cursor: pointer; }
+    button.secondary { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .results { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); margin-top: 12px; }
+    .k-badge { font-weight: 800; color: #00102a; background: var(--accent-2); padding: 6px 10px; border-radius: 999px; display: inline-block; }
+    .warn { color: var(--danger); font-weight: 700; }
+    details { border: 1px dashed var(--border); border-radius: 12px; padding: 10px 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    code, pre { background: #0b122b; border: 1px solid var(--border); border-radius: 10px; padding: 10px; color: #e6edff; }
+    .footer { text-align: center; color: var(--muted); padding: 24px 10px; font-size: 0.9rem; }
+    .pill { background: #13214a; border: 1px solid var(--border); color: var(--muted); padding: 6px 10px; border-radius: 999px; display: inline-block; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Algoritmo Estocástico-Bayesiano para a Hipótese de Deus</h1>
+    <div class="subtitle">Protótipo interativo: fator de Bayes & posterior por simulação de universos</div>
+    <div class="pill" style="margin-top:10px">Autor: <strong>Luiz Tiago Wilcke</strong></div>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>Ideia central</h2>
+      <p>
+        Representamos duas hipóteses: \(H=\text{“existe Deus”}\) e \(\bar H=\text{“não existe Deus”}\). Para um conjunto de
+        “dados” do nosso mundo \(D\) (vida, ordem inicial, estrutura, relatos extraordinários), estimamos via Monte Carlo a
+        <em>evidência</em> (verossimilhança marginal) \(\mathbb{P}(D\mid H)\) e \(\mathbb{P}(D\mid \bar H)\), e calculamos o
+        <strong>fator de Bayes</strong> \(K=\mathbb{P}(D\mid H)/\mathbb{P}(D\mid \bar H)\). Com um prior \(\mathbb{P}(H)=p_0\),
+        obtemos o posterior:
+      </p>
+      <p style="text-align:center; font-size:1.1rem">
+        \[\mathbb{P}(H\mid D)=\frac{K\,p_0}{K\,p_0+(1-p_0)}.\]
+      </p>
+      <p>
+        O simulador abaixo usa <em>proxies</em> quantitativos para “vida-permissividade”, “baixa entropia inicial”, “complexidade estruturada” e “eventos extraordinários”.
+        Isso <strong>não prova</strong> nada logicamente; é um <em>procedimento comparativo</em> que torna explícitas suas suposições.
+      </p>
+    </section>
+
+    <div class="grid">
+      <section class="card">
+        <h3>Parâmetros gerais</h3>
+        <div class="row">
+          <label for="N">Amostras Monte Carlo (N)</label>
+          <input id="N" type="number" min="200" step="100" value="5000" />
+        </div>
+        <div class="row">
+          <label for="p0">Prior \(p_0=\mathbb{P}(H)\)</label>
+          <input id="p0" type="number" min="0" max="1" step="0.01" value="0.5" />
+        </div>
+        <div class="row">
+          <label for="alpha">Teleologia (\(\alpha\)) — mistura que favorece universos biofílicos sob \(H\)</label>
+          <input id="alpha" type="range" min="0" max="1" step="0.01" value="0.35" />
+        </div>
+        <p class="hint">\(\alpha=0\) torna \(H\) idêntico a \(\bar H\); \(\alpha=1\) maximiza o viés a favor de vida sob \(H\).</p>
+      </section>
+
+      <section class="card">
+        <h3>Pesos do <em>score</em> \(s(D,S)\)</h3>
+        <div class="row"><label for="wL">Peso vida-permissividade \(w_L\)</label><input id="wL" type="number" step="0.1" value="2.0"/></div>
+        <div class="row"><label for="wE">Peso baixa entropia \(w_E\)</label><input id="wE" type="number" step="0.1" value="1.0"/></div>
+        <div class="row"><label for="wC">Peso complexidade \(w_C\)</label><input id="wC" type="number" step="0.1" value="1.2"/></div>
+        <div class="row"><label for="wM">Peso eventos (Poisson) \(w_M\)</label><input id="wM" type="number" step="0.1" value="0.8"/></div>
+        <p class="hint">O score usa \(\sigma(\cdot)\) sobre uma soma de <em>log-verossimilhanças</em> de cada componente.</p>
+      </section>
+
+      <section class="card">
+        <h3>Eventos extraordinários (processo de Poisson)</h3>
+        <div class="row"><label for="nobs">\(N_{obs}\) — contagem observada</label><input id="nobs" type="number" min="0" step="1" value="3"/></div>
+        <div class="row"><label for="lamH">\(\lambda_H\) (média sob \(H\))</label><input id="lamH" type="number" min="0" step="0.1" value="2.0"/></div>
+        <div class="row"><label for="lamN">\(\lambda_{\bar H}\) (média sob \(\bar H\))</label><input id="lamN" type="number" min="0" step="0.1" value="0.5"/></div>
+        <p class="hint">Verossimilhança: \(\mathbb{P}(N_{obs}\mid \lambda)=e^{-\lambda}\,\lambda^{N_{obs}}/N_{obs}!\).</p>
+      </section>
+
+      <section class="card">
+        <h3>Janelas biofílicas (\(\mu\) e \(\sigma\) do alvo)</h3>
+        <p class="hint">Simplificação: 3 <em>constantes adimensionais</em> \(g_1,g_2,g_3\). Valores perto de \(\mu\) tendem a favorecer vida.</p>
+        <div class="row"><label for="mu1">\(\mu_1\)</label><input id="mu1" type="number" step="0.1" value="0.0"/></div>
+        <div class="row"><label for="mu2">\(\mu_2\)</label><input id="mu2" type="number" step="0.1" value="1.0"/></div>
+        <div class="row"><label for="mu3">\(\mu_3\)</label><input id="mu3" type="number" step="0.1" value="-1.0"/></div>
+        <div class="row"><label for="sig">Desvio-alvo \(\sigma\)</label><input id="sig" type="number" step="0.1" value="0.8"/></div>
+      </section>
+    </div>
+
+    <section class="card">
+      <div class="btns">
+        <button id="run">Simular</button>
+        <button id="randomize" class="secondary">Aleatorizar priors</button>
+      </div>
+      <div class="results" id="results" aria-live="polite"></div>
+      <p id="interpret" class="hint"></p>
+    </section>
+
+    <section class="card">
+      <h2>Como o simulador computa \(\mathbb{P}(D\mid H)\) e \(\mathbb{P}(D\mid \bar H)\)</h2>
+      <ol>
+        <li><strong>Espaço de universos.</strong> Parâmetros \(\theta=(g_1,g_2,g_3)\) representam constantes adimensionais (toy model).</li>
+        <li><strong>Priors.</strong>
+          <ul>
+            <li>\(\pi_{\bar H}\): \(g_i\sim\) <em>LogUniform</em> aproximado em \([-3,3]\) (via mistura), sem viés para vida.</li>
+            <li>\(\pi_H\): mistura com peso \(\alpha\) entre \(\pi_{\bar H}\) e um núcleo Gaussiano centrado em \(\mu\) (biofílico).</li>
+          </ul>
+        </li>
+        <li><strong>Componentes de aderência.</strong> Com base em um universo simulado \(S(\theta)\):
+          <ul>
+            <li><em>Vida-permissividade</em> \(L(\theta)\): janela Gaussiana em torno de \(\mu\).</li>
+            <li><em>Baixa entropia inicial</em> \(E(\theta)\): penaliza desvio de “suavidade” agregada.</li>
+            <li><em>Complexidade estruturada</em> \(C(\theta)\): favorece variabilidade moderada (evita caos/estagnação).</li>
+            <li><em>Eventos extraordinários</em>: Poisson com médias \(\lambda_H\) e \(\lambda_{\bar H}\).</li>
+          </ul>
+        </li>
+        <li><strong>Score global.</strong> \(s(D,S)=\sigma\big(w_L\log L+w_E\log E+w_C\log C+w_M\log \mathbb{P}(N_{obs}\mid \lambda)\big)\).</li>
+        <li><strong>Evidência por média.</strong> \(\widehat{\mathbb{P}}(D\mid H)=\frac{1}{N}\sum s_H\), idem para \(\bar H\).</li>
+      </ol>
+      <p class="hint warn">Aviso honesto: os resultados dependem dos <em>proxies</em>, priors e pesos escolhidos. Use análises de sensibilidade.</p>
+    </section>
+
+    <details class="card">
+      <summary>Ver notas matemáticas (equações)</summary>
+      <div>
+        <p><strong>Priors</strong> (toy):</p>
+        <p>\[\pi_{\bar H}(\theta)\propto\prod_{i=1}^3 \big(0.5\,\mathcal U[-3,3]+0.5\,\text{LogUniform}[-3,3]\big).\]</p>
+        <p>\[\pi_H(\theta)= (1-\alpha)\,\pi_{\bar H}(\theta) + \alpha\,\mathcal N(\theta;\,\mu,\,\sigma^2 I).\]</p>
+        <p><strong>Componentes</strong>:</p>
+        <p>Vida-permissividade (janela Gaussiana):\[L(\theta)=\exp\Big(-\tfrac{\lVert\theta-\mu\rVert^2}{2\sigma^2}\Big).\]</p>
+        <p>Baixa entropia (suavidade agregada):\[E(\theta)=\exp\Big(-\tfrac{\sum_i |g_i|}{3}\Big).\]</p>
+        <p>Complexidade estruturada (variância-alvo):\[C(\theta)=\exp\Big(-\tfrac{(\operatorname{std}(\theta)-s_0)^2}{2\tau^2}\Big).\]</p>
+        <p>Poisson: \[\mathbb{P}(N_{obs}\mid\lambda)=e^{-\lambda}\,\frac{\lambda^{N_{obs}}}{N_{obs}!}.\]</p>
+        <p>Score: \[s(D,S)=\sigma\Big(w_L\log(L+\varepsilon)+w_E\log(E+\varepsilon)+w_C\log(C+\varepsilon)+w_M\log(\mathbb{P}(N_{obs}\mid\lambda)+\varepsilon)\Big)\]</p>
+        <p>Posterior: \[\mathbb{P}(H\mid D)=\frac{Kp_0}{Kp_0+(1-p_0)},\quad K=\frac{\mathbb{P}(D\mid H)}{\mathbb{P}(D\mid \bar H)}.\]</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary>Mostrar código-fonte JS</summary>
+      <pre><code id="src"></code></pre>
+    </details>
+
+    <div class="footer">Este é um protótipo conceitual. <em>Autor: Luiz Tiago Wilcke</em>.</div>
+  </main>
+
+  <script>
+    // ========= Utilidades numéricas =========
+    const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+    const eps = 1e-12;
+    const sigmoid = x => 1 / (1 + Math.exp(-x));
+
+    function randn() { // Box-Muller
+      let u = 0, v = 0; while (u === 0) u = Math.random(); while (v === 0) v = Math.random();
+      return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+    }
+
+    function sampleLogUniform(min=-3, max=3) {
+      // amostra em log10 |x| com sinal aleatório; retorna valor em [-10^3, 10^3] "comprimido" via atanh-like
+      const u = Math.random();
+      const mag = Math.pow(10, min + (max - min) * Math.random());
+      const sign = Math.random() < 0.5 ? -1 : 1;
+      // comprimir para faixa moderada usando transformação tanh inversa aproximada
+      const x = sign * Math.log10(mag + 1);
+      return x; // fica tipicamente em ~[-3,3]
+    }
+
+    function samplePrior_notH() {
+      // mistura: 50% uniforme, 50% log-uniform comprimida
+      const mix = () => (Math.random() < 0.5 ? (Math.random()*6 - 3) : sampleLogUniform(-3,3));
+      return [mix(), mix(), mix()];
+    }
+
+    function samplePrior_H(alpha, mu, sigma) {
+      if (Math.random() >= alpha) return samplePrior_notH();
+      return [mu[0] + sigma*randn(), mu[1] + sigma*randn(), mu[2] + sigma*randn()];
+    }
+
+    function norm2(a,b){ let s=0; for(let i=0;i<a.length;i++){ const d=a[i]-b[i]; s+=d*d; } return s; }
+    function stdArr(a){ const m=a.reduce((p,c)=>p+c,0)/a.length; let v=0; for(const x of a){ v+=(x-m)*(x-m); } return Math.sqrt(v/a.length); }
+
+    function L_theta(theta, mu, sigma){ // vida-permissividade
+      const val = Math.exp(- norm2(theta, mu)/(2*sigma*sigma));
+      return clamp(val, eps, 1);
+    }
+    function E_theta(theta){ // baixa entropia: penaliza magnitudes grandes
+      const s = (Math.abs(theta[0]) + Math.abs(theta[1]) + Math.abs(theta[2]))/3;
+      const val = Math.exp(-s);
+      return clamp(val, eps, 1);
+    }
+    function C_theta(theta){ // complexidade estruturada: variância alvo
+      const s0 = 0.9, tau = 0.6;
+      const st = stdArr(theta);
+      const val = Math.exp(- ((st - s0)*(st - s0)) / (2*tau*tau));
+      return clamp(val, eps, 1);
+    }
+
+    function poissonLik(nobs, lambda){
+      lambda = Math.max(lambda, eps);
+      // log P = -lambda + n log lambda - log(n!) ; usamos forma numérica estável
+      const logFact = lgamma(nobs+1);
+      const logp = -lambda + nobs*Math.log(lambda) - logFact;
+      const p = Math.exp(Math.max(-700, Math.min(50, logp))); // limitar under/overflow
+      return clamp(p, eps, 1);
+    }
+
+    function lgamma(z){ // aproximação de Lanczos pequena
+      const g=7; const p=[0.99999999999980993,676.5203681218851,-1259.1392167224028,771.32342877765313,-176.61502916214059,12.507343278686905,-0.13857109526572012,9.9843695780195716e-6,1.5056327351493116e-7];
+      if(z<0.5) return Math.log(Math.PI) - Math.log(Math.sin(Math.PI*z)) - lgamma(1-z);
+      z-=1; let x=p[0]; for(let i=1;i<g+2;i++) x+=p[i]/(z+i);
+      const t=z+g+0.5; return 0.5*Math.log(2*Math.PI)+(z+0.5)*Math.log(t)-t+Math.log(x)-Math.log(z+1);
+    }
+
+    function score(theta, weights, nobs, lam){
+      const [wL,wE,wC,wM] = weights;
+      const L = L_theta(theta, theta.__mu, theta.__sigma);
+      const E = E_theta(theta);
+      const C = C_theta(theta);
+      const PM = poissonLik(nobs, lam);
+      const z = wL*Math.log(L+eps) + wE*Math.log(E+eps) + wC*Math.log(C+eps) + wM*Math.log(PM+eps);
+      return sigmoid(z);
+    }
+
+    function simulate(N, params){
+      const {p0, alpha, mu, sigma, wL,wE,wC,wM, nobs, lamH, lamN} = params;
+      const weights=[wL,wE,wC,wM];
+      let sumH=0, sumN=0;
+
+      for(let k=0;k<N;k++){
+        // H
+        const thH = samplePrior_H(alpha, mu, sigma); thH.__mu = mu; thH.__sigma = sigma;
+        sumH += score(thH, weights, nobs, lamH);
+        // ~H
+        const thN = samplePrior_notH(); thN.__mu = mu; thN.__sigma = sigma;
+        sumN += score(thN, weights, nobs, lamN);
+      }
+      const pDH = sumH / N; const pDN = sumN / N;
+      const K = pDH / Math.max(pDN, eps);
+      const post = (K*p0) / (K*p0 + (1-p0));
+      return {pDH, pDN, K, post};
+    }
+
+    function fmt(x){
+      if (!isFinite(x)) return '∞';
+      if (x===0) return '0';
+      const ax = Math.abs(x);
+      if (ax<1e-3 || ax>1e4) return x.toExponential(3);
+      return x.toFixed(6);
+    }
+
+    function uiValues(){
+      const N = parseInt(document.getElementById('N').value,10) || 5000;
+      const p0 = parseFloat(document.getElementById('p0').value) || 0.5;
+      const alpha = parseFloat(document.getElementById('alpha').value) || 0;
+      const wL = parseFloat(document.getElementById('wL').value)||0;
+      const wE = parseFloat(document.getElementById('wE').value)||0;
+      const wC = parseFloat(document.getElementById('wC').value)||0;
+      const wM = parseFloat(document.getElementById('wM').value)||0;
+      const nobs = parseInt(document.getElementById('nobs').value,10)||0;
+      const lamH = parseFloat(document.getElementById('lamH').value)||0.1;
+      const lamN = parseFloat(document.getElementById('lamN').value)||0.1;
+      const mu = [parseFloat(mu1.value)||0, parseFloat(mu2.value)||0, parseFloat(mu3.value)||0];
+      const sigma = Math.max(1e-3, parseFloat(sig.value)||0.5);
+      return {N,p0,alpha,wL,wE,wC,wM,nobs,lamH,lamN,mu,sigma};
+    }
+
+    function renderResults(out, params){
+      const r = document.getElementById('results');
+      const interp = document.getElementById('interpret');
+      const {pDH,pDN,K,post} = out;
+      r.innerHTML = `
+        <div class="card"><div><strong>\u2113(D|H)</strong><br/><div style="font-size:1.15rem">${fmt(pDH)}</div><div class="hint">Evidência sob H</div></div></div>
+        <div class="card"><div><strong>\u2113(D|\u00acH)</strong><br/><div style="font-size:1.15rem">${fmt(pDN)}</div><div class="hint">Evidência sob não-H</div></div></div>
+        <div class="card"><div><strong>Fator de Bayes K</strong><br/><div class="k-badge">${fmt(K)}</div><div class="hint">K&gt;1 favorece H; K&lt;1 favorece não-H</div></div></div>
+        <div class="card"><div><strong>Posterior P(H|D)</strong><br/><div style="font-size:1.15rem">${fmt(post)}</div><div class="hint">Prior p0=${fmt(params.p0)}</div></div></div>
+      `;
+      let msg = 'Interpretação: ';
+      if (K>10) msg += 'evidência substantiva a favor de H, dado este modelo.';
+      else if (K>3) msg += 'evidência moderada a favor de H.';
+      else if (K>1.0) msg += 'evidência fraca a favor de H.';
+      else if (K>0.33) msg += 'evidência fraca contra H.';
+      else if (K>0.1) msg += 'evidência moderada contra H.';
+      else msg += 'evidência forte contra H.';
+      interp.textContent = msg + ' Lembre-se: isto depende das suposições/priors/pesos.';
+    }
+
+    function randomizePriors(){
+      mu1.value = (Math.random()*2-1).toFixed(1);
+      mu2.value = (Math.random()*2-1).toFixed(1);
+      mu3.value = (Math.random()*2-1).toFixed(1);
+      sig.value = (0.5 + Math.random()*1.2).toFixed(1);
+      alpha.value = (Math.random()).toFixed(2);
+    }
+
+    document.getElementById('run').addEventListener('click', ()=>{
+      const v = uiValues();
+      const out = simulate(v.N, v);
+      renderResults(out, v);
+    });
+
+    document.getElementById('randomize').addEventListener('click', ()=>{
+      randomizePriors();
+    });
+
+    // Exibir JS como código-fonte
+    (function showSource(){
+      const js = document.currentScript.textContent;
+      document.getElementById('src').textContent = js.trim();
+    })();
+  </script>
+</body>
+</html>

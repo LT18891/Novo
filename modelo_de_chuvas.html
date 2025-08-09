@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Modelo Estatístico de Chuvas — Séries Temporais | Autor: Luiz Tiago Wilcke</title>
+  <!-- TailwindCSS (CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- MathJax for equations -->
+  <script>
+    window.MathJax = { tex: {inlineMath: [['$','$'], ['\\(','\\)']]}, svg: {fontCache: 'global'} };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+  <style>
+    html, body { background: #0b1020; color: #e9eef7; }
+    .card { background: linear-gradient(180deg,#121a33,#0e152b); border: 1px solid #1f2b4d; box-shadow: 0 10px 30px rgba(0,0,0,.25); }
+    .muted { color: #9db0d1 }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    .pill { border:1px solid #2b3a66; background:#0d1530; }
+    .link { color:#8fd1ff }
+  </style>
+</head>
+<body class="min-h-screen">
+  <header class="max-w-7xl mx-auto px-4 py-6">
+    <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight">Modelo Estatístico para Chuvas usando Séries Temporais</h1>
+    <p class="muted mt-2">Autor: <span class="font-semibold">Luiz Tiago Wilcke</span> · App demonstrativo em HTML + JavaScript com equações renderizadas (MathJax).</p>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 pb-24 grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <!-- Painel esquerdo: Controles -->
+    <section class="card rounded-2xl p-5 lg:col-span-4 space-y-5">
+      <h2 class="text-xl font-bold">Dados</h2>
+
+      <div class="space-y-2">
+        <label class="text-sm muted">Carregar CSV (duas colunas: <span class="mono">data</span>, <span class="mono">chuva_mm</span>)</label>
+        <input id="arquivoCsv" type="file" accept=".csv" class="block w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-sky-900 file:text-sky-100 hover:file:bg-sky-800" />
+        <p class="text-xs muted">Datas em formato ISO (ex.: 2020-01-01). Série precisa de passo regular (diário ou mensal). Se vazio, use dados sintéticos.</p>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <button id="btnGerarSintetico" class="pill rounded-xl px-3 py-2 hover:bg-slate-800 transition">Gerar dados sintéticos</button>
+        <button id="btnLimpar" class="pill rounded-xl px-3 py-2 hover:bg-slate-800 transition">Limpar dados</button>
+      </div>
+
+      <hr class="border-slate-700"/>
+
+      <h2 class="text-xl font-bold">Configuração do Modelo</h2>
+
+      <div class="space-y-3">
+        <label class="block text-sm">Modelo</label>
+        <select id="seletorModelo" class="pill rounded-xl px-3 py-2 w-full">
+          <option value="snaive">Ingênuo Sazonal</option>
+          <option value="mm">Média Móvel</option>
+          <option value="hw">Holt–Winters (aditivo)</option>
+          <option value="ar">AR(p) via Yule–Walker</option>
+        </select>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm">Horizonte (passos)</label>
+          <input id="horizonte" type="number" min="1" value="24" class="pill rounded-xl px-3 py-2 w-full" />
+        </div>
+        <div>
+          <label class="block text-sm">Tamanho sazonal m</label>
+          <input id="mSazonal" type="number" min="1" value="12" class="pill rounded-xl px-3 py-2 w-full" />
+        </div>
+      </div>
+
+      <div id="paramsMM" class="grid grid-cols-2 gap-4 hidden">
+        <div>
+          <label class="block text-sm">Janela (k)</label>
+          <input id="janelaMM" type="number" min="1" value="3" class="pill rounded-xl px-3 py-2 w-full" />
+        </div>
+      </div>
+
+      <div id="paramsHW" class="grid grid-cols-3 gap-4 hidden">
+        <div>
+          <label class="block text-sm">α</label>
+          <input id="alpha" type="number" min="0" max="1" step="0.01" value="0.3" class="pill rounded-xl px-3 py-2 w-full" />
+        </div>
+        <div>
+          <label class="block text-sm">β</label>
+          <input id="beta" type="number" min="0" max="1" step="0.01" value="0.1" class="pill rounded-xl px-3 py-2 w-full" />
+        </div>
+        <div>
+          <label class="block text-sm">γ</label>
+          <input id="gamma" type="number" min="0" max="1" step="0.01" value="0.2" class="pill rounded-xl px-3 py-2 w-full" />
+        </div>
+      </div>
+
+      <div id="paramsAR" class="grid grid-cols-3 gap-4 hidden">
+        <div>
+          <label class="block text-sm">Ordem p</label>
+          <input id="ordemP" type="number" min="1" max="24" value="6" class="pill rounded-xl px-3 py-2 w-full" />
+        </div>
+        <div>
+          <label class="block text-sm">Box–Cox λ</label>
+          <input id="lambdaBC" type="number" step="0.1" value="0.0" class="pill rounded-xl px-3 py-2 w-full" />
+        </div>
+        <div>
+          <label class="block text-sm">Divisão treino (%)</label>
+          <input id="pctTreino" type="number" min="50" max="95" value="80" class="pill rounded-xl px-3 py-2 w-full" />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mt-2">
+        <button id="btnAjustar" class="pill rounded-xl px-3 py-2 hover:bg-slate-800 transition">Ajustar & Prever</button>
+        <button id="btnExportar" class="pill rounded-xl px-3 py-2 hover:bg-slate-800 transition" disabled>Exportar previsão (CSV)</button>
+      </div>
+
+      <p id="msg" class="text-xs muted"></p>
+    </section>
+
+    <!-- Painel direito: Resultados -->
+    <section class="lg:col-span-8 space-y-6">
+      <div class="card rounded-2xl p-5">
+        <h2 class="text-xl font-bold mb-3">Série e Previsões</h2>
+        <canvas id="graficoSerie" height="120"></canvas>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="card rounded-2xl p-5">
+          <h3 class="text-lg font-semibold mb-2">ACF (Autocorrelação)</h3>
+          <canvas id="graficoACF" height="100"></canvas>
+        </div>
+        <div class="card rounded-2xl p-5">
+          <h3 class="text-lg font-semibold mb-2">PACF (Autocorr. Parcial)</h3>
+          <canvas id="graficoPACF" height="100"></canvas>
+        </div>
+      </div>
+
+      <div class="card rounded-2xl p-5">
+        <h2 class="text-xl font-bold mb-3">Métricas</h2>
+        <div id="metricas" class="text-sm grid grid-cols-1 md:grid-cols-2 gap-2"></div>
+      </div>
+
+      <div class="card rounded-2xl p-5">
+        <h2 class="text-xl font-bold mb-3">Equações do Modelo</h2>
+        <div class="max-w-none text-slate-100 space-y-3">
+          <p><strong>1) Ingênuo sazonal</strong>: $\hat y_{t+h} = y_{t+h-m}$, onde $m$ é a sazonalidade.</p>
+          <p><strong>2) Média Móvel</strong>: $\hat y_t = \dfrac{1}{k} \sum_{i=0}^{k-1} y_{t-i}$.</p>
+          <p><strong>3) Holt\,–\,Winters aditivo</strong> (ETS $A,A,A$):
+            $$\begin{aligned}
+            \ell_t &= \alpha (y_t - s_{t-m}) + (1-\alpha)(\ell_{t-1}+b_{t-1})\\
+            b_t &= \beta (\ell_t - \ell_{t-1}) + (1-\beta) b_{t-1}\\
+            s_t &= \gamma (y_t - \ell_t) + (1-\gamma) s_{t-m}\\
+            \hat y_{t+h} &= \ell_t + h b_t + s_{t-m+((h-1)\;\bmod\; m)+1}
+            \end{aligned}$$
+          </p>
+          <p><strong>4) AR(p) via Yule–Walker</strong>: estimamos $\varphi_1,\ldots,\varphi_p$ resolvendo sistema de Toeplitz $\Gamma\,\varphi = \gamma$, com $\gamma_k = \operatorname{Cov}(y_t, y_{t-k})$. A previsão segue a recursão
+          $$\hat y_{t+1} = \sum_{i=1}^p \varphi_i\, y_{t+1-i}, \quad \hat y_{t+h} = \sum_{i=1}^p \varphi_i\, \hat y_{t+h-i}. $$
+          Opcional: transformação de Box–Cox $y^{(\lambda)} = \dfrac{y^{\lambda}-1}{\lambda}$ (ou $\log y$ para $\lambda=0$); previsões são revertidas via inversa.</p>
+        </div>
+      </div>
+
+      <footer class="text-xs muted text-center">© <span id="ano"></span> — Autor: Luiz Tiago Wilcke. Este app é educativo; valide com dados locais e julgamento técnico.</footer>
+    </section>
+  </main>
+
+  <script>
+    // ------------------ Utilidades ------------------
+    const byId = (id)=>document.getElementById(id);
+    const fmt = new Intl.NumberFormat('pt-BR', {maximumFractionDigits: 3});
+
+    function parseCSV(texto){
+      const linhas = texto.trim().split(/\r?\n/);
+      if(linhas.length === 0) throw new Error('Arquivo vazio.');
+      // Detecta separador pela primeira linha (prefere ; se existir)
+      const sep = linhas[0].includes(';') ? ';' : ',';
+      const cab = linhas[0].split(sep).map(s=>s.trim().toLowerCase());
+      const idxData = cab.indexOf('data');
+      const idxChuva = cab.indexOf('chuva_mm');
+      if(idxData<0 || idxChuva<0) throw new Error('Cabeçalho precisa conter colunas "data" e "chuva_mm"');
+      const datas=[]; const valores=[];
+      for(let i=1;i<linhas.length;i++){
+        if(!linhas[i].trim()) continue;
+        const cols = linhas[i].split(sep);
+        const d = new Date(cols[idxData].trim());
+        const v = parseFloat(String(cols[idxChuva]).replace(',', '.'));
+        if(!isFinite(d.getTime()) || !isFinite(v)) continue;
+        datas.push(d); valores.push(v);
+      }
+      if(valores.length < 3) throw new Error('Poucos registros válidos.');
+      return {datas, valores};
+    }
+
+    // ---------- Autocov/ACF ----------
+    function autocov(y, lag){
+      const n=y.length; if(n===0) return 0;
+      const mu=y.reduce((a,b)=>a+b,0)/n; let s=0;
+      for(let t=lag;t<n;t++) s += (y[t]-mu)*(y[t-lag]-mu);
+      // divisor (n) produz estimativa estável para ACF; evita zero em g0
+      return s/(n);
+    }
+
+    function acf(y, L){
+      const g0 = Math.max(autocov(y,0), 1e-12);
+      const arr=[]; for(let k=0;k<=L;k++){ arr.push(autocov(y,k)/g0); }
+      return arr; // inclui lag 0
+    }
+
+    // ---------- Levinson–Durbin (estável) ----------
+    function levinsonDurbin(r, p){
+      // r[0..p] autocovariâncias, r[0] > 0
+      if(!(Array.isArray(r) && r.length>=p+1)) throw new Error('Autocovariâncias insuficientes.');
+      if(!(r[0]>0)) throw new Error('r[0] não positivo.');
+      const a = new Array(p+1).fill(0); // a[0] = 1 implícito
+      let e = r[0];
+      let kappa = 0;
+      for(let m=1;m<=p;m++){
+        let acc = 0; for(let i=1;i<m;i++) acc += a[i]*r[m-i];
+        kappa = (r[m] - acc)/e;
+        const aNew = a.slice();
+        aNew[m] = kappa;
+        for(let i=1;i<m;i++) aNew[i] = a[i] - kappa*a[m-i];
+        for(let i=1;i<=m;i++) a[i] = aNew[i];
+        e = e*(1 - kappa*kappa) || 1e-12; // evita underflow
+      }
+      const phi = a.slice(1).map(x=>-x); // AR params
+      const sigma2 = e;
+      return {phi, sigma2, kappaLast:kappa};
+    }
+
+    // PACF via Levinson–Durbin (kappa_m = PACF no lag m)
+    function calcularPACF(y, L){
+      const gamma0 = Math.max(autocov(y,0), 1e-12);
+      const pacf = [1];
+      for(let p=1;p<=L;p++){
+        const ac = acf(y, p); // 0..p
+        const r = ac.map(v=>v*gamma0);
+        const {kappaLast} = levinsonDurbin(r, p);
+        pacf.push(kappaLast);
+      }
+      return pacf;
+    }
+
+    // ---------- Box-Cox ----------
+    function boxCox(y, lambda){
+      if(Math.abs(lambda) < 1e-8){ return y.map(v=>Math.log(Math.max(v, 1e-8))); }
+      return y.map(v=> (Math.pow(Math.max(v, 1e-8), lambda)-1)/lambda );
+    }
+    function invBoxCox(ybc, lambda){
+      if(Math.abs(lambda) < 1e-8){ return ybc.map(v=> Math.exp(v)); }
+      return ybc.map(v=> Math.max(0, Math.pow(1 + lambda*v, 1/lambda)) );
+    }
+
+    // ---------- Train/Test ----------
+    function splitTrainTest(y, pctTreino){
+      const n = y.length; const ntr = Math.max(5, Math.floor(n*pctTreino/100));
+      return {ytr: y.slice(0,ntr), yte: y.slice(ntr), ntr};
+    }
+
+    // ---------- Métricas ----------
+    function mae(y, yhat){
+      let s=0; for(let i=0;i<y.length;i++) s += Math.abs(y[i]-yhat[i]);
+      return s/y.length;
+    }
+    function rmse(y, yhat){
+      let s=0; for(let i=0;i<y.length;i++){ const e=y[i]-yhat[i]; s += e*e; }
+      return Math.sqrt(s/y.length);
+    }
+    function smape(y, yhat){
+      let s=0; for(let i=0;i<y.length;i++){
+        const d = Math.abs(yhat[i]-y[i]);
+        const m = (Math.abs(y[i])+Math.abs(yhat[i]))/2;
+        s += m>0? d/m : 0;
+      }
+      return 100*s/y.length;
+    }
+
+    // ------------------ Modelos ------------------
+    function previsaoSNaive(y, m, h){
+      const n=y.length; const fh=[]; if(n<m) throw new Error('Série menor que a sazonalidade m.');
+      for(let i=1;i<=h;i++){ fh.push( y[n - m + ((i-1)%m)] ); }
+      return fh;
+    }
+
+    function mediaMovel(y, k){
+      const n=y.length; const yhat=new Array(n).fill(null);
+      for(let t=k-1;t<n;t++){
+        let s=0; for(let i=0;i<k;i++) s += y[t-i];
+        yhat[t] = s/k;
+      }
+      return yhat;
+    }
+
+    function holtWintersAditivo(y, m, alpha, beta, gamma, h){
+      const n=y.length; if(n < 2*m+2) throw new Error("Poucos dados para inicializar HW; forneça ≥ 2 períodos sazonais.");
+      // Inicialização clássica
+      const temporada1 = y.slice(0,m);
+      const temporada2 = y.slice(m,2*m);
+      const media1 = temporada1.reduce((a,b)=>a+b,0)/m;
+      const media2 = temporada2.reduce((a,b)=>a+b,0)/m;
+      let l = media2; // nível inicial
+      let b = (media2 - media1)/m; // tendência inicial
+      const s = new Array(m);
+      for(let i=0;i<m;i++) s[i] = temporada1[i] - media1; // sazonal aditivo
+
+      let lt=l, bt=b; const st=s.slice();
+      const fitted = new Array(n).fill(null);
+      for(let t=0;t<n;t++){
+        const st_idx = (t % m);
+        const prev_l = lt; const prev_b = bt; const prev_s = st[st_idx];
+        lt = alpha*(y[t] - prev_s) + (1-alpha)*(lt + bt);
+        bt = beta*(lt - prev_l) + (1-beta)*bt;
+        st[st_idx] = gamma*(y[t] - lt) + (1-gamma)*prev_s;
+        fitted[t] = prev_l + prev_b + prev_s; // one-step ahead fitted coerente
+      }
+      const fh=[];
+      for(let i=1;i<=h;i++){
+        const st_idx = ((n + i -1) % m);
+        fh.push( lt + i*bt + st[st_idx] );
+      }
+      return {fitted, forecast: fh};
+    }
+
+    function ajustarAR_YuleWalker(y, p, h){
+      const n=y.length; if(n <= p+5) throw new Error("Poucos dados para AR(p).");
+      const L = Math.max(p, Math.min(40, Math.floor(n/3)));
+      const ac = acf(y, L); // inclui lag 0
+      const gamma0 = Math.max(autocov(y,0), 1e-12);
+      const r = ac.slice(0,p+1).map(v=>v*gamma0);
+      const {phi, sigma2} = levinsonDurbin(r, p);
+      // In-sample fitted (a partir de t=p)
+      const fitted = new Array(n).fill(null);
+      for(let t=p; t<n; t++){
+        let yhat = 0; for(let i=1;i<=p;i++) yhat += phi[i-1]*y[t-i];
+        fitted[t] = yhat;
+      }
+      // Forecast h-passos recursivo
+      const hist = y.slice();
+      const fh=[];
+      for(let step=1; step<=h; step++){
+        const t = hist.length;
+        let yhat = 0; for(let i=1;i<=p;i++) yhat += phi[i-1]*hist[t-i];
+        fh.push(yhat);
+        hist.push(yhat);
+      }
+      return {phi, sigma2, acf: ac, fitted, forecast: fh};
+    }
+
+    // ------------------ Gráficos ------------------
+    let chartSerie=null, chartACF=null, chartPACF=null;
+    function plotSerie(labels, y, fitted, forecast){
+      if(chartSerie) chartSerie.destroy();
+      const dadosObs = {label:'Observado', data:y, borderWidth:2, pointRadius:0, tension:.15};
+      const dadosFit = fitted && fitted.some(v=>v!=null) ? {label:'Ajustado', data:fitted, borderWidth:2, borderDash:[6,6], pointRadius:0, tension:.15} : null;
+      const baseLen = y.length;
+      const futData = new Array(baseLen+forecast.length).fill(null);
+      for(let i=0;i<forecast.length;i++) futData[baseLen+i] = forecast[i];
+      const dadosFut = {label:'Previsão', data:futData, borderWidth:2, pointRadius:0, tension:.1};
+      chartSerie = new Chart(byId('graficoSerie').getContext('2d'),{
+        type:'line',
+        data:{ labels, datasets:[dadosObs, ...(dadosFit?[dadosFit]:[]), dadosFut] },
+        options:{
+          responsive:true,
+          scales:{ x:{ ticks:{ color:'#bcd3ff' } }, y:{ ticks:{ color:'#bcd3ff' } } },
+          plugins:{ legend:{ labels:{ color:'#e9eef7' }}, tooltip:{ enabled:true } }
+        }
+      });
+    }
+
+    function plotBar(where, labels, valores, titulo){
+      if(where==='acf' && chartACF) chartACF.destroy();
+      if(where==='pacf' && chartPACF) chartPACF.destroy();
+      const ctx = where==='acf'? byId('graficoACF').getContext('2d') : byId('graficoPACF').getContext('2d');
+      const chart = new Chart(ctx, {
+        type:'bar',
+        data:{ labels, datasets:[{ label:titulo, data: valores }] },
+        options:{ scales:{ x:{ ticks:{ color:'#bcd3ff' } }, y:{ ticks:{ color:'#bcd3ff' }, min: -1, max: 1 } }, plugins:{ legend:{ labels:{ color:'#e9eef7' } } } }
+      });
+      if(where==='acf') chartACF = chart; else chartPACF = chart;
+    }
+
+    // ------------------ Fluxo principal ------------------
+    let datas=[], y=[], previsaoAtual=[], fittedAtual=[];
+
+    function resetUI(){
+      byId('msg').textContent='';
+      byId('btnExportar').disabled = true;
+      previsaoAtual = []; fittedAtual = [];
+      if(chartSerie) chartSerie.destroy();
+      if(chartACF) chartACF.destroy();
+      if(chartPACF) chartPACF.destroy();
+      byId('metricas').innerHTML='';
+    }
+
+    function atualizarVisibilidadeParams(){
+      const m = byId('seletorModelo').value;
+      byId('paramsMM').classList.toggle('hidden', m!=='mm');
+      byId('paramsHW').classList.toggle('hidden', m!=='hw');
+      byId('paramsAR').classList.toggle('hidden', m!=='ar');
+    }
+
+    byId('seletorModelo').addEventListener('change', atualizarVisibilidadeParams);
+
+    // Gerador sintético simples (chuvas mensais): componente sazonal + ruído gama
+    function LCG(seed){ let s=seed>>>0; return ()=> (s = (1664525*s + 1013904223)>>>0) / 0xffffffff; }
+    function gerarSintetico(n=120, m=12, seed=42){
+      const rand = LCG(seed);
+      datas=[]; y=[];
+      const inicio = new Date('2015-01-01T00:00:00Z');
+      const saz = [...Array(m)].map((_,i)=> 50 + 80*Math.max(0, Math.sin( (i+1)/m*2*Math.PI )) );
+      let d = new Date(inicio);
+      for(let t=0;t<n;t++){
+        const idx = t % m;
+        // ruído gama aproximado via soma de expoenciais (k=2)
+        const e1 = -Math.log(1-Math.max(1e-12, rand()));
+        const e2 = -Math.log(1-Math.max(1e-12, rand()));
+        const ruido = 10*(e1+e2);
+        const valor = Math.max(0, saz[idx] + ruido - 10);
+        y.push(valor);
+        datas.push(new Date(d));
+        d.setUTCMonth(d.getUTCMonth()+1);
+      }
+    }
+
+    function construirLabelsFut(datas, h){
+      if(datas.length===0) return [];
+      const ultimo = new Date(datas[datas.length-1]);
+      const labels = datas.map(d=> d.toISOString().slice(0,10));
+      const dtDias = (datas.length>=2) ? ( (datas[datas.length-1]-datas[datas.length-2])/(1000*3600*24) ) : 30;
+      const fut = [];
+      const d = new Date(ultimo);
+      for(let i=0;i<h;i++){
+        if(dtDias>28) d.setUTCMonth(d.getUTCMonth()+1); else d.setUTCDate(d.getUTCDate()+1);
+        fut.push(d.toISOString().slice(0,10));
+      }
+      return labels.concat(fut);
+    }
+
+    function atualizarMetricas(ytrue, yhat){
+      const container = byId('metricas');
+      if(!ytrue || !ytrue.length) { container.innerHTML = '<p class="muted">Sem conjunto de teste para métricas.</p>'; return; }
+      const m1 = mae(ytrue, yhat), m2 = rmse(ytrue, yhat), m3 = smape(ytrue, yhat);
+      container.innerHTML = `
+        <div class="pill rounded-xl px-3 py-2">MAE: <strong>${fmt.format(m1)}</strong></div>
+        <div class="pill rounded-xl px-3 py-2">RMSE: <strong>${fmt.format(m2)}</strong></div>
+        <div class="pill rounded-xl px-3 py-2">sMAPE: <strong>${fmt.format(m3)}%</strong></div>
+      `;
+    }
+
+    function exportarCSV(labels, observ, fitted, forecast){
+      const linhas = ["data,observado,ajustado,previsao"];
+      const n = labels.length; const nobs = observ.length;
+      for(let i=0;i<n;i++){
+        const d = labels[i];
+        const o = i<nobs? observ[i] : '';
+        const f = (i<nobs && fitted && fitted[i]!=null)? fitted[i] : '';
+        const p = (i>=nobs)? forecast[i-nobs] : '';
+        linhas.push([d,o,f,p].join(','));
+      }
+      const blob = new Blob([linhas.join('\n')], {type:'text/csv;charset=utf-8;'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href=url; a.download='previsao_chuva.csv'; a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // Eventos UI
+    byId('arquivoCsv').addEventListener('change', async (ev)=>{
+      if(!ev.target.files.length) return; resetUI();
+      const file = ev.target.files[0];
+      const txt = await file.text();
+      try{
+        const r = parseCSV(txt);
+        datas = r.datas; y = r.valores;
+        byId('msg').textContent = `Carregados ${y.length} registros.`;
+      }catch(e){ byId('msg').textContent = 'Erro: '+e.message; }
+    });
+
+    byId('btnGerarSintetico').addEventListener('click', ()=>{ resetUI(); gerarSintetico(); byId('msg').textContent = `Dados sintéticos gerados: ${y.length} pontos.`; });
+    byId('btnLimpar').addEventListener('click', ()=>{ resetUI(); datas=[]; y=[]; byId('arquivoCsv').value=''; byId('msg').textContent='Dados limpos.'; });
+
+    byId('btnAjustar').addEventListener('click', ()=>{
+      try{
+        if(!y.length) gerarSintetico();
+        atualizarVisibilidadeParams();
+        const modelo = byId('seletorModelo').value;
+        const h = Math.max(1, parseInt(byId('horizonte').value));
+        const m = Math.max(1, parseInt(byId('mSazonal').value));
+
+        let fitted=null, forecast=[];
+        let ytr=[], yte=[], ntr=0;
+
+        if(modelo==='mm'){
+          const k = Math.max(1, parseInt(byId('janelaMM').value));
+          fitted = mediaMovel(y, k);
+          forecast = previsaoSNaive(y, m, h); // fora da amostra: sazonalidade simples
+        } else if(modelo==='hw'){
+          const alpha = parseFloat(byId('alpha').value);
+          const beta = parseFloat(byId('beta').value);
+          const gamma = parseFloat(byId('gamma').value);
+          const r = holtWintersAditivo(y, m, alpha, beta, gamma, h);
+          fitted = r.fitted; forecast = r.forecast;
+        } else if(modelo==='ar'){
+          const p = Math.max(1, parseInt(byId('ordemP').value));
+          const lambda = parseFloat(byId('lambdaBC').value);
+          const pct = Math.max(50, Math.min(95, parseInt(byId('pctTreino').value)));
+          const {ytr: ytr0, yte: yte0, ntr: ntr0} = splitTrainTest(y, pct);
+          ntr=ntr0; ytr = ytr0; yte = yte0;
+          const ybc_tr = boxCox(ytr, lambda);
+          const ajuste = ajustarAR_YuleWalker(ybc_tr, p, h + yte.length);
+          const fitted_tr = ajuste.fitted; // length = ntr (com nulls início)
+          // Back-transform
+          const fitted_tr_bt = new Array(ytr.length).fill(null);
+          for(let i=0;i<ytr.length;i++) if(fitted_tr[i]!=null) fitted_tr_bt[i] = invBoxCox([fitted_tr[i]], lambda)[0];
+          // Forecast para teste + futuro
+          const fh_bc = ajuste.forecast; // length = h + yte.length
+          const fh_bt = invBoxCox(fh_bc, lambda);
+          // Reconstrução do fitted total (treino + teste via previsões 1-pass à frente)
+          fitted = new Array(y.length).fill(null);
+          for(let i=0;i<ytr.length;i++) fitted[i]=fitted_tr_bt[i];
+          const passoTeste = fh_bt.slice(0, yte.length);
+          for(let j=0;j<yte.length;j++) fitted[ntr+j] = passoTeste[j];
+          forecast = fh_bt.slice(yte.length);
+        } else { // sazonal ingênuo
+          forecast = previsaoSNaive(y, m, h);
+        }
+
+        // Labels & gráficos
+        const labels = construirLabelsFut(datas, h);
+        const L = Math.min(36, Math.floor(y.length/2));
+        const ac = acf(y, L); const pc = calcularPACF(y, L);
+        plotSerie(labels, y, fitted, forecast);
+        plotBar('acf', Array.from({length:L+1}, (_,i)=>String(i)), ac, 'ACF');
+        plotBar('pacf', Array.from({length:L+1}, (_,i)=>String(i)), pc, 'PACF');
+
+        // Métricas (se houver teste)
+        if(modelo==='ar'){
+          const ytrue = y.slice(ntr);
+          const yhat  = fitted.slice(ntr, ntr + ytrue.length);
+          atualizarMetricas(ytrue, yhat);
+        } else {
+          byId('metricas').innerHTML = '<p class="muted">Métricas exibidas quando o modelo usa divisão treino/teste (AR(p)).</p>'
+        }
+
+        previsaoAtual = forecast; fittedAtual = fitted;
+        byId('btnExportar').disabled = false;
+        byId('msg').textContent = 'Ajuste concluído.';
+      } catch(err){ byId('msg').textContent = 'Erro: ' + err.message; console.error(err); }
+    });
+
+    byId('btnExportar').addEventListener('click', ()=>{
+      const labels = construirLabelsFut(datas, previsaoAtual.length);
+      exportarCSV(labels, y, fittedAtual, previsaoAtual);
+    });
+
+    // Init
+    atualizarVisibilidadeParams(); gerarSintetico();
+    byId('ano').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>

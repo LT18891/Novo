@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Modelo Sofisticado de Aquecimento Global — Autor: Luiz Tiago Wilcke</title>
+
+<!-- TailwindCSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- MathJax -->
+<script>
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$','$'],['\\(','\\)']],
+      displayMath: [['$$','$$']],
+      packages: {'[+]':['noerrors','noundefined','ams']}
+    },
+    svg: { fontCache: 'global', scale: 1.35 }
+  };
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+<style>
+  html,body{background:#0b1020;color:#e9eef7}
+  .card{background:linear-gradient(180deg,#121a33 0%, #0f1938 100%); border:1px solid #203055}
+  .kbd{border:1px solid #334; padding:.15rem .35rem; border-radius:.35rem; font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;}
+  .eq{font-size:1.05rem}
+  .mj-large .mjx-container{font-size: 140% !important;}
+  .grid-cols-fit{grid-template-columns: repeat(auto-fit,minmax(260px,1fr));}
+</style>
+</head>
+<body class="min-h-screen">
+  <header class="p-6 pb-2">
+    <h1 class="text-2xl sm:text-3xl font-semibold">Modelo Sofisticado de Aquecimento Global</h1>
+    <p class="opacity-80">Autor: <span class="font-semibold">Luiz Tiago Wilcke</span></p>
+  </header>
+
+  <main class="p-6 pt-2 space-y-6">
+    <!-- Equações -->
+    <section class="card rounded-2xl p-5 space-y-4">
+      <h2 class="text-xl font-semibold">Equações do Modelo</h2>
+
+      <div class="grid gap-6 md:grid-cols-2">
+        <div class="space-y-3 mj-large">
+          <h3 class="font-semibold">1) Balanço de Energia — 2 Caixas</h3>
+          <div class="eq">$$
+          C_1 \\,\\frac{dT_s}{dt} = F(t) - \lambda(T_s)\,T_s - \kappa (T_s - T_d)
+          $$</div>
+          <div class="eq">$$
+          C_2 \\,\\frac{dT_d}{dt} = \kappa (T_s - T_d)
+          $$</div>
+          <div class="eq">$$
+          \lambda(T_s) = \lambda_0 - \lambda_{wv}\,T_s \quad\text{(feedback vapor/lapse-rate)}
+          $$</div>
+          <p class="text-sm opacity-80">Onde $T_s$ é a anomalia de temperatura da superfície e $T_d$ do oceano profundo; $C_1,C_2$ capacidades térmicas; $\kappa$ o acoplamento; $\lambda$ a retroalimentação efetiva.</p>
+        </div>
+
+        <div class="space-y-3 mj-large">
+          <h3 class="font-semibold">2) Forçante Radiativa Total</h3>
+          <div class="eq">$$
+          F(t)=F_{CO_2}+F_{CH_4}+F_{N_2O}+F_{aer}+F_{sol}+F_{volc}+F_{alb}(T_s)
+          $$</div>
+          <div class="eq">$$
+          F_{CO_2}=5.35\,\ln\!\left(\frac{C_a}{C_{a0}}\right),\quad
+          F_{CH_4}=0.036\left(\sqrt{M}-\sqrt{M_0}\right),\quad
+          F_{N_2O}=0.12\left(\sqrt{N}-\sqrt{N_0}\right)
+          $$</div>
+          <div class="eq">$$
+          F_{aer}=-\phi_{a}\,E_{aer}(t),\quad
+          F_{sol}=\Delta \mathrm{TSI}(t)\frac{(1-\alpha)}{4},\quad
+          F_{alb}(T_s)=-\beta_{alb}\,\Delta \alpha(T_s),\ \ \Delta\alpha=\gamma_{alb}\,T_s
+          $$</div>
+          <p class="text-sm opacity-80">Constantes padrão: $C_{a0}{=}278$ ppm, $M_0{=}722$ ppb, $N_0{=}270$ ppb (pré-industrial). $F_{2xCO_2}\approx 3.71$ W/m².</p>
+        </div>
+      </div>
+
+      <div class="grid gap-6 md:grid-cols-2">
+        <div class="space-y-3 mj-large">
+          <h3 class="font-semibold">3) Ciclo do Carbono — 3 Caixas (atm/upper/deep)</h3>
+          <div class="eq">$$
+          \begin{aligned}
+          \frac{dC_a}{dt}&= \epsilon_{CO_2}(t) - k_1 C_a + k_2 C_u,\\\\
+          \frac{dC_u}{dt}&= k_1 C_a - (k_2{+}k_3) C_u + k_4 C_d,\\\\
+          \frac{dC_d}{dt}&= k_3 C_u - k_4 C_d.
+          \end{aligned}
+          $$</div>
+          <p class="text-sm opacity-80">$\epsilon_{CO_2}(t)$ representa emissões convertidas em ppm/ano; $k_i$ calibram a fração aérea e trocas com os reservatórios.</p>
+        </div>
+
+        <div class="space-y-3 mj-large">
+          <h3 class="font-semibold">4) Metano e Óxido Nitroso</h3>
+          <div class="eq">$$
+          \frac{dM}{dt}=\epsilon_{CH_4}(t)-\frac{M-M_{nat}}{\tau_{CH_4}},\qquad
+          \frac{dN}{dt}=\epsilon_{N_2O}(t)-\frac{N-N_{nat}}{\tau_{N_2O}}.
+          $$</div>
+          <p class="text-sm opacity-80">$M_{nat},N_{nat}$ são níveis naturais; $\tau$ são tempos de vida efetivos.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Controles -->
+    <section class="card rounded-2xl p-5 space-y-4">
+      <h2 class="text-xl font-semibold">Parâmetros e Cenários</h2>
+
+      <div class="grid grid-cols-fit gap-4">
+        <div class="p-3 rounded-xl bg-[#0d1533] space-y-2">
+          <h3 class="font-semibold">Horizonte & Integração</h3>
+          <label class="block text-sm">Ano inicial
+            <input id="ano0" type="number" class="mt-1 w-full kbd bg-transparent" value="1850">
+          </label>
+          <label class="block text-sm">Ano final
+            <input id="ano1" type="number" class="mt-1 w-full kbd bg-transparent" value="2100">
+          </label>
+          <label class="block text-sm">Passo (anos)
+            <input id="dt" type="number" step="0.01" class="mt-1 w-full kbd bg-transparent" value="0.1">
+          </label>
+          <p class="text-xs opacity-70">Integração RK4 estável até ~0,25 ano.</p>
+        </div>
+
+        <div class="p-3 rounded-xl bg-[#0d1533] space-y-2">
+          <h3 class="font-semibold">Energia (EBM)</h3>
+          <label class="block text-sm">C1 (W·ano·m⁻²·K⁻¹)
+            <input id="C1" type="number" step="0.1" class="mt-1 w-full kbd bg-transparent" value="8.0">
+          </label>
+          <label class="block text-sm">C2 (W·ano·m⁻²·K⁻¹)
+            <input id="C2" type="number" step="1" class="mt-1 w-full kbd bg-transparent" value="100.0">
+          </label>
+          <label class="block text-sm">λ₀ (W·m⁻²·K⁻¹)
+            <input id="lambda0" type="number" step="0.01" class="mt-1 w-full kbd bg-transparent" value="1.15">
+          </label>
+          <label class="block text-sm">λ<sub>wv</sub> (W·m⁻²·K⁻²)
+            <input id="lambda_wv" type="number" step="0.01" class="mt-1 w-full kbd bg-transparent" value="0.05">
+          </label>
+          <label class="block text-sm">κ (W·m⁻²·K⁻¹)
+            <input id="kappa" type="number" step="0.05" class="mt-1 w-full kbd bg-transparent" value="0.7">
+          </label>
+        </div>
+
+        <div class="p-3 rounded-xl bg-[#0d1533] space-y-2">
+          <h3 class="font-semibold">Ciclo do Carbono</h3>
+          <label class="block text-sm">k₁ (ano⁻¹)
+            <input id="k1" type="number" step="0.001" class="mt-1 w-full kbd bg-transparent" value="0.06">
+          </label>
+          <label class="block text-sm">k₂ (ano⁻¹)
+            <input id="k2" type="number" step="0.001" class="mt-1 w-full kbd bg-transparent" value="0.02">
+          </label>
+          <label class="block text-sm">k₃ (ano⁻¹)
+            <input id="k3" type="number" step="0.001" class="mt-1 w-full kbd bg-transparent" value="0.01">
+          </label>
+          <label class="block text-sm">k₄ (ano⁻¹)
+            <input id="k4" type="number" step="0.001" class="mt-1 w-full kbd bg-transparent" value="0.002">
+          </label>
+        </div>
+
+        <div class="p-3 rounded-xl bg-[#0d1533] space-y-2">
+          <h3 class="font-semibold">Metano / N₂O</h3>
+          <label class="block text-sm">τ<sub>CH₄</sub> (anos)
+            <input id="tau_ch4" type="number" step="0.5" class="mt-1 w-full kbd bg-transparent" value="12">
+          </label>
+          <label class="block text-sm">τ<sub>N₂O</sub> (anos)
+            <input id="tau_n2o" type="number" step="1" class="mt-1 w-full kbd bg-transparent" value="115">
+          </label>
+          <label class="block text-sm">Nível natural CH₄ (ppb)
+            <input id="Mnat" type="number" step="1" class="mt-1 w-full kbd bg-transparent" value="700">
+          </label>
+          <label class="block text-sm">Nível natural N₂O (ppb)
+            <input id="Nnat" type="number" step="1" class="mt-1 w-full kbd bg-transparent" value="270">
+          </label>
+        </div>
+
+        <div class="p-3 rounded-xl bg-[#0d1533] space-y-2">
+          <h3 class="font-semibold">Albedo & Solar</h3>
+          <label class="block text-sm">α<sub>0</sub> (médio)
+            <input id="alpha0" type="number" step="0.01" class="mt-1 w-full kbd bg-transparent" value="0.30">
+          </label>
+          <label class="block text-sm">γ<sub>alb</sub> (Δα por K)
+            <input id="gamma_alb" type="number" step="0.001" class="mt-1 w-full kbd bg-transparent" value="0.005">
+          </label>
+          <label class="block text-sm">β<sub>alb</sub> (W·m⁻² por Δα)
+            <input id="beta_alb" type="number" step="1" class="mt-1 w-full kbd bg-transparent" value="340">
+          </label>
+          <label class="block text-sm">Amplitude TSI (W·m⁻²)
+            <input id="A_solar" type="number" step="0.1" class="mt-1 w-full kbd bg-transparent" value="0.2">
+          </label>
+          <label class="block text-sm">Período solar (anos)
+            <input id="P_solar" type="number" step="0.1" class="mt-1 w-full kbd bg-transparent" value="11">
+          </label>
+        </div>
+
+        <div class="p-3 rounded-xl bg-[#0d1533] space-y-2">
+          <h3 class="font-semibold">Aerosóis & Vulcões</h3>
+          <label class="block text-sm">Força aerossol φ<sub>a</sub> (W·m⁻² por unidade)
+            <input id="phi_a" type="number" step="0.05" class="mt-1 w-full kbd bg-transparent" value="0.6">
+          </label>
+          <label class="block text-sm">Nível base aerossol
+            <input id="aer_base" type="number" step="0.1" class="mt-1 w-full kbd bg-transparent" value="1.0">
+          </label>
+          <label class="block text-sm">Pulso vulcânico (W·m⁻², pico)
+            <input id="volc_pulse" type="number" step="0.1" class="mt-1 w-full kbd bg-transparent" value="-2.5">
+          </label>
+          <label class="block text-sm">Ano do pulso vulcânico
+            <input id="volc_year" type="number" class="mt-1 w-full kbd bg-transparent" value="1991">
+          </label>
+          <label class="block text-sm">Duração e-fold (anos)
+            <input id="volc_tau" type="number" step="0.1" class="mt-1 w-full kbd bg-transparent" value="1.0">
+          </label>
+        </div>
+
+        <div class="p-3 rounded-xl bg-[#0d1533] space-y-2">
+          <h3 class="font-semibold">Condições Iniciais</h3>
+          <label class="block text-sm">CO₂ atm inicial (ppm)
+            <input id="C0" type="number" class="mt-1 w-full kbd bg-transparent" value="278">
+          </label>
+          <label class="block text-sm">CH₄ inicial (ppb)
+            <input id="M0" type="number" class="mt-1 w-full kbd bg-transparent" value="722">
+          </label>
+          <label class="block text-sm">N₂O inicial (ppb)
+            <input id="N0" type="number" class="mt-1 w-full kbd bg-transparent" value="270">
+          </label>
+          <label class="block text-sm">T<sub>s</sub> inicial (K)
+            <input id="Ts0" type="number" step="0.01" class="mt-1 w-full kbd bg-transparent" value="0.0">
+          </label>
+          <label class="block text-sm">T<sub>d</sub> inicial (K)
+            <input id="Td0" type="number" step="0.01" class="mt-1 w-full kbd bg-transparent" value="0.0">
+          </label>
+        </div>
+
+        <div class="p-3 rounded-xl bg-[#0d1533] space-y-2">
+          <h3 class="font-semibold">Cenário de Emissões (editável)</h3>
+          <p class="text-xs opacity-80">Unidades: CO₂ (GtCO₂/ano), CH₄ & N₂O (ppb/ano eq.). Formato: "ano:valor, ano:valor, ...". Interpola linearmente.</p>
+          <label class="block text-sm">CO₂ emissões
+            <textarea id="path_co2" rows="4" class="mt-1 w-full kbd bg-transparent">1850:2, 1900:4, 1950:10, 1980:20, 2000:30, 2025:40, 2035:42, 2050:30, 2075:15, 2100:5</textarea>
+          </label>
+          <label class="block text-sm">CH₄ emissões
+            <textarea id="path_ch4" rows="2" class="mt-1 w-full kbd bg-transparent">1850:0, 1950:5, 2000:10, 2025:12, 2050:8, 2100:4</textarea>
+          </label>
+          <label class="block text-sm">N₂O emissões
+            <textarea id="path_n2o" rows="2" class="mt-1 w-full kbd bg-transparent">1850:0, 1950:1.0, 2000:1.8, 2025:2.2, 2050:1.8, 2100:1.0</textarea>
+          </label>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-3">
+        <button id="btnRun" class="px-4 py-2 rounded-xl bg-blue-500 hover:bg-blue-600 font-semibold">Calcular</button>
+        <button id="btnReset" class="px-4 py-2 rounded-xl bg-slate-600 hover:bg-slate-700 font-semibold">Valores padrão</button>
+        <span class="text-xs opacity-70">Atalhos: <span class="kbd">R</span> para calcular</span>
+      </div>
+    </section>
+
+    <!-- Resultados numéricos -->
+    <section class="card rounded-2xl p-5 space-y-3">
+      <h2 class="text-xl font-semibold">Resultados Numéricos</h2>
+      <div id="resumo" class="text-sm grid gap-2 sm:grid-cols-2 lg:grid-cols-3"></div>
+    </section>
+
+    <!-- Gráficos -->
+    <section class="grid gap-6 md:grid-cols-2">
+      <div class="card rounded-2xl p-5">
+        <h3 class="font-semibold mb-2">Temperaturas (T<sub>s</sub>, T<sub>d</sub>)</h3>
+        <canvas id="chartT" height="140"></canvas>
+      </div>
+      <div class="card rounded-2xl p-5">
+        <h3 class="font-semibold mb-2">Forçantes Radiativas</h3>
+        <canvas id="chartF" height="140"></canvas>
+      </div>
+      <div class="card rounded-2xl p-5">
+        <h3 class="font-semibold mb-2">Concentrações (CO₂ ppm, CH₄/N₂O ppb)</h3>
+        <canvas id="chartC" height="140"></canvas>
+      </div>
+      <div class="card rounded-2xl p-5">
+        <h3 class="font-semibold mb-2">Emissões & Aerossóis</h3>
+        <canvas id="chartE" height="140"></canvas>
+      </div>
+    </section>
+
+    <footer class="opacity-70 text-xs text-center py-6">
+      Feito 100% em JavaScript. Ajuste parâmetros para explorar cenários.
+    </footer>
+  </main>
+
+<script>
+// ---------- Utilidades ----------
+const clamp = (x,a,b)=>Math.max(a,Math.min(b,x));
+function parsePath(str){
+  // "ano:valor, ano:valor" -> array sorted
+  const pts = [];
+  str.split(',').forEach(tok=>{
+    const [y,v] = tok.split(':').map(s=>s.trim());
+    if(!isNaN(+y) && !isNaN(+v)) pts.push([+y,+v]);
+  });
+  pts.sort((a,b)=>a[0]-b[0]);
+  return pts;
+}
+function piecewiseLinear(pts){
+  if(pts.length===0) return (t)=>0;
+  return (t)=>{
+    if(t<=pts[0][0]) return pts[0][1];
+    if(t>=pts[pts.length-1][0]) return pts[pts.length-1][1];
+    for(let i=0;i<pts.length-1;i++){
+      const [x0,y0]=pts[i], [x1,y1]=pts[i+1];
+      if(t>=x0 && t<=x1){
+        const u=(t-x0)/(x1-x0);
+        return y0*(1-u)+y1*u;
+      }
+    }
+    return 0;
+  }
+}
+
+// Conversões CO2: 1 ppm CO2 ~ 2.12 GtC ~ 7.77 GtCO2
+const GtCO2_per_ppm = 7.77;
+
+// ---------- Integração RK4 ----------
+function rk4_step(state, derivs, t, dt, params){
+  const k1 = derivs(state, t, params);
+  const s2 = state.map((v,i)=>v + 0.5*dt*k1[i]);
+  const k2 = derivs(s2, t+0.5*dt, params);
+  const s3 = state.map((v,i)=>v + 0.5*dt*k2[i]);
+  const k3 = derivs(s3, t+0.5*dt, params);
+  const s4 = state.map((v,i)=>v + dt*k3[i]);
+  const k4 = derivs(s4, t+dt, params);
+  return state.map((v,i)=>v + dt*(k1[i]+2*k2[i]+2*k3[i]+k4[i])/6);
+}
+
+// ---------- Modelo ----------
+function runModel(){
+  // Ler parâmetros
+  const ano0 = +document.getElementById('ano0').value;
+  const ano1 = +document.getElementById('ano1').value;
+  const dt   = +document.getElementById('dt').value;
+
+  const C1 = +document.getElementById('C1').value;
+  const C2 = +document.getElementById('C2').value;
+  const lambda0  = +document.getElementById('lambda0').value;
+  const lambda_wv= +document.getElementById('lambda_wv').value;
+  const kappa    = +document.getElementById('kappa').value;
+
+  const k1 = +document.getElementById('k1').value;
+  const k2 = +document.getElementById('k2').value;
+  const k3 = +document.getElementById('k3').value;
+  const k4 = +document.getElementById('k4').value;
+
+  const tau_ch4 = +document.getElementById('tau_ch4').value;
+  const tau_n2o = +document.getElementById('tau_n2o').value;
+  const Mnat    = +document.getElementById('Mnat').value;
+  const Nnat    = +document.getElementById('Nnat').value;
+
+  const alpha0 = +document.getElementById('alpha0').value;
+  const gamma_alb = +document.getElementById('gamma_alb').value;
+  const beta_alb  = +document.getElementById('beta_alb').value;
+  const A_solar = +document.getElementById('A_solar').value;
+  const P_solar = +document.getElementById('P_solar').value;
+
+  const phi_a = +document.getElementById('phi_a').value;
+  const aer_base = +document.getElementById('aer_base').value;
+  const volc_pulse = +document.getElementById('volc_pulse').value;
+  const volc_year  = +document.getElementById('volc_year').value;
+  const volc_tau   = +document.getElementById('volc_tau').value;
+
+  const C0 = +document.getElementById('C0').value;
+  const M0 = +document.getElementById('M0').value;
+  const N0 = +document.getElementById('N0').value;
+  const Ts0= +document.getElementById('Ts0').value;
+  const Td0= +document.getElementById('Td0').value;
+
+  const fCO2 = piecewiseLinear(parsePath(document.getElementById('path_co2').value)); // GtCO2/yr
+  const fCH4 = piecewiseLinear(parsePath(document.getElementById('path_ch4').value)); // ppb/yr (eq)
+  const fN2O = piecewiseLinear(parsePath(document.getElementById('path_n2o').value)); // ppb/yr (eq)
+
+  // Estado: [C_a, C_u, C_d, M, N, Ts, Td, alpha]
+  let state = [C0, C0*0.1, C0*2.5, M0, N0, Ts0, Td0, alpha0];
+
+  const years=[], Ts=[], Td=[], Ca=[], M=[], N=[], Alpha=[];
+  const Fco2=[], Fch4=[], Fn2o=[], Faer=[], Fsol=[], Fvolc=[], Falb=[], Fall=[];
+  const Eco2=[], Ech4=[], En2o=[], AerLevel=[];
+
+  // Forçantes auxiliares
+  function forcings(st, t){
+    const [Ca_, , , M_, N_, Ts_, , alpha_] = st;
+
+    const F_CO2 = 5.35 * Math.log(Ca_/C0);
+
+    const F_CH4 = 0.036 * (Math.sqrt(M_) - Math.sqrt(M0));
+    const F_N2O = 0.12  * (Math.sqrt(N_) - Math.sqrt(N0));
+
+    // Aerossol como proxy proporcional a "aer_base" + fração de emissões de CO2 normalizada
+    const eCO2 = fCO2(t);
+    const aer_level = aer_base + 0.02 * eCO2; // simples proxy
+    const F_AER = - phi_a * aer_level;
+
+    const alpha_eff = clamp(alpha0 - gamma_alb*Ts_, 0.15, 0.75);
+    const d_alpha = alpha_eff - alpha0;
+    const F_ALB = - beta_alb * d_alpha;
+
+    const F_SOL = (A_solar * Math.sin(2*Math.PI*(t-2000)/P_solar)) * (1 - alpha_eff)/4;
+
+    // Vulcânico impulso exponencial
+    const F_VOLC = (t>=volc_year) ? (volc_pulse * Math.exp(-(t - volc_year)/volc_tau)) : 0;
+
+    const F_total = F_CO2 + F_CH4 + F_N2O + F_AER + F_SOL + F_VOLC + F_ALB;
+
+    return {F_total, F_CO2, F_CH4, F_N2O, F_AER, F_SOL, F_VOLC, F_ALB, alpha_eff, aer_level};
+  }
+
+  // Emissões -> taxas
+  function emissions(t){
+    const eCO2_Gt = Math.max(0,fCO2(t));
+    const eCO2_ppm = eCO2_Gt / GtCO2_per_ppm; // ppm/yr SE tudo fosse para a atmosfera
+    const eCH4_ppb = Math.max(0,fCH4(t));
+    const eN2O_ppb = Math.max(0,fN2O(t));
+    return {eCO2_ppm, eCH4_ppb, eN2O_ppb, eCO2_Gt};
+  }
+
+  // Derivadas
+  function derivs(st, t, params){
+    const [Ca, Cu, Cd, Mm, Nn, Ts_, Td_, alpha_] = st;
+    const {F_total, F_CO2, F_CH4, F_N2O, F_AER, F_SOL, F_VOLC, F_ALB, alpha_eff, aer_level} = forcings(st,t);
+    const {eCO2_ppm, eCH4_ppb, eN2O_ppb} = emissions(t);
+
+    // Ciclo do carbono (em ppm)
+    const dCa = eCO2_ppm - k1*Ca + k2*Cu;
+    const dCu = k1*Ca - (k2 + k3)*Cu + k4*Cd;
+    const dCd = k3*Cu - k4*Cd;
+
+    // CH4 / N2O
+    const dM  = eCH4_ppb - (Mm - Mnat)/tau_ch4;
+    const dN  = eN2O_ppb - (Nn - Nnat)/tau_n2o;
+
+    // EBM (W/m² e capacidades em W·ano·m^-2·K^-1 com t em anos)
+    const lambda_eff = Math.max(0.2, lambda0 - lambda_wv*Ts_); // evita negativo extremo
+    const dTs = (F_total - lambda_eff*Ts_ - kappa*(Ts_ - Td_)) / C1;
+    const dTd = (kappa*(Ts_ - Td_)) / C2;
+
+    // Albedo dinâmico relaxa para alpha_eff rápido
+    const dAlpha = (alpha_eff - alpha_) / 1.0; // 1 ano e-fold
+
+    return [dCa, dCu, dCd, dM, dN, dTs, dTd, dAlpha];
+  }
+
+  // Integração
+  let t = ano0;
+  const Nsteps = Math.floor((ano1-ano0)/dt);
+  for(let i=0;i<=Nsteps;i++){
+    years.push(t);
+
+    const f = forcings(state,t);
+    const em = emissions(t);
+
+    Ca.push(state[0]); M.push(state[3]); N.push(state[4]);
+    Ts.push(state[5]); Td.push(state[6]); Alpha.push(f.alpha_eff);
+
+    Fco2.push(f.F_CO2); Fch4.push(f.F_CH4); Fn2o.push(f.F_N2O);
+    Faer.push(f.F_AER); Fsol.push(f.F_SOL); Fvolc.push(f.F_VOLC); Falb.push(f.F_ALB);
+    Fall.push(f.F_total);
+
+    Eco2.push(em.eCO2_ppm * GtCO2_per_ppm); // volta pra GtCO2/yr só pra traçar
+    Ech4.push(em.eCH4_ppb);
+    En2o.push(em.eN2O_ppb);
+    AerLevel.push(f.aer_level);
+
+    state = rk4_step(state, derivs, t, dt, {});
+    t += dt;
+  }
+
+  // Métricas
+  const idx2100 = years.findIndex(y=>Math.abs(y-2100)<1e-6);
+  const Ts2100 = (idx2100>=0)? Ts[idx2100] : Ts[Ts.length-1];
+  const warming_2000_2100 = Ts[years.findIndex(y=>Math.abs(y-2000)<1e-6)]!==undefined
+        ? Ts2100 - Ts[years.findIndex(y=>Math.abs(y-2000)<1e-6)]
+        : NaN;
+
+  // ECS implícita aproximada via λ médio (em 2000–2100)
+  const i2000 = years.findIndex(y=>Math.abs(y-2000)<1e-6);
+  const i2100 = idx2100>=0?idx2100:Ts.length-1;
+  // λ_eff médio
+  let lambda_sum=0, nL=0;
+  for(let i=i2000;i<=i2100;i++){
+    if(i>=0){
+      const Ts_ = Ts[i];
+      const lambda_eff = Math.max(0.2, lambda0 - lambda_wv*Ts_);
+      lambda_sum += lambda_eff; nL++;
+    }
+  }
+  const lambda_bar = lambda_sum/(nL||1);
+  const F2x = 3.71;
+  const ECS = F2x / lambda_bar;
+
+  renderResumo({
+    Ts2100, warming_2000_2100, ECS,
+    Ca_end: Ca[Ca.length-1], M_end: M[M.length-1], N_end: N[N.length-1],
+    F_end: Fall[Fall.length-1]
+  });
+
+  drawCharts({years, Ts, Td, Fall, Fco2, Fch4, Fn2o, Faer, Fsol, Fvolc, Falb, Ca, M, N, Eco2, Ech4, En2o, AerLevel});
+}
+
+// ---------- UI ----------
+function renderResumo(r){
+  const fmt = (x, d=2)=> (isFinite(x)? x.toFixed(d) : '—');
+  const el = document.getElementById('resumo');
+  el.innerHTML = `
+    <div class="p-3 rounded-xl bg-[#0d1533]">
+      <div class="text-xs opacity-70">Aquecimento em 2100 (rel. pré-industrial)</div>
+      <div class="text-2xl font-semibold">${fmt(r.Ts2100,2)} °C</div>
+    </div>
+    <div class="p-3 rounded-xl bg-[#0d1533]">
+      <div class="text-xs opacity-70">ΔT (2000→2100)</div>
+      <div class="text-2xl font-semibold">${fmt(r.warming_2000_2100,2)} °C</div>
+    </div>
+    <div class="p-3 rounded-xl bg-[#0d1533]">
+      <div class="text-xs opacity-70">ECS (implícita ≈ F₂×/λ̄)</div>
+      <div class="text-2xl font-semibold">${fmt(r.ECS,2)} °C</div>
+    </div>
+    <div class="p-3 rounded-xl bg-[#0d1533]">
+      <div class="text-xs opacity-70">CO₂ em ${document.getElementById('ano1').value}</div>
+      <div class="text-2xl font-semibold">${fmt(r.Ca_end,1)} ppm</div>
+    </div>
+    <div class="p-3 rounded-xl bg-[#0d1533]">
+      <div class="text-xs opacity-70">CH₄ final</div>
+      <div class="text-2xl font-semibold">${fmt(r.M_end,0)} ppb</div>
+    </div>
+    <div class="p-3 rounded-xl bg-[#0d1533]">
+      <div class="text-xs opacity-70">N₂O final</div>
+      <div class="text-2xl font-semibold">${fmt(r.N_end,0)} ppb</div>
+    </div>
+    <div class="p-3 rounded-xl bg-[#0d1533]">
+      <div class="text-xs opacity-70">Forçante total no fim</div>
+      <div class="text-2xl font-semibold">${fmt(r.F_end,2)} W/m²</div>
+    </div>
+  `;
+}
+
+// ---------- Gráficos ----------
+let chT, chF, chC, chE;
+function drawCharts(d){
+  const opt = {
+    responsive:true,
+    animation:false,
+    plugins:{legend:{labels:{color:'#dde5ff'}}},
+    scales:{
+      x:{ticks:{color:'#dde5ff'}, grid:{color:'#263a66'}},
+      y:{ticks:{color:'#dde5ff'}, grid:{color:'#263a66'}}
+    }
+  };
+
+  if(chT) chT.destroy();
+  if(chF) chF.destroy();
+  if(chC) chC.destroy();
+  if(chE) chE.destroy();
+
+  chT = new Chart(document.getElementById('chartT').getContext('2d'),{
+    type:'line',
+    data:{
+      labels:d.years,
+      datasets:[
+        {label:'T_s (°C)', data:d.Ts, borderWidth:2, fill:false},
+        {label:'T_d (°C)', data:d.Td, borderWidth:2, fill:false}
+      ]
+    }, options:opt
+  });
+
+  chF = new Chart(document.getElementById('chartF').getContext('2d'),{
+    type:'line',
+    data:{
+      labels:d.years,
+      datasets:[
+        {label:'Total', data:d.Fall, borderWidth:2},
+        {label:'CO₂',  data:d.Fco2, borderWidth:1},
+        {label:'CH₄',  data:d.Fch4, borderWidth:1},
+        {label:'N₂O',  data:d.Fn2o, borderWidth:1},
+        {label:'Aerosol', data:d.Faer, borderWidth:1},
+        {label:'Solar', data:d.Fsol, borderWidth:1},
+        {label:'Vulcânico', data:d.Fvolc, borderWidth:1},
+        {label:'Albedo', data:d.Falb, borderWidth:1}
+      ]
+    }, options:opt
+  });
+
+  chC = new Chart(document.getElementById('chartC').getContext('2d'),{
+    type:'line',
+    data:{
+      labels:d.years,
+      datasets:[
+        {label:'CO₂ (ppm)', data:d.Ca, borderWidth:2},
+        {label:'CH₄ (ppb)', data:d.M, borderWidth:1},
+        {label:'N₂O (ppb)', data:d.N, borderWidth:1}
+      ]
+    }, options:opt
+  });
+
+  chE = new Chart(document.getElementById('chartE').getContext('2d'),{
+    type:'line',
+    data:{
+      labels:d.years,
+      datasets:[
+        {label:'Emissões CO₂ (GtCO₂/ano)', data:d.Eco2, borderWidth:2},
+        {label:'Emissões CH₄ (ppb/ano eq.)', data:d.Ech4, borderWidth:1},
+        {label:'Emissões N₂O (ppb/ano eq.)', data:d.En2o, borderWidth:1},
+        {label:'Nível de aerossol (proxy)', data:d.AerLevel, borderWidth:1},
+      ]
+    }, options:opt
+  });
+}
+
+// ---------- Eventos ----------
+document.getElementById('btnRun').addEventListener('click', runModel);
+document.getElementById('btnReset').addEventListener('click', ()=>{ location.reload(); });
+document.addEventListener('keydown', (e)=>{ if(e.key.toLowerCase()==='r') runModel(); });
+
+// Rodar ao abrir
+window.addEventListener('load', runModel);
+</script>
+</body>
+</html>

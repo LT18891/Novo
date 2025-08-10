@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>ClassWiz-Web — Autor: Luiz Tiago Wilcke</title>
+<style>
+  :root{
+    --body:#0b0f16; --bezel:#0f1623; --screen:#111824; --screen-glow:#0ac; --edge:#0a101a;
+    --key:#1c2534; --key-hi:#243147; --key-lo:#141b28; --txt:#e9eef7; --muted:#a9b5c9;
+    --green:#00c37a; --orange:#ffb14a; --teal:#2dd4da; --red:#f86; --blue:#7fb2ff;
+    --accent:#89e; --shadow:0 8px 24px rgba(0,0,0,.5), inset 0 0 0 1px rgba(255,255,255,.03);
+    --round:22px;
+  }
+  html,body{height:100%;background:linear-gradient(180deg,#02060d,#0b0f16);color:var(--txt);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial;}
+  .wrap{min-height:100%;display:grid;place-items:center;padding:20px}
+  .calc{
+    width:min(390px,92vw); border-radius:28px; background:linear-gradient(180deg,var(--bezel),var(--edge));
+    box-shadow:0 25px 80px rgba(0,0,0,.65); padding:14px 14px 20px; border:1px solid #0a1220;
+  }
+  .head{display:flex;align-items:center;justify-content:space-between;padding:2px 6px 8px}
+  .brand{font-weight:700;letter-spacing:.08em}
+  .model{font-size:.8rem;color:#9fb3d8}
+  .screen{
+    position:relative;border-radius:12px;background:linear-gradient(180deg,#0c1320,#0b1526 60%,#0b172a);
+    padding:10px 12px;margin-bottom:10px; box-shadow:var(--shadow);
+    border:1px solid #0a1220;
+  }
+  .lcd{height:88px;border-radius:8px;background:radial-gradient(120% 100% at 0% 0%, rgba(0,200,255,.10), transparent 60%) , #0b1320; padding:8px 10px; display:grid; grid-template-rows:auto auto 1fr; gap:6px}
+  .status{display:flex;gap:10px;font-size:.78rem;color:#a8c6ff}
+  .expr{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; color:#d7e6ff; opacity:.95}
+  .result{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas; font-size:1.28rem; color:#78f0ff}
+  .tabs{display:flex;gap:6px;margin-top:6px}
+  .tab{font-size:.75rem; padding:3px 8px;border-radius:8px;background:#0e2136;border:1px solid #123251;cursor:pointer;user-select:none}
+  .tab.active{background:#123a60;color:#bfe1ff}
+  /* graph area */
+  .graph{height:160px;background:#0a121f;border:1px solid #0e2338;border-radius:8px;display:none;margin-top:8px;position:relative}
+  .graph.active{display:block}
+  canvas{width:100%;height:100%}
+  /* keypad */
+  .pad{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:12px}
+  button.key{
+    appearance:none;border:0;outline:none;border-radius:14px;background:linear-gradient(180deg,var(--key-hi),var(--key));
+    color:#eaf2ff; padding:10px 2px; font-weight:600; box-shadow:var(--shadow); cursor:pointer; position:relative;
+    font-size:.92rem; user-select:none;
+  }
+  .key:active{transform:translateY(1px);filter:brightness(1.08)}
+  .key.small{font-size:.78rem;font-weight:700}
+  .key.orange{background:linear-gradient(180deg,#3a2a12,#2a1e0f); color:#ffdca8; border:1px solid #5a3d16}
+  .key.green{background:linear-gradient(180deg,#0f3b2c,#0e2c23); color:#9ff7cf; border:1px solid #17503b}
+  .key.teal{background:linear-gradient(180deg,#113649,#0f2b3a); color:#a5f1ff; border:1px solid #1a4c64}
+  .key.red{background:linear-gradient(180deg,#3f1820,#2a1218); color:#ffc6ce; border:1px solid #5a2230}
+  .key.wide{grid-column:span 2}
+  .key.tall{grid-row:span 2; display:flex;align-items:center;justify-content:center}
+  .shift,.alpha{position:absolute;left:8px;top:6px;font-size:.64rem;opacity:.8}
+  .shift{color:var(--orange)} .alpha{color:var(--teal)}
+  .footer{margin-top:12px;font-size:.78rem;color:#9fb3d8;display:flex;justify-content:space-between;align-items:center}
+  .led{width:10px;height:10px;border-radius:999px;background:#103;box-shadow:0 0 0 1px #345 inset}
+  .led.on{background:#26f; box-shadow:0 0 12px #59f}
+  .bubble{position:absolute;right:10px;top:8px;font-size:.72rem;color:#9fd;opacity:.7}
+  .hist{max-height:68px; overflow:auto; font: 12px/1.25 ui-monospace,Consolas,monospace; background:#0b111d;border:1px solid #0e2138;border-radius:8px;padding:6px;margin-top:6px}
+  .badge{padding:2px 6px;border:1px solid #294b77;border-radius:999px;font-size:.7rem;margin-left:6px}
+  a{color:#9fd}
+  @media (max-width:420px){ .pad{gap:6px} button.key{padding:9px 2px} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="calc" id="calc">
+    <div class="head">
+      <div class="brand">CASIO-style</div>
+      <div class="model">CLASSWIZ CZ (web)</div>
+    </div>
+
+    <div class="screen">
+      <div class="lcd">
+        <div class="status">
+          <div>MODE: <span id="mode">CALC</span></div>
+          <div>| ANG: <span id="ang">DEG</span></div>
+          <div class="badge">Autor: <strong>Luiz Tiago Wilcke</strong></div>
+        </div>
+        <div class="expr" id="expr">0</div>
+        <div class="result" id="result">0</div>
+      </div>
+      <div class="tabs">
+        <div class="tab active" data-mode="CALC">Calc</div>
+        <div class="tab" data-mode="GRAPH">Graph</div>
+        <div class="tab" data-mode="TABLE">Table</div>
+        <div class="bubble" id="hint">Ready</div>
+      </div>
+      <div class="graph" id="graphBox"><canvas id="graph"></canvas></div>
+      <div class="hist" id="history" title="Histórico (clique para repetir)"></div>
+    </div>
+
+    <div class="pad" id="pad">
+      <!-- top row -->
+      <button class="key teal small" data-action="shift"><span class="shift">SHIFT</span>SHIFT</button>
+      <button class="key teal small" data-action="alpha"><span class="alpha">ALPHA</span>ALPHA</button>
+      <button class="key small" data-func="degRad">DEG/RAD</button>
+      <button class="key small" data-func="abs">|x|</button>
+      <button class="key small" data-func="sgn">sgn</button>
+      <button class="key red small" data-action="ac">AC</button>
+
+      <!-- row 2 -->
+      <button class="key small" data-insert="(">(</button>
+      <button class="key small" data-insert=")">)</button>
+      <button class="key small" data-insert=",">,</button>
+      <button class="key small" data-func="pow2">x²</button>
+      <button class="key small" data-func="pow3">x³</button>
+      <button class="key small" data-func="pow">x^y</button>
+
+      <!-- row 3 -->
+      <button class="key small" data-func="sqrt">√</button>
+      <button class="key small" data-func="cbrt">∛</button>
+      <button class="key small" data-func="fact">x!</button>
+      <button class="key small" data-func="nCr">nCr</button>
+      <button class="key small" data-func="nPr">nPr</button>
+      <button class="key small" data-func="inv">x⁻¹</button>
+
+      <!-- row 4 -->
+      <button class="key small" data-func="sin">sin</button>
+      <button class="key small" data-func="cos">cos</button>
+      <button class="key small" data-func="tan">tan</button>
+      <button class="key small" data-func="ln">ln</button>
+      <button class="key small" data-func="log">log</button>
+      <button class="key small" data-func="exp">eˣ</button>
+
+      <!-- row 5 -->
+      <button class="key small" data-func="asin">sin⁻¹</button>
+      <button class="key small" data-func="acos">cos⁻¹</button>
+      <button class="key small" data-func="atan">tan⁻¹</button>
+      <button class="key small" data-func="pow10">10ˣ</button>
+      <button class="key small" data-insert="pi">π</button>
+      <button class="key small" data-insert="e">e</button>
+
+      <!-- row 6 numbers/operators -->
+      <button class="key" data-insert="7">7</button>
+      <button class="key" data-insert="8">8</button>
+      <button class="key" data-insert="9">9</button>
+      <button class="key small" data-op="÷">÷</button>
+      <button class="key small" data-op="×">×</button>
+      <button class="key small" data-func="mod">mod</button>
+
+      <button class="key" data-insert="4">4</button>
+      <button class="key" data-insert="5">5</button>
+      <button class="key" data-insert="6">6</button>
+      <button class="key small" data-op="-">−</button>
+      <button class="key small" data-op="+">+</button>
+      <button class="key small" data-func="frac">a⁄b</button>
+
+      <button class="key" data-insert="1">1</button>
+      <button class="key" data-insert="2">2</button>
+      <button class="key" data-insert="3">3</button>
+      <button class="key small" data-func="ans">ANS</button>
+      <button class="key small" data-action="back">DEL</button>
+      <button class="key small" data-func="swapFrac">↔</button>
+
+      <button class="key wide" data-insert="0">0</button>
+      <button class="key" data-insert=".">.</button>
+      <button class="key green tall" data-action="exe">EXE</button>
+
+      <!-- memory & mode -->
+      <button class="key small" data-func="mc">MC</button>
+      <button class="key small" data-func="mr">MR</button>
+      <button class="key small" data-func="mplus">M+</button>
+      <button class="key small" data-func="mminus">M-</button>
+      <button class="key small" data-action="zoomIn">Zoom+</button>
+      <button class="key small" data-action="zoomOut">Zoom-</button>
+    </div>
+
+    <div class="footer">
+      <div><span class="led" id="led"></span> Pronto</div>
+      <div>Projeto “ClassWiz-Web” — livre & educacional</div>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const exprEl = document.getElementById('expr');
+  const resultEl = document.getElementById('result');
+  const modeEl = document.getElementById('mode');
+  const angEl = document.getElementById('ang');
+  const led = document.getElementById('led');
+  const hint = document.getElementById('hint');
+  const historyBox = document.getElementById('history');
+
+  const graphBox = document.getElementById('graphBox');
+  const canvas = document.getElementById('graph');
+  const ctx = canvas.getContext('2d');
+
+  // state
+  let expr = '0';
+  let ans = 0;
+  let mem = 0;
+  let mode = 'CALC';
+  let deg = true;
+  let shift = false;
+  let alpha = false;
+  let fracMode = {num:null, den:null, showDec:false};
+  const history = [];
+
+  // helpers
+  function setExpr(s){ expr=s; exprEl.textContent=s; }
+  function setRes(s){ resultEl.textContent=s; }
+  function setHint(s){ hint.textContent=s; }
+  function flash(){ led.classList.add('on'); setTimeout(()=>led.classList.remove('on'),160); }
+  function pushHistory(line){ history.unshift(line); if(history.length>40) history.pop(); renderHistory(); }
+  function renderHistory(){
+    historyBox.innerHTML = history.map(h => `<div class="hline">${h}</div>`).join('');
+    [...historyBox.children].forEach((div,i)=>div.onclick=()=>{ setExpr(history[i].split(' = ')[0]); });
+  }
+
+  // Tabs (modes)
+  document.querySelectorAll('.tab').forEach(t=>{
+    t.onclick = () =>{
+      document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+      t.classList.add('active');
+      mode = t.dataset.mode;
+      modeEl.textContent = mode;
+      setHint(mode==='CALC' ? 'Ready' : (mode==='GRAPH' ? 'y=f(x). Use EXE para traçar' : 'Tabela de f(x)'));
+      graphBox.classList.toggle('active', mode!=='CALC');
+      if(mode==='CALC'){ setExpr('0'); setRes('0'); }
+      flash();
+    };
+  });
+
+  // math core — safe evaluator mapping to Math.*
+  const M = Math;
+  const toRad = x => deg ? x*M.PI/180 : x;
+  const fromRad = x => deg ? x*180/M.PI : x;
+
+  const F = {
+    sin: x => M.sin(toRad(x)), cos: x => M.cos(toRad(x)), tan: x => M.tan(toRad(x)),
+    asin:x => fromRad(M.asin(x)), acos:x => fromRad(M.acos(x)), atan:x => fromRad(M.atan(x)),
+    sinh: x => (M.exp(x)-M.exp(-x))/2, cosh:x => (M.exp(x)+M.exp(-x))/2, tanh:x => {
+      const e=M.exp(x), em=M.exp(-x); return (e-em)/(e+em);
+    },
+    asinh:x => M.log(x+M.sqrt(x*x+1)), acosh:x => M.log(x+M.sqrt(x-1)*M.sqrt(x+1)), atanh:x => 0.5*M.log((1+x)/(1-x)),
+    ln: x => M.log(x), log:x => M.log10?M.log10(x):M.log(x)/M.LN10,
+    exp:x => M.exp(x), pow10:x => M.pow(10,x), sqrt:x=>M.sqrt(x), cbrt:x=>M.cbrt?M.cbrt(x):Math.pow(x,1/3),
+    abs:x=>M.abs(x), sgn:x=>(x>0)-(x<0), floor:x=>M.floor(x), ceil:x=>M.ceil(x),
+    fact:n => { n = M.floor(n); if(n<0) return NaN; let r=1; for(let i=2;i<=n;i++) r*=i; return r; },
+    nCr:(n,r)=>{n=M.floor(n);r=M.floor(r); if(r<0||r>n) return 0; return F.fact(n)/(F.fact(r)*F.fact(n-r));},
+    nPr:(n,r)=>{n=M.floor(n);r=M.floor(r); if(r<0||r>n) return 0; return F.fact(n)/F.fact(n-r);},
+    inv:x => 1/x, mod:(a,b)=>a%b
+  };
+
+  function sanitize(s){
+    return s
+      .replace(/π/g,'pi')
+      .replace(/÷/g,'/')
+      .replace(/×/g,'*')
+      .replace(/–|−/g,'-')
+      .replace(/ANS/g,'ans')
+      .replace(/([0-9])\(/g,'$1*(') // 2(3) -> 2*(3)
+      .replace(/\)([0-9a-zA-Zπe])/g,')*$1')
+  }
+
+  function evaluate(s){
+    try{
+      s = sanitize(s);
+      // replace tokens with functions/constants
+      const scope = { ...F, ans, pi:Math.PI, e:Math.E, M };
+      const body =
+        "with (this) { return (" + s
+          .replace(/\bpow\(/g,'M.pow(')
+          .replace(/\bpi\b/g,'pi')
+          .replace(/\be\b/g,'e')
+          + ");}";
+      const fn = new Function(body).bind(scope);
+      const val = fn();
+      if(typeof val === 'number' && Number.isFinite(val)) return +val.toPrecision(12);
+      return val;
+    }catch(e){ return NaN; }
+  }
+
+  // keypad actions
+  function insert(txt){
+    if(expr==='0') setExpr(txt); else setExpr(expr + txt);
+  }
+
+  // fraction mode: a/b
+  function toggleFrac(){ // start/continue
+    if(fracMode.num===null){ fracMode.num = Number(evaluate(expr)); setExpr('0'); setHint('Informe o denominador'); }
+    else if(fracMode.den===null){ fracMode.den = Number(evaluate(expr)); const val = fracMode.num/fracMode.den;
+      setExpr(String(val)); setRes(`${fracMode.num}/${fracMode.den}`); setHint('Fração convertida'); fracMode={num:null,den:null,showDec:false};
+    }
+  }
+  function swapFracDec(){
+    const v = evaluate(expr);
+    if(isNaN(v)) return;
+    if(!fracMode.showDec){
+      const frac = toFraction(v);
+      setRes(`${frac[0]}/${frac[1]}`); fracMode.showDec=true;
+    } else {
+      setRes(String(v)); fracMode.showDec=false;
+    }
+  }
+  function toFraction(x){
+    // continued fraction approx
+    const maxDen = 100000, eps=1e-10;
+    let a = M.floor(x), h1=1,h0=0,k1=0,k0=1, x1=x, sign=x<0?-1:1;
+    x = M.abs(x);
+    while(M.abs(x - a) > eps && k1 < maxDen){
+      const h = a*h1+h0, k = a*k1+k0;
+      h0=h1; k0=k1; h1=h; k1=k;
+      x = 1/(x - a); a = M.floor(x);
+    }
+    const num = sign*(a*h1+h0), den=a*k1+k0;
+    return [num, den];
+  }
+
+  function execute(){
+    flash();
+    if(mode==='CALC'){
+      const v = evaluate(expr);
+      if(isNaN(v)){ setRes('Erro'); setHint('Expressão inválida'); return; }
+      ans = v; setRes(String(v)); pushHistory(`${expr} = ${v}`);
+    } else { // GRAPH or TABLE
+      plotOrTable();
+    }
+  }
+
+  function back(){
+    if(expr.length<=1) setExpr('0'); else setExpr(expr.slice(0,-1));
+  }
+  function allClear(){ setExpr('0'); setRes('0'); setHint('Ready'); }
+
+  // buttons
+  document.getElementById('pad').addEventListener('click', e=>{
+    const b = e.target.closest('button.key'); if(!b) return;
+    const ins = b.dataset.insert, op=b.dataset.op, action=b.dataset.action, func=b.dataset.func;
+    if(ins){ insert(ins==='pi'?'π': (ins==='e'?'e':ins)); flash(); return; }
+    if(op){ insert(op); flash(); return; }
+    if(action){
+      if(action==='exe') execute();
+      if(action==='back') back();
+      if(action==='ac') allClear();
+      if(action==='shift'){ shift=!shift; b.classList.toggle('orange',shift); setHint(shift?'SHIFT ativo':'Ready'); }
+      if(action==='alpha'){ alpha=!alpha; b.classList.toggle('orange',alpha); setHint(alpha?'ALPHA ativo':'Ready'); }
+      if(action==='zoomIn'){ zoom *= 0.8; drawGraph(); }
+      if(action==='zoomOut'){ zoom *= 1.25; drawGraph(); }
+      return;
+    }
+    if(func){
+      const map={
+        pow2:'^2', pow3:'^3', pow:'^', sqrt:'sqrt(', cbrt:'cbrt(',
+        ln:'ln(', log:'log(', exp:'exp(', pow10:'pow10(',
+        sin: shift?'sinh(':'sin(', cos: shift?'cosh(':'cos(', tan: shift?'tanh(':'tan(',
+        asin: shift?'asinh(':'asin(', acos: shift?'acosh(':'acos(', atan: shift?'atanh(':'atan(',
+        fact:'!', inv:'^-1', abs:'abs(', sgn:'sgn(', mod:' mod ', floor:'floor(', ceil:'ceil(',
+        nCr:' nCr ', nPr:' nPr ', frac:'frac', ans:'ANS', mr:'MR', mc:'MC', mplus:'MPLUS', mminus:'MMINUS',
+        degRad:'DEGRAD', swapFrac:'SWAP'
+      };
+      handleFunc(map[func]);
+      shift=false; document.querySelector('[data-action="shift"]').classList.remove('orange');
+    }
+  });
+
+  function handleFunc(tok){
+    if(tok==='frac'){ toggleFrac(); return; }
+    if(tok==='SWAP'){ swapFracDec(); return; }
+    if(tok==='ANS'){ insert('ANS'); return; }
+    if(tok==='MR'){ setRes(String(mem)); setHint('MR'); return; }
+    if(tok==='MC'){ mem=0; setHint('MC'); return; }
+    if(tok==='MPLUS'){ const v = evaluate(expr); if(!isNaN(v)) mem+=v; setHint('M+'); return; }
+    if(tok==='MMINUS'){ const v = evaluate(expr); if(!isNaN(v)) mem-=v; setHint('M-'); return; }
+    if(tok==='DEGRAD'){ deg=!deg; angEl.textContent = deg?'DEG':'RAD'; setHint(deg?'Graus':'Radianos'); return; }
+
+    if(tok==='!' ){ setExpr(expr + '!'); return; }
+    if(tok===' nCr ' || tok===' nPr ' || tok===' mod '){ insert(tok.trim()); return; }
+
+    if(tok==='^-1'){ setExpr(expr + '^-1'); return; }
+    if(tok==='^2' || tok==='^3'){ setExpr(expr + tok); return; }
+    if(tok==='^'){ setExpr(expr + '^'); return; }
+
+    // functions with opening parenthesis
+    setExpr(expr + tok);
+  }
+
+  // parse ^ and factorial, nCr/nPr, mod before evaluation
+  const _oldEvaluate = evaluate;
+  evaluate = function(s){
+    // factorial handling
+    s = s.replace(/([0-9e\.]+)!/g, 'F.fact($1)');
+    // power ^ (right associative)
+    s = s.replace(/([^\s]+)\^([^\s]+)/g,'M.pow($1,$2)');
+    // inverse x^-1 already converted above
+    // nCr / nPr
+    s = s.replace(/(\S+)\s+nCr\s+(\S+)/g, 'F.nCr(($1),($2))');
+    s = s.replace(/(\S+)\s+nPr\s+(\S+)/g, 'F.nPr(($1),($2))');
+    // mod
+    s = s.replace(/(\S+)\s+mod\s+(\S+)/g, 'F.mod(($1),($2))');
+    return _oldEvaluate(s);
+  }
+
+  // keyboard support
+  window.addEventListener('keydown', e=>{
+    const k = e.key;
+    if((k>='0'&&k<='9') || '+-*/().,'.includes(k)) insert(k==='*'?'×':k==='/'?'÷':k);
+    if(k==='Enter') execute();
+    if(k==='Backspace') back();
+  });
+
+  // GRAPH/TABLE
+  let zoom = 40; // pixels per unit
+  let origin = {x:0, y:0}; // center offset in px
+  function resizeCanvas(){
+    const r = graphBox.getBoundingClientRect();
+    canvas.width = r.width * devicePixelRatio;
+    canvas.height = r.height * devicePixelRatio;
+    ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+  }
+  window.addEventListener('resize', ()=>{ if(mode!=='CALC'){ resizeCanvas(); drawGraph(); }});
+
+  graphBox.addEventListener('wheel', (e)=>{
+    e.preventDefault();
+    zoom *= (e.deltaY>0)?1.1:0.9;
+    drawGraph();
+  }, {passive:false});
+
+  let dragging=false, last={x:0,y:0};
+  graphBox.addEventListener('mousedown', e=>{ dragging=true; last={x:e.offsetX,y:e.offsetY}; });
+  window.addEventListener('mouseup', ()=>dragging=false);
+  graphBox.addEventListener('mousemove', e=>{
+    if(!dragging) return;
+    origin.x += (e.offsetX - last.x);
+    origin.y += (e.offsetY - last.y);
+    last={x:e.offsetX,y:e.offsetY};
+    drawGraph();
+  });
+
+  function fx(x, fstr){
+    let s = fstr || expr;
+    s = s.replace(/x/g, `(${x})`);
+    return evaluate(s);
+  }
+
+  function drawGraph(){
+    resizeCanvas();
+    const w = canvas.width/devicePixelRatio, h = canvas.height/devicePixelRatio;
+    ctx.clearRect(0,0,w,h);
+    // axes
+    const cx = w/2 + origin.x, cy = h/2 + origin.y;
+    ctx.strokeStyle = '#1f385a'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(0,cy); ctx.lineTo(w,cy); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx,0); ctx.lineTo(cx,h); ctx.stroke();
+
+    // grid
+    ctx.strokeStyle = '#132742'; ctx.lineWidth = 1;
+    const step = zoom;
+    for(let X=cx%step; X<w; X+=step){ ctx.beginPath(); ctx.moveTo(X,0); ctx.lineTo(X,h); ctx.stroke(); }
+    for(let Y=cy%step; Y<h; Y+=step){ ctx.beginPath(); ctx.moveTo(0,Y); ctx.lineTo(w,Y); ctx.stroke(); }
+
+    // plot function
+    const fstr = expr;
+    ctx.strokeStyle = '#7fe3ff'; ctx.lineWidth = 2;
+    ctx.beginPath();
+    let first=true;
+    for(let px=0; px<w; px++){
+      const x = (px - cx)/zoom;
+      const y = fx(x,fstr);
+      if(Number.isFinite(y)){
+        const py = cy - y*zoom;
+        if(first){ ctx.moveTo(px,py); first=false; } else { ctx.lineTo(px,py); }
+      } else { first=true; }
+    }
+    ctx.stroke();
+
+    // ticks text
+    ctx.fillStyle = '#8ab6ff'; ctx.font='11px ui-monospace,Consolas,monospace';
+    ctx.fillText('0', cx+4, cy-4);
+    ctx.fillText(`1`, cx+zoom+2, cy-4);
+    ctx.fillText(`1`, cx+4, cy-zoom+10);
+  }
+
+  function plotOrTable(){
+    if(mode==='GRAPH'){ drawGraph(); setHint('Arraste p/ mover. Scroll p/ zoom.'); }
+    if(mode==='TABLE'){
+      // gera tabela X, f(X) para range padrão
+      const xs=[], ys=[];
+      let start=-5, end=5, step=1;
+      for(let x=start; x<=end+1e-12; x+=step){
+        const y = fx(x);
+        xs.push(x.toFixed(2)); ys.push(Number.isFinite(y)?Number(y).toPrecision(6):'NaN');
+      }
+      const rows = xs.map((x,i)=>`${x}\t${ys[i]}`).join('\n');
+      setRes('Tabela gerada'); setHint('Copie da área abaixo');
+      historyBox.innerHTML = `<pre>${'x\tf(x)\n'}${rows}</pre>`;
+    }
+  }
+
+  // boot
+  setExpr('0'); setRes('0'); setHint('Ready');
+})();
+</script>
+</body>
+</html>

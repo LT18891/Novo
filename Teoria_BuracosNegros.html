@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Micro-Buracos Negros na Atmosfera — Modelos, Espectros e Chuveiros | Autor: Luiz Tiago Wilcke</title>
+
+<!-- TailwindCSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- Chart.js v4 -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- MathJax -->
+<script>
+  window.MathJax = {
+    tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$']] },
+    svg: { fontCache: 'global' }
+  };
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+<style>
+  html, body { background:#0b1020; color:#e9eef7; }
+  a { color:#80c0ff; }
+  .card { background:linear-gradient(180deg,#121a33,#0c1329); border:1px solid #223; box-shadow: 0 6px 24px rgba(0,0,0,.35); }
+  .monos { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
+  .badge { background:#142046; border:1px solid #223; border-radius:999px; padding:.15rem .5rem; font-size:.75rem; opacity:.9 }
+  canvas { image-rendering: crisp-edges; }
+  .small { font-size:.9rem }
+</style>
+</head>
+<body class="min-h-screen">
+<main class="max-w-6xl mx-auto px-4 py-8 md:py-10">
+  <header class="mb-8">
+    <h1 class="text-3xl md:text-4xl font-bold leading-tight">Micro-Buracos Negros na Atmosfera por Colisões de Raios Cósmicos</h1>
+    <p class="opacity-80 mt-2">Autor: <strong>Luiz Tiago Wilcke</strong></p>
+    <p class="mt-2 text-sm opacity-70">Versão interativa com calculadoras, espectros, composição de canais e desenho animado de chuveiros atmosféricos.</p>
+  </header>
+
+  <!-- RESUMO -->
+  <section class="card rounded-2xl p-6 mb-8">
+    <h2 class="text-2xl font-semibold mb-3">Resumo</h2>
+    <p class="leading-relaxed">
+      Raios cósmicos de ultra-alta energia ($\gtrsim 10^{19}\,\mathrm{eV}$) podem, em cenários com dimensões extras e gravidade de baixa escala,
+      atingir regime trans-planckiano em colisões com núcleos do ar. Isso pode formar micro-buracos negros (mBHs),
+      que evaporam quase instantaneamente via radiação de Hawking. Aqui detalhamos a formação em $D=4+n$ dimensões,
+      estimamos raio do horizonte, temperatura, multiplicidade e tempo de vida, e modelamos <em>quais partículas</em> são emitidas
+      (quarks/glúons, léptons, fótons, bósons $W/Z/\gamma$, Higgs, neutrinos e possivelmente grávitons para o <em>bulk</em>),
+      seguidas de hadronização e desenvolvimento de chuveiros atmosféricos. Incluímos uma calculadora e desenhos animados de chuveiros.
+    </p>
+  </section>
+
+  <!-- O QUE É EMITIDO -->
+  <section class="card rounded-2xl p-6 mb-8">
+    <h2 class="text-2xl font-semibold mb-3">1) O que o mBH emite? Canais e intuição física</h2>
+    <p class="mb-3">Para temperaturas $T_H$ acima dos limiares de massa, o espectro de Hawking é quase térmico e populado por todos os graus de liberdade acessíveis do Modelo Padrão na brana (e, em menor fração, grávitons para o <em>bulk</em>):</p>
+    <ul class="list-disc pl-6 space-y-1">
+      <li><strong>Quarks + glúons:</strong> dominam em energia quando $T_H$ é alto; hadronizam em <span class="badge">pions</span>, <span class="badge">káons</span>, etc. $\pi^0 \to 2\,\gamma$, $\pi^\pm \to \mu^\pm + \nu_\mu(\bar\nu_\mu)$ e $\mu^\pm \to e^\pm + 2\,\nu$.</li>
+      <li><strong>Léptons:</strong> $e^\pm,\,\mu^\pm,\,\tau^\pm$ diretamente do mBH (se $T_H\gtrsim m_\tau$).</li>
+      <li><strong>Fótons, $W^\pm$, $Z$, Higgs:</strong> presentes se $T_H$ excede suas massas; fótons também vindos de $\pi^0$.</li>
+      <li><strong>Neutrinos:</strong> aparecem tanto <em>diretamente</em> na evaporação quanto <em>indiretamente</em> nas cadeias de decaimento de hádrons e múons.</li>
+      <li><strong>Grávitons (bulk):</strong> fração pequena em muitos cenários; incluímos como parâmetro ajustável.</li>
+    </ul>
+    <p class="mt-3 small opacity-80">O fluxo espectral diferencial é, para uma partícula de energia $E$ e estatística $\pm$ (Fermi/Bose),
+      $$\frac{\mathrm{d}^2N}{\mathrm{d}E\,\mathrm{d}t} \propto \frac{\Gamma_s(E)}{\exp(E/T_H) \pm 1},$$
+      onde $\Gamma_s(E)$ são os <em>greybody factors</em> dependentes do spin $s$ e da geometria.
+      Neste artigo usamos aproximações pedagógicas e pesos <em>ajustáveis</em> por spin e por espécie.</p>
+  </section>
+
+  <!-- CALCULADORA PRINCIPAL -->
+  <section class="card rounded-2xl p-6 mb-8">
+    <h2 class="text-2xl font-semibold mb-4">2) Calculadora (formação, $r_s$, $T_H$, $\sigma$, $\tau$, multiplicidade e composição)</h2>
+    <p class="opacity-80 mb-4">Unidades naturais ($\hbar=c=1$). Entradas em eV/GeV/TeV conforme indicado. Conversões automáticas exibidas.</p>
+
+    <div class="grid md:grid-cols-2 gap-6">
+      <div>
+        <label class="block text-sm mb-1">Energia do projétil (laboratório), $E_\text{lab}$ [eV]</label>
+        <input id="E_lab" type="number" value="1e20" class="w-full p-2 rounded bg-[#0a1123] border border-[#223]"/>
+
+        <label class="block text-sm mt-4 mb-1">Massa do projétil $m_1 c^2$ [GeV] (próton≈0.938)</label>
+        <input id="m1" type="number" value="0.938" class="w-full p-2 rounded bg-[#0a1123] border border-[#223]"/>
+
+        <label class="block text-sm mt-4 mb-1">Massa do alvo $m_2 c^2$ [GeV] (núcleon≈0.938)</label>
+        <input id="m2" type="number" value="0.938" class="w-full p-2 rounded bg-[#0a1123] border border-[#223]"/>
+
+        <label class="block text-sm mt-4 mb-1">Inelasticidade $y \in (0,1)$ (fração que colapsa)</label>
+        <input id="yfrac" type="number" step="0.01" value="0.7" class="w-full p-2 rounded bg-[#0a1123] border border-[#223]"/>
+
+        <div class="mt-4 flex items-center gap-2">
+          <input id="usarAlvoEfetivo" type="checkbox" class="scale-110">
+          <label for="usarAlvoEfetivo" class="text-sm">Usar alvo efetivo N/O ($m_\mathrm{efet}$ [GeV])</label>
+          <input id="m_eff" type="number" placeholder="ex.: 14" class="w-28 p-2 rounded bg-[#0a1123] border border-[#223]"/>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm mb-1">Nº de dimensões extras $n$</label>
+        <input id="nextra" type="number" value="3" min="0" class="w-full p-2 rounded bg-[#0a1123] border border-[#223]"/>
+
+        <label class="block text-sm mt-4 mb-1">Escala fundamental $M_D$ [TeV]</label>
+        <input id="MD" type="number" value="5" class="w-full p-2 rounded bg-[#0a1123] border border-[#223]"/>
+
+        <label class="block text-sm mt-4 mb-1">Coeficiente de multiplicidade $\kappa_N$</label>
+        <input id="kappaN" type="number" step="0.1" value="1.0" class="w-full p-2 rounded bg-[#0a1123] border border-[#223]"/>
+
+        <div class="mt-4 flex gap-2">
+          <button id="btnPresetLHC" class="px-3 py-2 rounded bg-blue-600 hover:bg-blue-500">Predefinição LHC (13 TeV p–p)</button>
+          <button id="btnPresetUHECR" class="px-3 py-2 rounded bg-indigo-600 hover:bg-indigo-500">UHECR $10^{20}$ eV em N</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-6 grid md:grid-cols-2 gap-6">
+      <div class="p-4 rounded bg-[#0a1123] border border-[#223] monos text-sm" id="out"></div>
+      <div class="p-4 rounded bg-[#0a1123] border border-[#223] text-sm">
+        <h3 class="font-semibold mb-2">Parâmetros de composição (pesos por spin)</h3>
+        <p class="opacity-80 mb-2">Pesos relativos (incluem efeito <em>greybody</em> efetivo). Ajuste livre para estudos de sensibilidade.</p>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs mb-1">Férmions (spin 1/2) — quarks, léptons</label>
+            <input id="wFermi" type="number" step="0.1" value="1.0" class="w-full p-2 rounded bg-[#0a1123] border border-[#223]"/>
+          </div>
+          <div>
+            <label class="block text-xs mb-1">Vetores (spin 1) — $g,\,W,\,Z,\,\gamma$</label>
+            <input id="wVector" type="number" step="0.1" value="0.7" class="w-full p-2 rounded bg-[#0a1123] border border-[#223]"/>
+          </div>
+          <div>
+            <label class="block text-xs mb-1">Escalares (spin 0) — Higgs</label>
+            <input id="wScalar" type="number" step="0.1" value="0.5" class="w-full p-2 rounded bg-[#0a1123] border border-[#223]"/>
+          </div>
+          <div>
+            <label class="block text-xs mb-1">Gráviton (spin 2) — bulk</label>
+            <input id="wGrav" type="number" step="0.1" value="0.2" class="w-full p-2 rounded bg-[#0a1123] border border-[#223]"/>
+          </div>
+        </div>
+        <p class="opacity-70 text-xs mt-3">A composição final também inclui hadronização: fração hadrônica $f_\mathrm{had}$ e partição em $\pi^0$ vs $\pi^\pm$.</p>
+        <div class="grid grid-cols-2 gap-3 mt-2">
+          <div>
+            <label class="block text-xs mb-1">Fração hadrônica $f_\mathrm{had}$</label>
+            <input id="fHad" type="number" step="0.05" value="0.7" class="w-full p-2 rounded bg-[#0a1123] border border-[#223]"/>
+          </div>
+          <div>
+            <label class="block text-xs mb-1">Partição $\pi^0$:$\pi^\pm$ (ex.: 1:2)</label>
+            <input id="ratioPi0" type="text" value="1:2" class="w-full p-2 rounded bg-[#0a1123] border border-[#223]"/>
+          </div>
+        </div>
+        <button id="btnCalc" class="mt-4 px-4 py-2 rounded bg-emerald-600 hover:bg-emerald-500">Calcular & Atualizar</button>
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-6 mt-6">
+      <div class="p-4 rounded bg-[#0a1123] border border-[#223]">
+        <h3 class="font-semibold mb-3">Espectro de Hawking (forma, normalização arbitrária)</h3>
+        <div class="grid grid-cols-2 gap-2 mb-3 text-sm">
+          <div>
+            <label class="block text-xs mb-1">Tipo estatístico</label>
+            <select id="estatistica" class="w-full p-2 rounded bg-[#0a1123] border border-[#223]">
+              <option value="bose">Bose–Einstein (bósons)</option>
+              <option value="fermi">Fermi–Dirac (férmions)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs mb-1">Máximo de energia [GeV]</label>
+            <input id="Emax" type="number" value="500" class="w-full p-2 rounded bg-[#0a1123] border border-[#223]"/>
+          </div>
+        </div>
+        <div style="height:260px"><canvas id="graficoEspectro"></canvas></div>
+      </div>
+      <div class="p-4 rounded bg-[#0a1123] border border-[#223]">
+        <h3 class="font-semibold mb-3">Composição do estado final (frações de energia)</h3>
+        <div style="height:260px"><canvas id="graficoComposicao"></canvas></div>
+        <p class="text-xs opacity-70 mt-2">Inclui emissão direta + heurística de hadronização ($\pi^0 \to \gamma\gamma$, $\pi^\pm \to \mu+\nu$ e decaimentos subsequentes).</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- TAXA / PROBABILIDADE -->
+  <section class="card rounded-2xl p-6 mb-8">
+    <h2 class="text-2xl font-semibold mb-3">3) Probabilidade, profundidade e taxa (ordem de grandeza)</h2>
+    <div class="grid md:grid-cols-3 gap-6 text-sm">
+      <div>
+        <label class="block text-xs mb-1">Seção de choque hadrônica de referência [mb]</label>
+        <input id="sigmaHad_mb" type="number" value="500" class="w-full p-2 rounded bg-[#0a1123] border border-[#223]"/>
+        <label class="block text-xs mt-3 mb-1">Densidade do ar a 15 km [kg/m³]</label>
+        <input id="rhoAr" type="number" step="0.001" value="0.194" class="w-full p-2 rounded bg-[#0a1123] border border-[#223]"/>
+        <label class="block text-xs mt-3 mb-1">Caminho (coluna) típico [g/cm²]</label>
+        <input id="Xcol" type="number" value="300" class="w-full p-2 rounded bg-[#0a1123] border border-[#223]"/>
+      </div>
+      <div>
+        <label class="block text-xs mb-1">Fluxo UHECR $>10^{19}$ eV [km⁻²·ano⁻¹]</label>
+        <input id="fluxoUHECR" type="number" step="0.001" value="1" class="w-full p-2 rounded bg-[#0a1123] border border-[#223]"/>
+        <label class="block text-xs mt-3 mb-1">Área do detector [km²]</label>
+        <input id="areaDet" type="number" value="3000" class="w-full p-2 rounded bg-[#0a1123] border border-[#223]"/>
+        <label class="block text-xs mt-3 mb-1">Eficiência de detecção (0–1)</label>
+        <input id="eficiencia" type="number" step="0.05" value="0.5" class="w-full p-2 rounded bg-[#0a1123] border border-[#223]"/>
+      </div>
+      <div>
+        <button id="btnTaxa" class="mt-6 w-full px-4 py-2 rounded bg-fuchsia-600 hover:bg-fuchsia-500">Estimar Probabilidade & Taxa</button>
+        <div id="outTaxa" class="mt-3 p-3 rounded bg-[#0a1123] border border-[#223] monos"></div>
+        <p class="text-xs opacity-70 mt-2">Aviso: estimativas grosseiras; $\sigma_\mathrm{BH}$ costuma ser minúscula para parâmetros compatíveis com limites experimentais, tornando a taxa desprezível.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- DESENHO ANIMADO DO CHUVEIRO -->
+  <section class="card rounded-2xl p-6 mb-10">
+    <h2 class="text-2xl font-semibold mb-3">4) Desenho/Animação de Chuveiro Atmosférico</h2>
+    <div class="grid md:grid-cols-3 gap-6">
+      <div class="md:col-span-2">
+        <canvas id="canvasShower" width="900" height="520" class="w-full rounded border border-[#223]"></canvas>
+      </div>
+      <div>
+        <div class="grid grid-cols-2 gap-2 text-sm">
+          <label class="flex items-center gap-2"><input id="verHadrons" type="checkbox" checked>Hadrons</label>
+          <label class="flex items-center gap-2"><input id="verFotons" type="checkbox" checked>Fótons</label>
+          <label class="flex items-center gap-2"><input id="verMuons" type="checkbox" checked>Muons</label>
+          <label class="flex items-center gap-2"><input id="verNeutrinos" type="checkbox">Neutrinos</label>
+          <label class="flex items-center gap-2"><input id="neutrinosRetas" type="checkbox">Neutrinos retos</label>
+          <label class="flex items-center gap-2"><input id="pintarEnergia" type="checkbox" checked>Espessura ∝ energia</label>
+        </div>
+        <div class="mt-3 text-sm">
+          <label class="block text-xs mb-1">Multiplicidade (escala)</label>
+          <input id="escalaMult" type="range" min="0.3" max="3" step="0.1" value="1" class="w-full"/>
+          <label class="block text-xs mt-3 mb-1">Abertura do jato (graus)</label>
+          <input id="abertura" type="range" min="5" max="55" step="1" value="20" class="w-full"/>
+          <label class="block text-xs mt-3 mb-1">Altura inicial (px do topo)</label>
+          <input id="h0" type="range" min="10" max="120" step="1" value="40" class="w-full"/>
+        </div>
+        <div class="mt-4 flex gap-2">
+          <button id="btnGerarShower" class="px-3 py-2 rounded bg-amber-600 hover:bg-amber-500">Gerar chuveiro</button>
+          <button id="btnLimparShower" class="px-3 py-2 rounded bg-slate-600 hover:bg-slate-500">Limpar</button>
+        </div>
+        <p class="text-xs opacity-70 mt-3">Cores: <span style="color:#ff7070">hadrons</span>, <span style="color:#ffd24d">fótons</span>, <span style="color:#6dd16d">muons</span>, <span style="color:#7dc7ff">neutrinos</span>.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="opacity-60 text-sm mb-10">
+    <p>Implementação e texto por <strong>Luiz Tiago Wilcke</strong>. Unidades naturais ($\hbar=c=1$) quando indicado.</p>
+  </footer>
+</main>
+
+<script>
+(() => {
+// ========================= Constantes & utilidades =========================
+const GEV_TO_eV = 1e9;
+const TEV_TO_GEV = 1e3;
+const INV_GEV_TO_FM = 0.1973269718; // 1 GeV^{-1} = 0.1973 fm
+const INV_TEV_TO_FM = INV_GEV_TO_FM / TEV_TO_GEV; // 1 TeV^{-1} em fm
+const HBAR_GeV_s = 6.582119569e-25; // \hbar em GeV*s
+const m2_per_barn = 1e-28;          // 1 b = 1e-28 m^2
+const barns_per_m2 = 1e28;          // 1 m^2 = 1e28 b
+const GeVInv_to_m = 1.973269804e-16; // 1 GeV^{-1} em m
+const TeVInv_to_m = GeVInv_to_m / TEV_TO_GEV;
+
+function clamp01(x){ return Math.max(0,Math.min(1,Number(x))); }
+function sci(x,d=3){
+  const nx=Number(x);
+  if(!isFinite(nx)) return String(x);
+  if(nx===0) return '0';
+  const e = Math.floor(Math.log10(Math.abs(nx)));
+  const m = nx/Math.pow(10,e);
+  return `${m.toFixed(d)}e${e>=0?'+':''}${e}`;
+}
+
+// ========================= Gamma de Lanczos (k(n)) =========================
+function gamma(z){
+  const p=[0.99999999999980993,676.5203681218851,-1259.1392167224028,771.32342877765313,-176.61502916214059,12.507343278686905,-0.13857109526572012,9.9843695780195716e-6,1.5056327351493116e-7];
+  if(z<0.5){return Math.PI/(Math.sin(Math.PI*z)*gamma(1-z));}
+  z-=1; let x=p[0]; for(let i=1;i<p.length;i++){x+=p[i]/(z+i);} const t=z+p.length-0.5;
+  return Math.sqrt(2*Math.PI)*Math.pow(t,z+0.5)*Math.exp(-t)*x;
+}
+function kFactor(n){ // k(n) = [ 2^n * pi^{(n-3)/2} * Gamma((3+n)/2) / (n+2) ]
+  return Math.pow(2,n)*Math.pow(Math.PI,(n-3)/2)*gamma((3+n)/2)/(n+2);
+}
+function sqrtS_GeV(E_lab_eV,m1_GeV,m2_GeV){
+  const E_lab_GeV=E_lab_eV/GEV_TO_eV;
+  const s=m1_GeV*m1_GeV+m2_GeV*m2_GeV+2*m2_GeV*E_lab_GeV;
+  return Math.sqrt(Math.max(s,0));
+}
+
+// ========================= Saída formatada =========================
+function escreverOut(linhas){
+  const el=document.getElementById('out');
+  el.textContent = linhas.join('\n');
+}
+
+// ========================= Modelo principal (ADD) =========================
+function calcularTudo(){
+  const E_lab=parseFloat(document.getElementById('E_lab').value);
+  const m1=parseFloat(document.getElementById('m1').value);
+  const usarEf=document.getElementById('usarAlvoEfetivo').checked;
+  const m2=usarEf ? parseFloat(document.getElementById('m_eff').value||'0') : parseFloat(document.getElementById('m2').value);
+  const y=parseFloat(document.getElementById('yfrac').value);
+  const n=parseInt(document.getElementById('nextra').value);
+  const MD_TeV=parseFloat(document.getElementById('MD').value);
+  const kappaN=parseFloat(document.getElementById('kappaN').value);
+
+  if([E_lab,m1,m2,y,n,MD_TeV,kappaN].some(v=>!isFinite(v)||v<=0)){
+    escreverOut(['Verifique as entradas (valores positivos).']);
+    return null;
+  }
+
+  const sGeV=sqrtS_GeV(E_lab,m1,m2);
+  const sTeV=sGeV/TEV_TO_GEV;
+  const MBH_TeV=y*sTeV;
+  const k=kFactor(n);
+
+  // Raio do horizonte (ADD): r_s ~ MD^{-1} [k (M/MD)]^{1/(1+n)}
+  const rs_TeV_inv=(1/MD_TeV)*Math.pow(k*(MBH_TeV/MD_TeV),1/(1+n));
+  const rs_fm=rs_TeV_inv*INV_TEV_TO_FM;
+  const rs_m=rs_TeV_inv*TeVInv_to_m;
+
+  // Seção de choque geométrica
+  const sigma_m2=Math.PI*rs_m*rs_m;
+  const sigma_b=sigma_m2*barns_per_m2;  // em barns
+
+  // Temperatura de Hawking (ADD)
+  const TH_TeV=(n+1)/(4*Math.PI*rs_TeV_inv);
+  const TH_GeV=TH_TeV*TEV_TO_GEV;
+
+  // Vida (ordem de grandeza)
+  const tau_GeV_inv=(1/(MD_TeV*TEV_TO_GEV))*Math.pow(MBH_TeV/MD_TeV,(n+3)/(n+1));
+  const tau_s=tau_GeV_inv*HBAR_GeV_s;
+
+  // Multiplicidade
+  const N_mult=kappaN*(MBH_TeV*TEV_TO_GEV)/(3*TH_GeV);
+
+  const linhas=[];
+  linhas.push(`√s  ≈ ${sTeV.toFixed(3)} TeV  (projétil + alvo em repouso)`);
+  linhas.push(`M_BH ≈ y·√s = ${MBH_TeV.toFixed(3)} TeV  (y = ${y})`);
+  linhas.push(`r_s  ≈ ${rs_fm.toExponential(3)} fm  (${sci(rs_m,3)} m)`);
+  linhas.push(`σ_BH ≈ π r_s² = ${sci(sigma_b,3)} b  = ${(sigma_b*1e3).toFixed(3)} mb`);
+  linhas.push(`T_H  ≈ ${TH_GeV.toFixed(2)} GeV  (${(TH_TeV*1e12*11604.518).toExponential(3)} K)`);
+  linhas.push(`τ (D=4+n, ordem) ~ ${sci(tau_s,3)} s`);
+  linhas.push(`Multiplicidade típica N ≈ ${N_mult.toFixed(1)} (κ_N=${kappaN})`);
+  linhas.push(`Parâmetros: n=${n}, M_D=${MD_TeV} TeV`);
+  escreverOut(linhas);
+
+  return { E_lab, m1, m2, y, n, MD_TeV, sTeV, MBH_TeV, rs_TeV_inv, rs_m, rs_fm, sigma_b, sigma_m2, TH_GeV, TH_TeV, tau_s, N_mult };
+}
+
+// ========================= Composição (DOF e pesos) =========================
+function composicaoEstadoFinal(){
+  const dof = {
+    quarks: 72,        // 6 sabores * 3 cores * 2 (part/anti) * 2 spin
+    gluons: 16,        // 8 * 2 pol
+    leptons: 12,       // e,mu,tau: 3 * 4 (part/anti * 2 spin)
+    neutrinos: 6,      // 3 * 2 (helicidades)
+    foton: 2,          // 2 pol
+    WZ: 9,             // W+, W-, Z (3 pol cada) se T>m_W,Z
+    higgs: 1,          // escalar
+    graviton: 2        // efetivo (spin-2)
+  };
+
+  const wF = parseFloat(document.getElementById('wFermi').value);
+  const wV = parseFloat(document.getElementById('wVector').value);
+  const wS = parseFloat(document.getElementById('wScalar').value);
+  const wG = parseFloat(document.getElementById('wGrav').value);
+
+  const grupos = {
+    hadronicos: wF*(dof.quarks) + wV*(dof.gluons),
+    leptons:    wF*(dof.leptons),
+    neutrinos:  wF*(dof.neutrinos),
+    foton:      wV*(dof.foton),
+    WZ:         wV*(dof.WZ),
+    higgs:      wS*(dof.higgs),
+    graviton:   wG*(dof.graviton)
+  };
+  const soma = Object.values(grupos).reduce((a,b)=>a+b,0);
+  const fracDir = {}; for(const k in grupos){ fracDir[k]=grupos[k]/soma; }
+
+  const fHad = clamp01(parseFloat(document.getElementById('fHad').value));
+  const ratio = (document.getElementById('ratioPi0').value||'1:2').split(':').map(x=>parseFloat(x));
+  const r0 = (ratio.length===2 && ratio[0]>0 && ratio[1]>0) ? ratio[0]/(ratio[0]+ratio[1]) : 1/3;
+  const rpm = 1 - r0;
+
+  const Ehad = fHad * (fracDir.hadronicos || 0);
+  const Egamma_pi0 = Ehad * r0;
+  const Emu_nu = Ehad * rpm;
+
+  const fracFinal = {
+    Fotons: (fracDir.foton||0) + Egamma_pi0,
+    Leptons_ePMuPM: (fracDir.leptons||0) + 0.25*Emu_nu,
+    Neutrinos: (fracDir.neutrinos||0) + 0.65*Emu_nu,
+    Hadrons_residuais: Math.max( (fracDir.hadronicos||0) - Ehad, 0 ),
+    WZH: (fracDir.WZ||0) + (fracDir.higgs||0),
+    Gravitons: (fracDir.graviton||0)
+  };
+  const somaF = Object.values(fracFinal).reduce((a,b)=>a+b,0);
+  for(const k in fracFinal) fracFinal[k]/=somaF;
+
+  return { fracDir, fracFinal };
+}
+
+// ========================= Chart helpers =========================
+let chartEspectro=null, chartComp=null;
+const chartCommonOptions = {
+  responsive:true,
+  maintainAspectRatio:false,
+  plugins:{ legend:{ labels:{ color:'#e9eef7' } } }
+};
+
+function plotarEspectro(TH_GeV){
+  const tipo = document.getElementById('estatistica').value; // 'bose' ou 'fermi'
+  const Emax = Math.max(10, parseFloat(document.getElementById('Emax').value)||500);
+  const nb=140; const xs=[]; const ys=[];
+  const T = Math.max(1e-6, TH_GeV);
+  for(let i=0;i<=nb;i++){
+    const E= (Emax/nb)*i + 1e-6;
+    const y = (E*E) / (Math.exp(E/T) + (tipo==='fermi'?1:-1));
+    xs.push(E); ys.push(y);
+  }
+  if(chartEspectro){ chartEspectro.destroy(); }
+  const ctx=document.getElementById('graficoEspectro');
+  chartEspectro = new Chart(ctx,{
+    type:'line',
+    data:{ labels: xs, datasets:[{ label:`dN/dE (T_H=${T.toFixed(2)} GeV)`, data: ys, borderWidth:2, pointRadius:0 }] },
+    options:{
+      ...chartCommonOptions,
+      scales:{
+        x:{ title:{ display:true, text:'Energia [GeV]', color:'#e9eef7' }, ticks:{ color:'#e9eef7' }, grid:{ color:'rgba(233,238,247,0.08)'} },
+        y:{ title:{ display:true, text:'Unidades arbitrárias', color:'#e9eef7' }, ticks:{ color:'#e9eef7' }, grid:{ color:'rgba(233,238,247,0.08)'} }
+      }
+    }
+  });
+}
+
+function plotarComposicao(fracFinal){
+  const labels=Object.keys(fracFinal);
+  const dados=labels.map(k=>fracFinal[k]);
+  if(chartComp){ chartComp.destroy(); }
+  const ctx=document.getElementById('graficoComposicao');
+  chartComp=new Chart(ctx,{
+    type:'doughnut',
+    data:{ labels, datasets:[{ data:dados }] },
+    options: chartCommonOptions
+  });
+}
+
+// ========================= Probabilidade & taxa =========================
+function estimarTaxa(prop){
+  if(!prop){ document.getElementById('outTaxa').textContent='Calcule os parâmetros principais primeiro.'; return; }
+  const sigmaHad_mb=parseFloat(document.getElementById('sigmaHad_mb').value); // mb
+  const Xcol = parseFloat(document.getElementById('Xcol').value); // g/cm^2
+  const fluxo = parseFloat(document.getElementById('fluxoUHECR').value); // km^-2 ano^-1
+  const area = parseFloat(document.getElementById('areaDet').value); // km^2
+  const eff = clamp01(parseFloat(document.getElementById('eficiencia').value));
+
+  // Conversões corretas:
+  // prop.sigma_b está em barns e prop.sigma_m2 em m^2
+  const sigmaBH_mb = prop.sigma_b * 1e3;               // 1 b = 1000 mb
+  const sigmaHad_m2 = sigmaHad_mb * 1e-31;             // 1 mb = 1e-31 m^2
+
+  // Probabilidade por interação ~ sigma_BH / sigma_total (em m^2)
+  const P_BH_por_interacao = Math.min(prop.sigma_m2 / Math.max(sigmaHad_m2,1e-40), 1);
+
+  // Profundidade "equivalente" (heurística); evita overflow se P for minúscula
+  const X_BH_medio = (P_BH_por_interacao>1e-12) ? (Xcol / P_BH_por_interacao) : Xcol*1e12;
+
+  const eventosPrimarios = fluxo * area;      // por ano
+  const eventosBH = eventosPrimarios * P_BH_por_interacao * eff;
+
+  const linhas=[];
+  linhas.push(`σ_BH ≈ ${sci(prop.sigma_b,3)} b  →  ${sci(sigmaBH_mb,3)} mb`);
+  linhas.push(`Probabilidade por interação (heurística): P_BH ≈ ${sci(P_BH_por_interacao,3)}`);
+  linhas.push(`Profundidade média equivalente (g/cm²): ~ ${sci(X_BH_medio,3)}`);
+  linhas.push(`Taxa anual esperada (área=${area} km², eficiência=${eff}): ~ ${sci(eventosBH,3)} eventos/ano`);
+  document.getElementById('outTaxa').textContent=linhas.join('\n');
+}
+
+// ========================= Desenho do chuveiro =========================
+const canvas=document.getElementById('canvasShower');
+const ctxC=canvas.getContext('2d');
+let trilhas=[];
+
+function corEspecie(tipo){ // 'had','gam','mu','nu'
+  switch(tipo){
+    case 'had': return '#ff7070';
+    case 'gam': return '#ffd24d';
+    case 'mu' : return '#6dd16d';
+    case 'nu' : return '#7dc7ff';
+    default: return '#ccc';
+  }
+}
+
+function gerarChuveiro(prop, comp){
+  ctxC.clearRect(0,0,canvas.width,canvas.height);
+  trilhas=[];
+  if(!prop || !comp) return;
+
+  const multBase = Math.max(5, prop.N_mult);
+  const escalaMult = parseFloat(document.getElementById('escalaMult').value);
+  const aberturaDeg = parseFloat(document.getElementById('abertura').value);
+  const h0 = parseFloat(document.getElementById('h0').value);
+
+  const f=comp.fracFinal;
+  const pHad = Math.max(0.02, f.Hadrons_residuais||0.05);
+  const pGam = Math.max(0.02, f.Fotons||0.2);
+  const pMu  = Math.max(0.02, f.Leptons_ePMuPM||0.15);
+  const pNu  = Math.max(0.02, f.Neutrinos||0.3);
+  const pTot = pHad+pGam+pMu+pNu;
+
+  const nTrilhas = Math.max(8, Math.floor(escalaMult * Math.min(3*multBase, 450)));
+
+  for(let i=0;i<nTrilhas;i++){
+    const r = Math.random()*pTot;
+    let tipo='had';
+    if(r<pGam) tipo='gam';
+    else if(r<pGam+pMu) tipo='mu';
+    else if(r<pGam+pMu+pNu) tipo='nu';
+    else tipo='had';
+
+    const aberturaRad = aberturaDeg*Math.PI/180;
+    const ang=(Math.random()-0.5)*aberturaRad;
+    const energia = (0.3 + 0.7*Math.random());
+    const x0 = canvas.width*0.5 + (Math.random()-0.5)*60;
+    const y0 = h0;
+    const passos = 40 + Math.floor(energia*60);
+    const perda = 0.985 - 0.01*Math.random();
+
+    let dx = Math.sin(ang), dy = Math.cos(ang);
+    let x=x0, y=y0, e=energia;
+    const pts=[{x,y,e}];
+
+    for(let k=0;k<passos;k++){
+      if(tipo!=='nu'){
+        dx += (Math.random()-0.5)*0.06;
+        dy += (Math.random()-0.5)*0.03;
+        const norm=Math.hypot(dx,dy)||1; dx/=norm; dy/=norm;
+      }
+      x+=dx*(6+3*e); y+=dy*(6+3*e);
+      e*=perda;
+
+      if(tipo!=='nu' && Math.random()<0.03 && e>0.2){
+        trilhas.push({
+          pts:[{x,y,e:e*0.7}],
+          dx:dx+(Math.random()-0.5)*0.3,
+          dy:dy+(Math.random()-0.5)*0.3,
+          e:e*0.7,
+          tipo:tipo
+        });
+        e*=0.6;
+      }
+      pts.push({x,y,e});
+      if(y>canvas.height-10) break;
+    }
+    trilhas.push({pts, tipo});
+  }
+}
+
+function desenhar(){
+  ctxC.fillStyle='rgba(11,16,32,0.35)';
+  ctxC.fillRect(0,0,canvas.width,canvas.height);
+
+  const verH = document.getElementById('verHadrons').checked;
+  const verG = document.getElementById('verFotons').checked;
+  const verM = document.getElementById('verMuons').checked;
+  const verN = document.getElementById('verNeutrinos').checked;
+  const espEnergia = document.getElementById('pintarEnergia').checked;
+
+  for(const t of trilhas){
+    if( (t.tipo==='had'&&!verH) || (t.tipo==='gam'&&!verG) || (t.tipo==='mu'&&!verM) || (t.tipo==='nu'&&!verN)) continue;
+    ctxC.beginPath();
+    ctxC.strokeStyle=corEspecie(t.tipo);
+    for(let i=0;i<t.pts.length;i++){
+      const p=t.pts[i];
+      ctxC.lineWidth = espEnergia ? 0.5 + 3.5*p.e : 1.5;
+      if(i===0) ctxC.moveTo(p.x,p.y); else ctxC.lineTo(p.x,p.y);
+    }
+    ctxC.stroke();
+  }
+  requestAnimationFrame(desenhar);
+}
+
+// ========================= Eventos UI =========================
+function atualizarTudo(){
+  const prop=calcularTudo();
+  if(!prop) return;
+  const comp=composicaoEstadoFinal();
+  plotarEspectro(prop.TH_GeV);
+  plotarComposicao(comp.fracFinal);
+}
+
+document.getElementById('btnCalc').addEventListener('click', atualizarTudo);
+
+document.getElementById('btnPresetLHC').addEventListener('click', ()=>{
+  document.getElementById('E_lab').value = 9.0e16; // ~13 TeV
+  document.getElementById('m1').value = 0.938;
+  document.getElementById('m2').value = 0.938;
+  document.getElementById('usarAlvoEfetivo').checked=false;
+  document.getElementById('m_eff').value = '';
+  document.getElementById('yfrac').value = 0.7;
+  document.getElementById('nextra').value = 3;
+  document.getElementById('MD').value = 5;
+  atualizarTudo();
+});
+
+document.getElementById('btnPresetUHECR').addEventListener('click', ()=>{
+  document.getElementById('E_lab').value = 1e20;
+  document.getElementById('m1').value = 0.938;
+  document.getElementById('m2').value = 0.938;
+  document.getElementById('usarAlvoEfetivo').checked=true;
+  document.getElementById('m_eff').value = 14;
+  document.getElementById('yfrac').value = 0.7;
+  document.getElementById('nextra').value = 3;
+  document.getElementById('MD').value = 5;
+  atualizarTudo();
+});
+
+document.getElementById('btnTaxa').addEventListener('click', ()=>{
+  const prop=calcularTudo();
+  estimarTaxa(prop);
+});
+
+document.getElementById('btnGerarShower').addEventListener('click', ()=>{
+  const prop=calcularTudo();
+  const comp=composicaoEstadoFinal();
+  gerarChuveiro(prop, comp);
+});
+
+document.getElementById('btnLimparShower').addEventListener('click', ()=>{
+  trilhas=[]; ctxC.clearRect(0,0,canvas.width,canvas.height);
+});
+
+// ========================= Inicialização =========================
+const props0=calcularTudo();
+plotarEspectro(props0?props0.TH_GeV:50);
+const comp0=composicaoEstadoFinal();
+plotarComposicao(comp0.fracFinal||{Fotons:0.4,Leptons_ePMuPM:0.2,Neutrinos:0.3,Hadrons_residuais:0.05,WZH:0.04,Gravitons:0.01});
+requestAnimationFrame(desenhar);
+
+})(); // IIFE
+</script>
+</body>
+</html>

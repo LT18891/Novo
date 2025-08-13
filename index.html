@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Go 19×19 — Autor: Luiz Tiago Wilcke</title>
+<style>
+  :root{
+    --celula: 36px;          /* distância entre interseções */
+    --margem: 28px;          /* margem interna do tabuleiro */
+    --esp-linha: 2px;        /* espessura das linhas */
+    --madeira1:#d9a759; --madeira2:#c9974a;
+    --cor-linha:#171717cc;
+  }
+  body{
+    margin:0; background:#0b0f16; color:#e9eef7; font-family:system-ui,Segoe UI,Inter,Arial;
+    display:grid; place-items:center; min-height:100dvh;
+  }
+  .container{
+    display:flex; gap:24px; align-items:flex-start; padding:20px; flex-wrap:wrap; max-width:1120px;
+  }
+  /* Tabuleiro (goban) */
+  .tabuleiro{
+    position:relative;
+    width: calc(var(--margem)*2 + var(--celula)*18);
+    height: calc(var(--margem)*2 + var(--celula)*18);
+    border-radius:12px;
+    background:
+      radial-gradient(140% 100% at 50% 0%, #0002 0 40%, transparent 41%),
+      linear-gradient(135deg,var(--madeira1),var(--madeira2));
+    box-shadow: inset 0 0 0 2px #0005, 0 14px 30px rgba(0,0,0,.5);
+    overflow:hidden;
+  }
+  /* Linhas do goban (grid) */
+  .grade::before, .grade::after{
+    content:""; position:absolute; inset: var(--margem); background-size: var(--celula) var(--celula); pointer-events:none;
+  }
+  .grade::before{ /* verticais */
+    background-image: linear-gradient(to right, var(--cor-linha) 0 var(--esp-linha), transparent var(--esp-linha) 100%);
+  }
+  .grade::after{  /* horizontais */
+    background-image: linear-gradient(to bottom, var(--cor-linha) 0 var(--esp-linha), transparent var(--esp-linha) 100%);
+  }
+  .moldura{ position:absolute; inset: var(--margem); box-shadow: inset 0 0 0 var(--esp-linha) var(--cor-linha); pointer-events:none; }
+
+  /* Pontos estrela */
+  .estrela{ position:absolute; width:10px; height:10px; border-radius:50%; background:#111; box-shadow:0 0 0 2px #111; transform:translate(-50%,-50%); pointer-events:none; }
+
+  /* Interseções clicáveis */
+  .intersec{ position:absolute; width:22px; height:22px; transform:translate(-50%,-50%); border-radius:50%; background:transparent; cursor:pointer; }
+  .intersec:hover{ outline:2px dashed #fff6; outline-offset:-6px; }
+
+  /* Pedras */
+  .pedra{ position:absolute; width:30px; height:30px; transform:translate(-50%,-50%); border-radius:50%; pointer-events:none; }
+  .preta{
+    background: radial-gradient(circle at 35% 35%, #555 0 35%, #111 60%, #000 100%);
+    box-shadow: 0 2px 4px rgba(0,0,0,.55), inset 0 -2px 6px rgba(0,0,0,.45), inset 0 2px 6px rgba(255,255,255,.20);
+  }
+  .branca{
+    background: radial-gradient(circle at 35% 35%, #fff 0 35%, #e9eef7 60%, #cbd6ea 100%);
+    box-shadow: 0 2px 4px rgba(0,0,0,.55), inset 0 -2px 6px rgba(0,0,0,.12), inset 0 2px 6px rgba(255,255,255,.85);
+  }
+
+  /* Painel lateral */
+  .painel{ min-width:330px; background:#0f1624; border:1px solid #1d2940; border-radius:14px; padding:16px 18px; box-shadow:0 12px 28px rgba(0,0,0,.45), inset 0 0 0 1px #0006; }
+  h1{ font-size:20px; margin:0 0 8px; }
+  .meta{ color:#a9b5c9; font-size:13px; margin-bottom:12px; }
+  .kv{ display:grid; grid-template-columns:auto 1fr; gap:6px 10px; font-size:14px; margin:8px 0 14px; }
+  .linha{ display:flex; align-items:center; gap:10px; margin:12px 0; }
+  .botao{ background:#182338; color:#e9eef7; border:1px solid #283755; border-radius:10px; padding:10px 12px; cursor:pointer; }
+  .botao:hover{ filter:brightness(1.12); }
+  input[type="range"]{ width:100%; }
+  .log{ height:170px; overflow:auto; background:#0c1320; border:1px solid #19243d; border-radius:10px; padding:8px; font:12px/1.35 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; color:#dfe7ff; }
+  .aviso{ color:#ffdca8; font-size:12px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="tabuleiro" id="elTabuleiro">
+    <div class="grade"></div>
+    <div class="moldura"></div>
+    <!-- estrelas, interseções e pedras serão criadas via JS -->
+  </div>
+
+  <div class="painel">
+    <h1>Go 19×19 — <b>Autor: Luiz Tiago Wilcke</b></h1>
+    <div class="meta">Você joga de <b>brancas</b>. O computador joga de <b>pretas</b> e inicia a partida.</div>
+
+    <div class="kv">
+      <div>Turno:</div><div id="uiTurno">Pensando…</div>
+      <div>Capturas pretas:</div><div id="uiCapPretas">0</div>
+      <div>Capturas brancas:</div><div id="uiCapBrancas">0</div>
+      <div>Playouts:</div><div id="uiPlayouts">0</div>
+    </div>
+
+    <div class="linha">
+      <button class="botao" id="btNovo">Nova partida</button>
+      <button class="botao" id="btPassar">Passar</button>
+      <button class="botao" id="btPontuar">Pontuar</button>
+    </div>
+
+    <div class="linha">
+      <label style="min-width:130px">Tempo da IA (ms)</label>
+      <input id="uiTempo" type="range" min="300" max="2500" step="50" value="1200"/>
+      <span id="uiTempoVal">1200</span>
+    </div>
+    <div class="linha">
+      <label style="min-width:130px">Exploração UCT (c)</label>
+      <input id="uiExpl" type="range" min="0.5" max="2.0" step="0.05" value="1.20"/>
+      <span id="uiExplVal">1.20</span>
+    </div>
+    <div class="aviso">Regras: área (chinesa), komi 6.5 p/ brancas, ko simples, suicídio proibido (exceto ao capturar).</div>
+    <div class="log" id="uiLog"></div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   Go 19×19 — variáveis e funções em português
+   IA (pretas): MCTS/UCT com heurísticas de capturas/atari/evitar olhos
+   ============================================================ */
+(() => {
+  // ---------- Parâmetros gerais ----------
+  const TAM = 19;                   // tamanho (19×19)
+  const KOMI = 6.5;                 // komi para brancas
+  const CEL = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--celula'));
+  const MARG = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--margem'));
+  const TAMPIX = MARG*2 + CEL*(TAM-1);
+
+  const elTabuleiro = document.getElementById('elTabuleiro');
+  elTabuleiro.style.width  = TAMPIX+'px';
+  elTabuleiro.style.height = TAMPIX+'px';
+
+  // ---------- Utilidades básicos ----------
+  const $ = s => document.querySelector(s);
+  const log = (m) => { const el = $('#uiLog'); el.textContent += m+"\\n"; el.scrollTop = el.scrollHeight; };
+
+  // Cores
+  const VAZIO = 0, PRETO = 1, BRANCO = 2;
+
+  // Estado da partida
+  let tabuleiro, jogadorDaVez, posicaoAnteriorStr, bloqueado, passesSeguidos;
+  let capturasPretas, capturasBrancas, playoutsTotais;
+
+  // Camadas visuais
+  const camadaPedras = document.createElement('div');
+  camadaPedras.style.position='absolute'; camadaPedras.style.inset='0';
+  elTabuleiro.appendChild(camadaPedras);
+
+  const camadaIntersecoes = document.createElement('div');
+  camadaIntersecoes.style.position='absolute'; camadaIntersecoes.style.inset='0';
+  elTabuleiro.appendChild(camadaIntersecoes);
+
+  // Pontos estrela
+  const pontosEstrela = [3,9,15];
+  for(const l of pontosEstrela) for(const c of pontosEstrela){
+    const el = document.createElement('div');
+    el.className = 'estrela';
+    const [x,y] = paraPixel(l,c);
+    el.style.left = x+'px';
+    el.style.top  = y+'px';
+    elTabuleiro.appendChild(el);
+  }
+
+  // ---------- Mapeamentos e vizinhanças ----------
+  const id = (l,c) => l*TAM + c;
+  const dentro = (l,c) => l>=0 && l<TAM && c>=0 && c<TAM;
+  const vizinhos = (l,c) => [[l-1,c],[l+1,c],[l,c-1],[l,c+1]].filter(([i,j])=>dentro(i,j));
+  function paraPixel(l,c){ return [MARG + c*CEL, MARG + l*CEL]; }
+
+  // ---------- UI ----------
+  function construirIntersecoes(){
+    camadaIntersecoes.innerHTML='';
+    for(let l=0;l<TAM;l++) for(let c=0;c<TAM;c++){
+      const el = document.createElement('div');
+      el.className = 'intersec';
+      const [x,y] = paraPixel(l,c);
+      el.style.left = x+'px'; el.style.top = y+'px';
+      el.addEventListener('click', ()=> cliqueHumano(l,c));
+      camadaIntersecoes.appendChild(el);
+    }
+  }
+
+  function desenhar(){
+    camadaPedras.innerHTML='';
+    for(let l=0;l<TAM;l++) for(let c=0;c<TAM;c++){
+      const v = tabuleiro[id(l,c)];
+      if(v===VAZIO) continue;
+      const pedra = document.createElement('div');
+      pedra.className = 'pedra ' + (v===PRETO?'preta':'branca');
+      const [x,y] = paraPixel(l,c);
+      pedra.style.left=x+'px'; pedra.style.top=y+'px';
+      camadaPedras.appendChild(pedra);
+    }
+    $('#uiCapPretas').textContent = capturasPretas;
+    $('#uiCapBrancas').textContent = capturasBrancas;
+    $('#uiPlayouts').textContent  = playoutsTotais;
+    $('#uiTurno').textContent = jogadorDaVez===PRETO? 'Computador (pretas)':'Você (brancas)';
+  }
+
+  // ---------- Regras e operações de grupo ----------
+  const copia = b => new Uint8Array(b);
+  const paraString = b => Array.from(b).join('');
+
+  function grupoELiberdades(b, l, c){
+    const cor = b[id(l,c)];
+    const pilha=[[l,c]];
+    const grupo = new Set([id(l,c)]);
+    const libs  = new Set();
+    for(let k=0;k<pilha.length;k++){
+      const [i,j] = pilha[k];
+      for(const [u,v] of vizinhos(i,j)){
+        const t = b[id(u,v)];
+        if(t===VAZIO){ libs.add(id(u,v)); continue; }
+        if(t===cor){
+          const chave=id(u,v);
+          if(!grupo.has(chave)){ grupo.add(chave); pilha.push([u,v]); }
+        }
+      }
+    }
+    return {grupo, libs};
+  }
+
+  function removerConjunto(b, conjunto){
+    for(const chave of conjunto) b[chave]=VAZIO;
+  }
+
+  function ehOlhoAproximado(b, cor, l, c){
+    if(b[id(l,c)]!==VAZIO) return false;
+    for(const [i,j] of vizinhos(l,c)) if(b[id(i,j)]!==cor) return false;
+    // diagonais (relaxa em bordas)
+    let diagHostil=0, tot=0;
+    for(const [i,j] of [[l-1,c-1],[l-1,c+1],[l+1,c-1],[l+1,c+1]]){
+      if(!dentro(i,j)) continue; tot++;
+      if(b[id(i,j)]!==cor) diagHostil++;
+    }
+    return diagHostil <= (tot>=4?1:0);
+  }
+
+  // tenta aplicar jogada; retorna {apos,capturadas} ou null se ilegal
+  function tentarJogar(b, l, c, cor, posAntStr){
+    if(!dentro(l,c) || b[id(l,c)]!==VAZIO) return null;
+    const adv = cor===PRETO?BRANCO:PRETO;
+    const apos = copia(b);
+    apos[id(l,c)] = cor;
+    let capturadas = 0;
+
+    const vistos = new Set();
+    for(const [i,j] of vizinhos(l,c)){
+      const chave=id(i,j);
+      if(apos[chave]!==adv || vistos.has(chave)) continue;
+      const {grupo, libs} = grupoELiberdades(apos,i,j);
+      for(const g of grupo) vistos.add(g);
+      if(libs.size===0){
+        capturadas += grupo.size;
+        removerConjunto(apos, grupo);
+      }
+    }
+    // suicídio (sem capturar) é proibido
+    const {libs} = grupoELiberdades(apos,l,c);
+    if(libs.size===0 && capturadas===0) return null;
+
+    // ko simples: não repetir posição imediatamente anterior
+    const str = paraString(apos);
+    if(str===posAntStr) return null;
+
+    return {apos, capturadas};
+  }
+
+  // lista lances legais + info de capturas/olho
+  function lancesLegais(b, cor, posAntStr){
+    const lista=[];
+    for(let l=0;l<TAM;l++) for(let c=0;c<TAM;c++){
+      const t = tentarJogar(b,l,c,cor,posAntStr);
+      if(!t) continue;
+      lista.push({l,c,capturas:t.capturadas, olho:ehOlhoAproximado(b,cor,l,c)});
+    }
+    return lista;
+  }
+
+  // ---------- Pontuação (área chinesa) ----------
+  function pontuacaoChinesa(b){
+    let pedrasP=0, pedrasB=0;
+    for(const v of b){ if(v===PRETO) pedrasP++; else if(v===BRANCO) pedrasB++; }
+    const visit = new Uint8Array(TAM*TAM);
+    let terrP=0, terrB=0;
+    for(let l=0;l<TAM;l++) for(let c=0;c<TAM;c++){
+      const chave=id(l,c);
+      if(b[chave]!==VAZIO || visit[chave]) continue;
+      const fila=[[l,c]];
+      const vazio = new Set([chave]); visit[chave]=1;
+      const coresAdj = new Set();
+      for(let k=0;k<fila.length;k++){
+        const [i,j]=fila[k];
+        for(const [u,v] of vizinhos(i,j)){
+          const t=b[id(u,v)];
+          if(t===VAZIO){
+            const nid=id(u,v);
+            if(!visit[nid]){ visit[nid]=1; vazio.add(nid); fila.push([u,v]); }
+          }else coresAdj.add(t);
+        }
+      }
+      if(coresAdj.size===1){
+        const cor=[...coresAdj][0];
+        if(cor===PRETO) terrP+=vazio.size; else terrB+=vazio.size;
+      }
+    }
+    return {pretas: pedrasP+terrP, brancas: pedrasB+terrB};
+  }
+
+  // ---------- MCTS / UCT ----------
+  function melhorLanceMCTS(estadoRaiz, tempoMs=1000, cExpl=1.2){
+    const raiz = new NoMonteCarlo(estadoRaiz, null, null);
+    const prazo = performance.now() + tempoMs;
+    let iteracoes=0;
+    while(performance.now() < prazo){
+      iteracoes++;
+      const folha = politicaArvore(raiz, cExpl);
+      const recompensa = simulacaoPadrao(folha.estado); // >0 favorece PRETO
+      retropropagar(folha, recompensa);
+    }
+    playoutsTotais += iteracoes;
+
+    // escolhe filho mais visitado
+    let melhor=null, maisVisitas=-1;
+    for(const filho of raiz.filhos){
+      if(filho.N > maisVisitas){ maisVisitas = filho.N; melhor = filho; }
+    }
+    return {lance: melhor && melhor.lance, iteracoes};
+  }
+
+  class NoMonteCarlo{
+    constructor(estado, pai, lance){
+      this.estado = estado;   // {tabuleiro, jogador, posAntStr, passes}
+      this.pai = pai;
+      this.lance = lance;     // {l,c} ou {passar:true}
+      this.filhos = [];
+      this.N = 0;             // visitas
+      this.W = 0;             // soma de recompensas (ponto de vista PRETO)
+      this.naoTentados = gerarLancesParaEstado(estado); // fila de expansão
+    }
+  }
+
+  function gerarLancesParaEstado(estado){
+    const lista = lancesLegais(estado.tabuleiro, estado.jogador, estado.posAntStr)
+      .filter(m => !(m.olho && m.capturas===0)) // evitar preencher olho próprio
+      .sort((a,b)=> b.capturas - a.capturas);   // prioriza capturas
+    // incluir possibilidade de "passar"
+    lista.push({passar:true});
+    return lista;
+  }
+
+  function ehTerminal(estado){
+    // terminal se dois passes seguidos
+    const limite = 2;
+    return estado.passes >= limite;
+  }
+
+  function politicaArvore(no, cExpl){
+    while(!ehTerminal(no.estado)){
+      if(no.naoTentados.length > 0) return expandir(no);
+      no = melhorFilho(no, cExpl);
+    }
+    return no;
+  }
+
+  function expandir(no){
+    // seleção aleatória com leve diversidade
+    const iRand = Math.floor(Math.random()*no.naoTentados.length);
+    const lance = no.naoTentados.splice(iRand,1)[0];
+    const novoEstado = aplicarLance(no.estado, lance);
+    const filho = new NoMonteCarlo(novoEstado, no, lance);
+    no.filhos.push(filho);
+    return filho;
+  }
+
+  function melhorFilho(no, cExpl){
+    let escolhido=null, melhorValor=-Infinity;
+    for(const f of no.filhos){
+      const Q = f.W / Math.max(1, f.N);
+      const U = cExpl * Math.sqrt(Math.log(no.N+1) / Math.max(1, f.N));
+      const valor = Q + U;
+      if(valor > melhorValor){ melhorValor = valor; escolhido = f; }
+    }
+    return escolhido || no.filhos[0];
+  }
+
+  function simulacaoPadrao(estado){
+    // política de rolagem semi-aleatória com heurísticas simples
+    let atual = clonarEstado(estado);
+    let passos=0, limite=500; // hard cap
+    while(!ehTerminal(atual) && passos<limite){
+      passos++;
+      const lances = lancesLegais(atual.tabuleiro, atual.jogador, atual.posAntStr)
+        .filter(m => !(m.olho && m.capturas===0));
+      // chance de passar para evitar ciclos
+      if(lances.length===0 || Math.random() < 0.02) {
+        atual = aplicarLance(atual, {passar:true});
+        continue;
+      }
+      // pesos: capturas pesam mais; adjacência a grupos em atari favorecida
+      const pesos = [];
+      let soma=0;
+      for(const m of lances){
+        let w = 1.0 + 2.5*m.capturas;
+        // bônus se vizinho do adversário com poucas liberdades
+        for(const [i,j] of vizinhos(m.l,m.c)){
+          const t = atual.tabuleiro[id(i,j)];
+          if(t!==VAZIO && t!==(atual.jogador)) {
+            const {libs} = grupoELiberdades(atual.tabuleiro,i,j);
+            if(libs.size<=2) w += 1.2;
+          }
+        }
+        pesos.push(w); soma+=w;
+      }
+      let r = Math.random()*soma, k=0;
+      for(;k<lances.length;k++){ r -= pesos[k]; if(r<=0) break; }
+      const escolha = lances[Math.min(k,lances.length-1)];
+      atual = aplicarLance(atual, escolha);
+    }
+    // pontuação final
+    const placar = pontuacaoChinesa(atual.tabuleiro);
+    const pretas = placar.pretas;
+    const brancas = placar.brancas + KOMI;
+    if(pretas > brancas) return 1;
+    if(pretas < brancas) return 0;
+    return 0.5; // empate raro
+  }
+
+  function retropropagar(no, recompensa){
+    while(no){
+      no.N += 1;
+      no.W += recompensa; // recompensa no ponto de vista PRETO
+      no = no.pai;
+    }
+  }
+
+  function clonarEstado(estado){
+    return {
+      tabuleiro: copia(estado.tabuleiro),
+      jogador: estado.jogador,
+      posAntStr: estado.posAntStr,
+      passes: estado.passes
+    };
+  }
+
+  function aplicarLance(estado, lance){
+    const b = copia(estado.tabuleiro);
+    const jogador = estado.jogador;
+    const prox = jogador===PRETO?BRANCO:PRETO;
+
+    if(lance.passar){
+      return { tabuleiro:b, jogador:prox, posAntStr: paraString(b), passes: estado.passes+1 };
+    }
+    const tentativa = tentarJogar(b, lance.l, lance.c, jogador, estado.posAntStr);
+    if(!tentativa){
+      return { tabuleiro:b, jogador:prox, posAntStr: paraString(b), passes: estado.passes+1 };
+    }
+    const apos = tentativa.apos;
+    return { tabuleiro: apos, jogador: prox, posAntStr: paraString(b), passes: 0 };
+  }
+
+  // ---------- Fluxo de jogo ----------
+  function iniciarNova(){
+    tabuleiro = new Uint8Array(TAM*TAM);
+    jogadorDaVez = PRETO;              // pretas começam (computador)
+    posicaoAnteriorStr = paraString(tabuleiro);
+    passesSeguidos = 0;
+    capturasPretas = 0;
+    capturasBrancas = 0;
+    playoutsTotais = 0;
+    bloqueado = false;
+    construirIntersecoes();
+    desenhar();
+    log('Nova partida. Computador (pretas) inicia.');
+    setTimeout(jogadaComputador, 50);
+  }
+
+  function cliqueHumano(l,c){
+    if(bloqueado || jogadorDaVez!==BRANCO) return;
+    const jog = tentarJogar(tabuleiro, l, c, BRANCO, posicaoAnteriorStr);
+    if(!jog){ log('Lance branco ilegal.'); return; }
+    tabuleiro = jog.apos;
+    if(jog.capturadas>0) capturasBrancas += jog.capturadas;
+    posicaoAnteriorStr = paraString(tabuleiro);
+    jogadorDaVez = PRETO;
+    passesSeguidos = 0;
+    desenhar();
+    setTimeout(jogadaComputador, 50);
+  }
+
+  function passarHumano(){
+    if(bloqueado || jogadorDaVez!==BRANCO) return;
+    passesSeguidos += 1;
+    jogadorDaVez = PRETO;
+    desenhar();
+    if(passesSeguidos>=2){
+      finalizarPorPasses();
+    }else{
+      setTimeout(jogadaComputador, 50);
+    }
+  }
+
+  function jogadaComputador(){
+    if(jogadorDaVez!==PRETO) return;
+    bloqueado = true;
+    $('#uiTurno').textContent = 'Computador (pensando…)';
+
+    const tempoMs = parseInt($('#uiTempo').value,10);
+    const cExpl = parseFloat($('#uiExpl').value);
+
+    const estado = { tabuleiro:copia(tabuleiro), jogador:PRETO, posAntStr: posicaoAnteriorStr, passes: passesSeguidos };
+    const {lance} = melhorLanceMCTS(estado, tempoMs, cExpl);
+
+    if(!lance || lance.passar){
+      log('Computador passa.');
+      passesSeguidos += 1;
+      jogadorDaVez = BRANCO;
+      if(passesSeguidos>=2){ bloqueado=false; finalizarPorPasses(); return; }
+      desenhar();
+      bloqueado=false;
+      return;
+    }
+    const res = tentarJogar(tabuleiro, lance.l, lance.c, PRETO, posicaoAnteriorStr);
+    if(res){
+      tabuleiro = res.apos;
+      if(res.capturadas>0) capturasPretas += res.capturadas;
+      posicaoAnteriorStr = paraString(tabuleiro);
+      jogadorDaVez = BRANCO;
+      passesSeguidos = 0;
+      desenhar();
+      log(`Computador joga em (${lance.l+1}, ${lance.c+1}).`);
+    }else{
+      log('Computador passa (fallback).');
+      passesSeguidos += 1;
+      jogadorDaVez = BRANCO;
+      if(passesSeguidos>=2){ finalizarPorPasses(); }
+      else desenhar();
+    }
+    bloqueado=false;
+  }
+
+  function finalizarPorPasses(){
+    const placar = pontuacaoChinesa(tabuleiro);
+    const pretas = placar.pretas;
+    const brancas = placar.brancas + KOMI;
+    const msg = `Pontuação — Pretas: ${pretas.toFixed(1)} | Brancas: ${(placar.brancas).toFixed(1)} + komi ${KOMI} = ${brancas.toFixed(1)}. ` +
+                (pretas>brancas? 'Vitória das pretas (IA).':'Vitória das brancas (você).');
+    log('Fim por passes consecutivos.\\n'+msg);
+    alert(msg);
+  }
+
+  function acaoPontuar(){
+    const placar = pontuacaoChinesa(tabuleiro);
+    const pretas = placar.pretas;
+    const brancas = placar.brancas + KOMI;
+    const msg = `Pontuação — Pretas: ${pretas.toFixed(1)} | Brancas: ${(placar.brancas).toFixed(1)} + komi ${KOMI} = ${brancas.toFixed(1)}. ` +
+                (pretas>brancas? 'Pretas à frente.':'Brancas à frente.');
+    log(msg);
+    alert(msg);
+  }
+
+  // ---------- Controles ----------
+  document.getElementById('btNovo').addEventListener('click', iniciarNova);
+  document.getElementById('btPassar').addEventListener('click', passarHumano);
+  document.getElementById('btPontuar').addEventListener('click', acaoPontuar);
+
+  document.getElementById('uiTempo').addEventListener('input', e=> document.getElementById('uiTempoVal').textContent = e.target.value);
+  document.getElementById('uiExpl').addEventListener('input', e=> document.getElementById('uiExplVal').textContent = parseFloat(e.target.value).toFixed(2));
+
+  // ---------- Início ----------
+  iniciarNova();
+})();
+</script>
+</body>
+</html>

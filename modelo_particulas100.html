@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Transporte de Quarks Pesados no QGP e Jet Quenching — Autor: Luiz Tiago Wilcke</title>
+
+<!-- MathJax (renderização das equações) -->
+<script id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+</script>
+
+<style>
+  :root{
+    --bg:#0b0c10;
+    --card:#12141a;
+    --card2:#161922;
+    --text:#e7edf7;
+    --muted:#a6b1c2;
+    --primary:#56b6c2;
+    --accent:#b57bee;
+    --ok:#5dd39e;
+    --warn:#f2c94c;
+    --danger:#ff6b6b;
+    --border:#1f2430;
+    --shadow:0 16px 40px rgba(0,0,0,.5);
+    --radius:18px;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font:16px/1.55 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial;
+    letter-spacing:.2px;
+  }
+  .wrap{max-width:1100px; margin:40px auto; padding:0 16px;}
+  header{
+    display:flex; flex-direction:column; gap:10px; margin-bottom:24px;
+  }
+  h1{
+    font-weight:800; margin:0; font-size:clamp(24px, 4vw, 36px);
+    background:linear-gradient(90deg,var(--primary),var(--accent));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .author{
+    color:var(--muted); font-size:14px; letter-spacing:.4px;
+  }
+  .grid{
+    display:grid;
+    grid-template-columns: 1.1fr .9fr;
+    gap:22px;
+  }
+  @media (max-width: 980px){
+    .grid{grid-template-columns: 1fr}
+  }
+  .card{
+    background:linear-gradient(180deg,var(--card),var(--card2));
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:22px;
+  }
+  h2{margin:6px 0 10px 0; font-size:22px}
+  h3{margin:18px 0 8px 0; font-size:18px; color:#cfd7ff}
+  p{margin:10px 0}
+  .equation{
+    background:#0f1117; border:1px dashed #242a36; padding:10px 12px; border-radius:12px;
+    overflow:auto
+  }
+  .muted{color:var(--muted)}
+  .badge{
+    display:inline-block; padding:6px 10px; border-radius:999px;
+    border:1px solid var(--border); background:#0f1218; color:var(--muted); font-size:12px
+  }
+
+  /* Formulário */
+  .form{
+    display:grid; gap:14px;
+  }
+  .row{display:grid; grid-template-columns: 1fr 1fr; gap:12px}
+  .row3{display:grid; grid-template-columns: 1fr 1fr 1fr; gap:12px}
+  .field{display:flex; flex-direction:column; gap:6px}
+  label{font-size:13px; color:#c9d5ee}
+  input, select{
+    background:#0f1218; color:var(--text);
+    border:1px solid #263044; border-radius:12px; padding:10px 12px; font-size:15px;
+    outline:none;
+  }
+  input[type=range]{accent-color: var(--accent)}
+  .hint{font-size:12px; color:var(--muted)}
+  .actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:6px}
+  button{
+    background:linear-gradient(90deg,#3aa4c4,#8a6ae2);
+    color:white; border:none; border-radius:12px; padding:10px 16px; font-weight:700; cursor:pointer;
+    box-shadow:0 10px 28px rgba(138,106,226,.25);
+  }
+  button.secondary{ background:#19202e; border:1px solid #2a3752; color:#d5def4}
+  .kpis{
+    display:grid; grid-template-columns: repeat(2, 1fr); gap:12px; margin-top:8px
+  }
+  .kpi{
+    background:#0f1218; border:1px solid #273248; border-radius:14px; padding:12px;
+  }
+  .kpi .label{font-size:12px; color:#bdc7dd}
+  .kpi .value{font-size:18px; font-weight:800; margin-top:4px}
+  .sep{height:1px; background:#222838; margin:12px 0}
+
+  /* Tabela simples */
+  table{width:100%; border-collapse: collapse; font-size:14px}
+  th,td{padding:8px 10px; border-bottom:1px solid #273248}
+  th{text-align:left; color:#cfd7ff}
+  .note{
+    background:#10141c; border:1px solid #2b3751; color:#d9e3fb;
+    border-left:4px solid var(--warn); padding:12px; border-radius:12px; margin-top:10px;
+  }
+  .foot{color:#9fb2d0; font-size:13px}
+  .pill{padding:2px 8px; border-radius:999px; border:1px solid #374768; color:#cfe0ff; font-size:12px}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Transporte/Difusão de Quarks Pesados no QGP e “Jet Quenching”</h1>
+      <div class="author">Autor: <strong>Luiz Tiago Wilcke</strong> · <span class="badge">fundo: preto</span> · <span class="badge">equações: MathJax</span></div>
+      <p class="muted">Quarks pesados (<em>charm</em>, <em>bottom</em>) funcionam como sondas do plasma de quarks e glúons (QGP). Sua interação com o meio pode ser modelada por processos estocásticos tipo Langevin/Fokker–Planck, conectando coeficientes de arrasto e difusão a observáveis como <span class="pill">\(D_s\)</span>, <span class="pill">\(\kappa\)</span>, <span class="pill">\(\hat{q}\)</span> e perdas de energia colisionais e radiativas.</p>
+    </header>
+
+    <div class="grid">
+      <!-- ====================== ARTIGO ====================== -->
+      <article class="card">
+        <h2>1) Formulação estocástica</h2>
+        <p>Num regime browniano (massa \(M\gg T\)), a dinâmica do momento do quark pesado \(\mathbf p\) em tempo próprio (natural) é aproximada por uma equação de Langevin com ruído branco:</p>
+        <div class="equation">
+          \[
+          \frac{dp_i}{dt} = -\eta_D\, p_i \;+\; \xi_i(t), \qquad
+          \langle \xi_i(t)\,\xi_j(t')\rangle = \kappa\,\delta_{ij}\,\delta(t-t').
+          \]
+        </div>
+        <p>O correspondente Fokker–Planck para a densidade \(f(\mathbf p,t)\) é</p>
+        <div class="equation">
+          \[
+          \partial_t f = \partial_{p_i}\!\left(\eta_D\,p_i\,f\right)\;+\;\frac{\kappa}{2}\,\partial_{p_i}\partial_{p_i}f,
+          \]
+        </div>
+        <p>com solução gaussiana por componente: \(\langle p_i(t)\rangle=\langle p_i(0)\rangle e^{-\eta_D t}\) e
+        \(\mathrm{Var}[p_i(t)]=\dfrac{\kappa}{2\eta_D}\!\left(1-e^{-2\eta_D t}\right)\).</p>
+
+        <h3>Relação de flutuação–dissipação e difusão espacial</h3>
+        <p>Ajustando para o equilíbrio \(\langle p_i^2\rangle \to MT\), obtém-se a relação de Einstein:</p>
+        <div class="equation">
+          \[
+          \kappa \;=\; 2\,M\,T\,\eta_D,
+          \qquad
+          D_s \;=\; \frac{T}{M\,\eta_D} \;=\; \frac{2\,T^2}{\kappa},
+          \qquad
+          2\pi T D_s \;=\; \frac{2\pi T^2}{M\,\eta_D}.
+          \]
+        </div>
+
+        <h2>2) Conexão com observáveis e *jet quenching*</h2>
+        <p><strong>Alargamento de momento transverso</strong> ao longo do caminho \(L\):</p>
+        <div class="equation">
+          \[
+          \langle \Delta p_T^2 \rangle \;=\; \hat{q}\,L,
+          \]
+        </div>
+        <p>onde \(\hat{q}\) é o parâmetro de transporte (broadening por unidade de comprimento).</p>
+
+        <p><strong>Perda de energia colisional (arrasto)</strong> — desprezando ruído no valor médio:</p>
+        <div class="equation">
+          \[
+          \frac{dE}{dt} \simeq -\,\eta_D\,\frac{p^2}{E},\qquad
+          \frac{dE}{dx} \simeq -\,\eta_D\,p \quad (\text{pois } v=p/E).
+          \]
+        </div>
+
+        <p><strong>Perda de energia radiativa (BDMPS-Z, paramétrica)</strong>:
+          \(\Delta E_{\text{rad}}\) cresce com \(L^2\) e com \(\hat{q}\),
+          suprimida para quarks pesados pelo “dead cone”:</p>
+        <div class="equation">
+          \[
+          \Delta E_{\text{rad}} \;\simeq\; c_{\mathrm{BDMPS}}\;\alpha_s\; C_R\; \hat{q}\; L^2 \;\times\; F_{\text{dead cone}}\,,
+          \]
+        </div>
+        <p class="muted">Aqui \(c_{\mathrm{BDMPS}}\) é um fator \(\mathcal O(0.25\text{–}1)\) que agrega constantes geométricas e cortes no espectro; \(F_{\text{dead cone}}\in[0,1]\) representa a supressão angular aproximada para \(M/E\) finitos.</p>
+
+        <h2>3) Esquema numérico (Euler–Maruyama)</h2>
+        <p>Para simulação estocástica discreta com passo \(\Delta t\):</p>
+        <div class="equation">
+          \[
+          p_i^{(n+1)} = p_i^{(n)} - \eta_D\, p_i^{(n)}\,\Delta t
+          \;+\; \sqrt{\kappa\,\Delta t}\; \mathcal N_i(0,1).
+          \]
+        </div>
+        <p>Isso permite estimar distribuições finais de \(p\), energia e quantidades integradas ao longo de trajetórias no meio.</p>
+
+        <h2>4) Observações e unidades</h2>
+        <ul>
+          <li>Usamos unidades naturais \(\hbar=c=1\). Comprimentos em fm e energias em GeV; taxas como \(\eta_D\) são em \(1/\text{fm}\) e \(\kappa,\hat{q}\) em \(\text{GeV}^2/\text{fm}\).</li>
+          <li>O cálculo pedagógico abaixo assume meio homogêneo (T constante) e trajetória retilínea.</li>
+          <li>Resultados reais dependem de perfis hidrodinâmicos, acoplamento correndo, geometrias e flutuações de caminho.</li>
+        </ul>
+
+        <div class="note">
+          <strong>Resumo:</strong> Com \(T, M\) e um entre \(\{2\pi T D_s, \eta_D, \kappa\}\), derivamos todos os demais coeficientes. O “jet quenching” combina <em>drag</em> (colisional) e emissão induzida (\(\propto \hat{q} L^2\)), com supressão por “dead cone” para quarks pesados.
+        </div>
+      </article>
+
+      <!-- ====================== CALCULADORA ====================== -->
+      <section class="card">
+        <h2>Calculadora geral</h2>
+        <p class="muted">Preencha <em>um</em> parâmetro primário entre \(2\pi T D_s\), \(\eta_D\) ou \(\kappa\). Os outros serão calculados por \(\kappa=2MT\eta_D\) e \(D_s=T/(M\eta_D)\).</p>
+
+        <div class="form">
+          <div class="row">
+            <div class="field">
+              <label>Espécie do quark pesado</label>
+              <select id="selQuark">
+                <option value="1.3">Charm (c) — M = 1.3 GeV</option>
+                <option value="4.5">Bottom (b) — M = 4.5 GeV</option>
+                <option value="custom">Personalizado</option>
+              </select>
+              <div class="hint">Altere abaixo se escolher “Personalizado”.</div>
+            </div>
+            <div class="field">
+              <label>Massa do quark \(M\) [GeV]</label>
+              <input id="inpM" type="number" step="0.01" value="1.3"/>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label>Temperatura do meio \(T\) [GeV]</label>
+              <input id="inpT" type="number" step="0.01" value="0.35"/>
+            </div>
+            <div class="field">
+              <label>Momento inicial \(p_0\) [GeV]</label>
+              <input id="inpP0" type="number" step="0.1" value="10"/>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label>Comprimento do caminho \(L\) [fm]</label>
+              <input id="inpL" type="number" step="0.1" value="5"/>
+            </div>
+            <div class="field">
+              <label>Parâmetro de transporte \(\hat{q}\) [GeV\(^2\)/fm]</label>
+              <input id="inpQhat" type="number" step="0.1" value="1.5"/>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label>Acoplamento forte \(\alpha_s\)</label>
+              <input id="inpAlpha" type="number" step="0.01" value="0.30"/>
+            </div>
+            <div class="field">
+              <label>Fator de cor \(C_R\) (quark: 4/3)</label>
+              <input id="inpCR" type="number" step="0.01" value="1.3333"/>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label>Fator BDMPS \(c_{\mathrm{BDMPS}}\)</label>
+              <input id="inpCBDMPS" type="number" step="0.01" value="0.25"/>
+              <div class="hint">Aproximação \(\mathcal O(0.25{-}1)\).</div>
+            </div>
+            <div class="field">
+              <label>Supressão “dead cone” \(F_{\text{dead cone}}\) (0–1)</label>
+              <input id="inpFdead" type="number" step="0.01" value="0.70" min="0" max="1"/>
+            </div>
+          </div>
+
+          <div class="sep"></div>
+          <h3>Parâmetro primário</h3>
+          <div class="row">
+            <div class="field">
+              <label>\(2\pi T D_s\) (adimensional)</label>
+              <input id="inp2piTDs" type="number" step="0.01" value="4.00"/>
+              <div class="hint">Se preencher este, deixe \(\eta_D\) e \(\kappa\) vazios.</div>
+            </div>
+            <div class="field">
+              <label>\(\eta_D\) [1/fm]</label>
+              <input id="inpEtaD" type="number" step="0.0001" placeholder=""/>
+              <div class="hint">Opcional. Ignorado se \(2\pi T D_s\) for fornecido.</div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label>\(\kappa\) [GeV\(^2\)/fm]</label>
+              <input id="inpKappa" type="number" step="0.001" placeholder=""/>
+              <div class="hint">Opcional. Usado apenas se os dois acima estiverem vazios.</div>
+            </div>
+            <div class="field">
+              <label>Passos para integração de \(E(t)\)</label>
+              <input id="inpSteps" type="number" step="10" value="800"/>
+              <div class="hint">Usado na integração numérica de \(dE/dt\) (colisional).</div>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button id="btnCalc">Calcular</button>
+            <button id="btnReset" class="secondary">Resetar</button>
+          </div>
+
+          <div class="kpis">
+            <div class="kpi"><div class="label">Velocidade inicial \(v_0=p_0/E_0\)</div><div class="value" id="outV0">—</div></div>
+            <div class="kpi"><div class="label">Tempo de trânsito \(t \approx L/v_0\) [fm]</div><div class="value" id="outTime">—</div></div>
+            <div class="kpi"><div class="label">\(\eta_D\) [1/fm]</div><div class="value" id="outEta">—</div></div>
+            <div class="kpi"><div class="label">\(\kappa\) [GeV\(^2\)/fm]</div><div class="value" id="outKap">—</div></div>
+            <div class="kpi"><div class="label">\(D_s\) [fm]</div><div class="value" id="outDs">—</div></div>
+            <div class="kpi"><div class="label">\(2\pi T D_s\)</div><div class="value" id="out2piTDs">—</div></div>
+          </div>
+
+          <div class="sep"></div>
+          <h3>Resultados de energia/momento</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Quantidade</th><th>Valor</th><th>Unidades</th>
+              </tr>
+            </thead>
+            <tbody id="tbl">
+              <!-- preenchido via JS -->
+            </tbody>
+          </table>
+
+          <div class="note foot">
+            <strong>Observação:</strong> a parte colisional usa o decaimento exponencial de \(p(t)\) no termo médio (ruído ignorado para \(\langle E\rangle\)), integrando
+            \(\frac{dE}{dt}=-\eta_D\,\frac{p^2}{E}\). A parte radiativa é paramétrica (BDMPS) com fator livre \(c_{\mathrm{BDMPS}}\) e supressão “dead cone”.
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <section class="card" style="margin-top:22px">
+      <h2>5) Referências de base (clássicas)</h2>
+      <ul>
+        <li>R. Baier, Y. Dokshitzer, A. Mueller, S. Peigné, D. Schiff — <em>Radiative energy loss and p⊥-broadening of high energy partons in nuclei</em> (BDMPS-Z).</li>
+        <li>G.D. Moore, D. Teaney — <em>How much do heavy quarks thermalize in a heavy ion collision?</em> (Langevin/coeficientes \(D_s,\eta_D,\kappa\)).</li>
+        <li>S. Cao, S.A. Bass — <em>Heavy-quark transport in QGP</em> (revisão fenomenológica).</li>
+      </ul>
+      <p class="muted">Este material é didático; para análises de dados, use perfis hidrodinâmicos realistas, acoplamento dependente de escala, e implementação cinética/MC completa.</p>
+    </section>
+  </div>
+
+<script>
+(function(){
+  const selQuark = document.getElementById('selQuark');
+  const inpM = document.getElementById('inpM');
+  const inpT = document.getElementById('inpT');
+  const inpP0 = document.getElementById('inpP0');
+  const inpL = document.getElementById('inpL');
+  const inpQhat = document.getElementById('inpQhat');
+  const inpAlpha = document.getElementById('inpAlpha');
+  const inpCR = document.getElementById('inpCR');
+  const inpCBDMPS = document.getElementById('inpCBDMPS');
+  const inpFdead = document.getElementById('inpFdead');
+
+  const inp2piTDs = document.getElementById('inp2piTDs');
+  const inpEtaD = document.getElementById('inpEtaD');
+  const inpKappa = document.getElementById('inpKappa');
+  const inpSteps = document.getElementById('inpSteps');
+
+  const outV0 = document.getElementById('outV0');
+  const outTime = document.getElementById('outTime');
+  const outEta = document.getElementById('outEta');
+  const outKap = document.getElementById('outKap');
+  const outDs = document.getElementById('outDs');
+  const out2piTDs = document.getElementById('out2piTDs');
+  const tbl = document.getElementById('tbl');
+
+  // Atualiza massa ao trocar espécie
+  selQuark.addEventListener('change', ()=>{
+    if(selQuark.value === 'custom') return;
+    inpM.value = parseFloat(selQuark.value).toFixed(2);
+  });
+
+  document.getElementById('btnReset').addEventListener('click', ()=>{
+    selQuark.value = '1.3'; inpM.value = 1.3;
+    inpT.value = 0.35; inpP0.value = 10; inpL.value = 5;
+    inpQhat.value = 1.5; inpAlpha.value = 0.30; inpCR.value = 1.3333;
+    inpCBDMPS.value = 0.25; inpFdead.value = 0.70;
+    inp2piTDs.value = 4.00; inpEtaD.value = ''; inpKappa.value = '';
+    inpSteps.value = 800;
+    clearOutputs();
+  });
+
+  function clearOutputs(){
+    outV0.textContent = '—';
+    outTime.textContent = '—';
+    outEta.textContent = '—';
+    outKap.textContent = '—';
+    outDs.textContent = '—';
+    out2piTDs.textContent = '—';
+    tbl.innerHTML = '';
+  }
+
+  function fmt(x, digits=4){
+    if(!isFinite(x)) return '—';
+    const a = Math.abs(x);
+    if(a!==0 && (a<1e-3 || a>=1e5)) return x.toExponential(3);
+    return Number(x.toFixed(digits)).toString();
+  }
+
+  function computeParams(M,T){
+    // Decide prioridade: 2πTDs > etaD > kappa
+    const val2pi = parseFloat(inp2piTDs.value);
+    const etaIn = parseFloat(inpEtaD.value);
+    const kapIn = parseFloat(inpKappa.value);
+    let etaD, kappa, Ds, twoPiTDs;
+
+    if(isFinite(val2pi) && val2pi>0){
+      twoPiTDs = val2pi;
+      Ds = twoPiTDs/(2*Math.PI*T); // Ds = (2π T Ds)/(2π T)
+      etaD = T/(M*Ds);
+      kappa = 2*M*T*etaD;
+    } else if(isFinite(etaIn) && etaIn>0){
+      etaD = etaIn;
+      kappa = 2*M*T*etaD;
+      Ds = T/(M*etaD);
+      twoPiTDs = 2*Math.PI*T*Ds;
+    } else if(isFinite(kapIn) && kapIn>0){
+      kappa = kapIn;
+      etaD = kappa/(2*M*T);
+      Ds = 2*T*T/kappa;
+      twoPiTDs = 2*Math.PI*T*Ds;
+    } else {
+      // fallback pedagógico: 2π T Ds = 4
+      twoPiTDs = 4.0;
+      Ds = twoPiTDs/(2*Math.PI*T);
+      etaD = T/(M*Ds);
+      kappa = 2*M*T*etaD;
+    }
+    return {etaD, kappa, Ds, twoPiTDs};
+  }
+
+  function energy(p,M){ return Math.sqrt(p*p + M*M); }
+
+  function integrateCollisional(M, p0, etaD, tTot, steps){
+    // Integra dE/dt = -etaD * p^2 / E, com p(t)=p0*exp(-etaD t) (média sem ruído)
+    // Fazemos integração numérica para consistência (apesar da forma fechada existir via substituição).
+    let E = energy(p0, M);
+    let dt = tTot/Math.max(1,steps);
+    let p = p0;
+    let dEcoll = 0;
+    for(let n=0; n<steps; n++){
+      const t = n*dt;
+      p = p0*Math.exp(-etaD*t);
+      const Einst = energy(p, M);
+      const dEdt = -etaD*(p*p)/Einst;
+      dEcoll += dEdt*dt;
+    }
+    const Efinal = E + dEcoll; // dEcoll é negativo
+    return { dEcoll, E0:E, E1:Efinal };
+  }
+
+  function radiativeLoss(alpha, CR, qhat, L, cBDMPS, Fdead){
+    // ΔE_rad ≈ c_BDMPS * α_s * C_R * qhat * L^2 * F_dead
+    return cBDMPS * alpha * CR * qhat * (L*L) * Fdead;
+  }
+
+  function update(){
+    const M = parseFloat(inpM.value);
+    const T = parseFloat(inpT.value);
+    const p0 = parseFloat(inpP0.value);
+    const L = parseFloat(inpL.value);
+    const qhat = parseFloat(inpQhat.value);
+    const alpha = parseFloat(inpAlpha.value);
+    const CR = parseFloat(inpCR.value);
+    const cBDMPS = parseFloat(inpCBDMPS.value);
+    const Fdead = Math.min(1, Math.max(0, parseFloat(inpFdead.value)));
+    const steps = Math.max(50, Math.floor(parseFloat(inpSteps.value)||800));
+
+    if(![M,T,p0,L,qhat,alpha,CR,cBDMPS].every(x=>isFinite(x) && x>=0)){ clearOutputs(); return; }
+
+    const {etaD, kappa, Ds, twoPiTDs} = computeParams(M,T);
+
+    const E0 = energy(p0, M);
+    const v0 = p0/E0;
+    const tTot = (v0>1e-12) ? L/v0 : Infinity;
+
+    outV0.textContent = fmt(v0,4);
+    outTime.textContent = fmt(tTot,4);
+    outEta.textContent = fmt(etaD,6);
+    outKap.textContent = fmt(kappa,6);
+    outDs.textContent = fmt(Ds,6);
+    out2piTDs.textContent = fmt(twoPiTDs,4);
+
+    // Estatísticas de Langevin para o momento médio e variância 1D:
+    const meanP = p0*Math.exp(-etaD*tTot);
+    const varP1D = (kappa/(2*etaD))*(1 - Math.exp(-2*etaD*tTot)); // por componente
+    const sigmaP = Math.sqrt(Math.max(0,varP1D));
+
+    // Broadening transverso paramétrico:
+    const broadPT2 = qhat*L;
+    const broadPTRMS = Math.sqrt(Math.max(0,broadPT2));
+
+    // Colisional (numérico)
+    const col = integrateCollisional(M, p0, etaD, tTot, steps);
+    const dEcoll = col.dEcoll; // negativo
+    let EafterColl = col.E1;
+
+    // Radiativo (paramétrico)
+    const dErad = - radiativeLoss(alpha, CR, qhat, L, cBDMPS, Fdead);
+    let Efinal = Math.max(M, EafterColl + dErad);
+
+    // Perdas e frações
+    const dEtotal = (Efinal - E0);
+    const fracLoss = (E0>0)? (-(dEtotal)/E0) : 0;
+
+    // Momento final aproximado (da energia final e assumindo direção constante):
+    const pFinalApprox = Math.sqrt(Math.max(0, Efinal*Efinal - M*M));
+
+    // Preenche tabela
+    const rows = [
+      ["Energia inicial \(E_0=\sqrt{p_0^2+M^2}\)", fmt(E0,5), "GeV"],
+      ["Velocidade inicial \(v_0=p_0/E_0\)", fmt(v0,5), "c=1"],
+      ["Tempo de trânsito \(t\simeq L/v_0\)", fmt(tTot,5), "fm"],
+      ["Média do momento \(\langle p(t)\rangle=p_0 e^{-\eta_D t}\)", fmt(meanP,5), "GeV"],
+      ["Desvio-padrão 1D \(\sigma_p=\sqrt{\frac{\kappa}{2\eta_D}(1-e^{-2\eta_D t})}\)", fmt(sigmaP,5), "GeV"],
+      ["Broadening transverso \(\sqrt{\langle \Delta p_T^2\rangle}=\sqrt{\hat{q}L}\)", fmt(broadPTRMS,5), "GeV"],
+      ["Perda colisional \(\Delta E_{\text{coll}}=\int dE/dt\,dt\)", fmt(dEcoll,5), "GeV"],
+      ["Perda radiativa \(\Delta E_{\text{rad}}\approx c\,\alpha_s C_R \hat{q} L^2 F\)", fmt(dErad,5), "GeV"],
+      ["Energia final estimada \(E_f\)", fmt(Efinal,5), "GeV"],
+      ["Momento final estimado \(p_f\approx\sqrt{E_f^2-M^2}\)", fmt(pFinalApprox,5), "GeV"],
+      ["Fraç. de energia perdida \(-\Delta E/E_0\)", fmt(fracLoss,5), ""]
+    ];
+    tbl.innerHTML = rows.map(r=>`<tr><td>${r[0]}</td><td><strong>${r[1]}</strong></td><td>${r[2]}</td></tr>`).join('');
+  }
+
+  document.getElementById('btnCalc').addEventListener('click', update);
+
+  // Atualização automática ao mudar campos
+  for (const el of document.querySelectorAll('input,select')){
+    el.addEventListener('change', (e)=>{
+      // Se usuário preencher explicitamente 2πTDs, zera os outros para evitar conflito
+      if(e.target===inp2piTDs && inp2piTDs.value){
+        inpEtaD.value = ''; inpKappa.value = '';
+      }
+      if(e.target===inpEtaD && inpEtaD.value){
+        inp2piTDs.value = ''; inpKappa.value = '';
+      }
+      if(e.target===inpKappa && inpKappa.value){
+        inp2piTDs.value = ''; inpEtaD.value = '';
+      }
+      update();
+    });
+  }
+
+  // Inicializa
+  update();
+})();
+</script>
+</body>
+</html>

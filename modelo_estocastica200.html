@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Modelos de Opções e Derivativos — Autor: Luiz Tiago Wilcke</title>
+
+<!-- MathJax: escala maior e suporte a $...$ -->
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(','\\)'], ['$', '$']],
+    displayMath: [['$$','$$'], ['\\[','\\]']],
+    processEscapes: true
+  },
+  chtml: { scale: 1.6 },   // **AUMENTO DO TAMANHO**
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+  :root{
+    --bg:#0b0f14; --panel:#111a26; --ink:#e9eef7; --muted:#9fb0c6;
+    --primary:#68b5ff; --accent:#ffd166; --ok:#2ecc71; --warn:#ff6b6b;
+    --card:#0f1722; --border:#0d1420; --shadow:0 14px 40px rgba(0,0,0,.45);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(1200px 700px at 20% -10%,#152236,transparent),var(--bg);color:var(--ink);font:18px/1.65 system-ui,Segoe UI,Roboto,Arial}
+  header{position:sticky;top:0;z-index:10;background:linear-gradient(180deg,#0d1522,rgba(13,21,34,.75) 70%,transparent);backdrop-filter:blur(6px);border-bottom:1px solid #0a1320}
+  .wrap{max-width:1200px;margin:0 auto;padding:18px}
+  h1{font-weight:800;letter-spacing:.3px;margin:8px 0 2px;font-size:2rem}
+  .by{color:var(--muted);font-size:1rem}
+  .grid{display:grid;grid-template-columns:280px 1fr;gap:18px;align-items:start}
+  nav{position:sticky;top:80px}
+  nav .card{padding:12px}
+  .card{background:linear-gradient(180deg,#0f1722,#0b121c);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow)}
+  .btn{display:block;width:100%;padding:12px 14px;margin:6px 0;border:1px solid #162336;background:#0e1a2b;color:#cfe5ff;border-radius:12px;text-align:left;cursor:pointer;transition:.2s;font-weight:600}
+  .btn:hover{border-color:#26466d;background:#12243a;color:#fff}
+  .btn.active{background:#132c48;border-color:#2f5e95;color:#fff}
+  section{display:none}
+  section.active{display:block}
+  h2{margin:.2rem 0 1rem;font-size:1.6rem}
+  details{background:#0c1624;border:1px solid #152740;border-radius:12px;padding:16px;margin:12px 0}
+  details>summary{cursor:pointer;color:#cfe5ff;font-weight:800}
+  .row{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+  .row .f{display:flex;flex-direction:column}
+  label{font-size:.96rem;color:var(--muted);margin-bottom:4px}
+  input,select{background:#0a1320;border:1px solid #15273f;color:#e6f1ff;border-radius:10px;padding:12px 12px;font-size:1rem}
+  input:focus,select:focus{outline:none;border-color:#2f5e95;box-shadow:0 0 0 3px rgba(104,181,255,.15)}
+  .actions{margin-top:12px}
+  .pill{display:inline-block;background:#10243d;color:#cfe5ff;border:1px solid #2a4a73;border-radius:999px;padding:7px 12px;margin:6px 8px 0 0;font-size:.95rem}
+  .calc{padding:18px}
+  .out{margin-top:12px;border-top:1px dashed #243649;padding-top:12px}
+  .out pre{white-space:pre-wrap;word-break:break-word;background:#09111c;border:1px solid #15273f;border-radius:12px;padding:12px;font-size:.95rem}
+  .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:12px}
+  .kpi .tile{background:#0b1524;border:1px solid #21344a;border-radius:12px;padding:12px}
+  .kpi .tile b{font-size:1.15rem}
+  footer{margin:40px 0 60px;color:#8ea7c2;text-align:center}
+  .mjx-chtml{line-height:1.3}
+  @media(max-width:1100px){.grid{grid-template-columns:1fr}}
+  @media(max-width:820px){.row{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>Modelos de Opções e Derivativos</h1>
+    <div class="by">Autor: <b>Luiz Tiago Wilcke</b> — Calculadoras interativas com explicações e fórmulas em \(\LaTeX\).</div>
+  </div>
+</header>
+
+<main class="wrap grid">
+  <nav>
+    <div class="card">
+      <button class="btn active" data-target="#bs">Black–Scholes (Europeias)</button>
+      <button class="btn" data-target="#bin">Árvore Binomial (CRR)</button>
+      <button class="btn" data-target="#mc">Monte Carlo (GBM)</button>
+      <button class="btn" data-target="#hjm">HJM — Curva de Juros</button>
+      <button class="btn" data-target="#iv">Vol Implícita (BSM)</button>
+    </div>
+    <div class="card" style="padding:12px;margin-top:12px">
+      <div class="pill">Moeda: contínuo (r, q em a.a.)</div>
+      <div class="pill">Notação: T em anos</div>
+      <div class="pill">Unidades: preços na mesma moeda de S</div>
+    </div>
+  </nav>
+
+  <!-- Black-Scholes -->
+  <section id="bs" class="card calc active">
+    <h2>Black–Scholes–Merton — Opções Europeias em GBM</h2>
+    <details open>
+      <summary>Teoria rápida</summary>
+      <p>Hipóteses: subjacente segue Movimento Browniano Geométrico \(dS_t = (r-q)S_t\,dt + \sigma S_t\,dW_t\) sob a medida neutra ao risco; sem arbitragem; taxas constantes; exercício apenas no vencimento.</p>
+      <p>Preços europeus (com dividendo/"carry" contínuo \(q\)):
+      \[
+        C = S_0 e^{-qT} N(d_1) - K e^{-rT} N(d_2),\qquad
+        P = K e^{-rT} N(-d_2) - S_0 e^{-qT} N(-d_1).
+      \]
+      com
+      \[
+        d_{1,2} = \frac{\ln(S_0/K) + (r-q \pm \tfrac{1}{2}\sigma^2)T}{\sigma\sqrt{T}}.
+      \]
+      Principais gregas (Call):
+      \[
+        \Delta = e^{-qT}N(d_1),\quad \Gamma = \frac{e^{-qT}\,\varphi(d_1)}{S_0\sigma\sqrt{T}},\quad
+        \text{Vega} = S_0 e^{-qT}\sqrt{T}\,\varphi(d_1),
+      \]
+      \[
+        \Theta = -\frac{S_0 e^{-qT}\,\varphi(d_1)\,\sigma}{2\sqrt{T}} + q S_0 e^{-qT} N(d_1) - r K e^{-rT} N(d_2),
+        \qquad
+        \rho = K T e^{-rT} N(d_2).
+      \]
+      Aqui \(\varphi\) é a densidade normal padrão e \(N\) sua CDF.</p>
+    </details>
+
+    <div class="row">
+      <div class="f"><label>Preço spot S₀</label><input id="bs_S" type="number" value="100" step="0.01"></div>
+      <div class="f"><label>Strike K</label><input id="bs_K" type="number" value="100" step="0.01"></div>
+      <div class="f"><label>Taxa livre de risco r (% a.a.)</label><input id="bs_r" type="number" value="10" step="0.01"></div>
+      <div class="f"><label>Dividendos/Carry q (% a.a.)</label><input id="bs_q" type="number" value="0" step="0.01"></div>
+      <div class="f"><label>Volatilidade σ (% a.a.)</label><input id="bs_sig" type="number" value="20" step="0.01"></div>
+      <div class="f"><label>Prazo T (anos)</label><input id="bs_T" type="number" value="1" step="0.01"></div>
+    </div>
+    <div class="actions"><button class="btn active" onclick="calcBS()">Calcular Black–Scholes</button></div>
+    <div class="kpi" id="bs_out"></div>
+    <div class="out"><pre id="bs_dbg"></pre></div>
+  </section>
+
+  <!-- Binomial -->
+  <section id="bin" class="card calc">
+    <h2>Árvore Binomial (Cox–Ross–Rubinstein)</h2>
+    <details open>
+      <summary>Teoria rápida</summary>
+      <p>Particiona-se \([0,T]\) em \(N\) passos \(\Delta t = T/N\). Fatores: \(u=e^{\sigma\sqrt{\Delta t}}\), \(d=e^{-\sigma\sqrt{\Delta t}}\). Probabilidade neutra ao risco \(p=\frac{e^{(r-q)\Delta t}-d}{u-d}\). O preço é o valor presente da árvore de payoffs (<i>backward induction</i>). Para opções americanas, considera-se o exercício antecipado a cada nó.</p>
+    </details>
+
+    <div class="row">
+      <div class="f"><label>S₀</label><input id="bin_S" type="number" value="100" step="0.01"></div>
+      <div class="f"><label>K</label><input id="bin_K" type="number" value="100" step="0.01"></div>
+      <div class="f"><label>r (% a.a.)</label><input id="bin_r" type="number" value="10" step="0.01"></div>
+      <div class="f"><label>q (% a.a.)</label><input id="bin_q" type="number" value="0" step="0.01"></div>
+      <div class="f"><label>σ (% a.a.)</label><input id="bin_sig" type="number" value="20" step="0.01"></div>
+      <div class="f"><label>T (anos)</label><input id="bin_T" type="number" value="1" step="0.01"></div>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <div class="f"><label>Passos N</label><input id="bin_N" type="number" value="100" step="1" min="1"></div>
+      <div class="f"><label>Tipo</label>
+        <select id="bin_tipo"><option value="call">Call</option><option value="put">Put</option></select>
+      </div>
+      <div class="f"><label>Estilo</label>
+        <select id="bin_estilo"><option value="euro">Europeia</option><option value="amer">Americana</option></select>
+      </div>
+    </div>
+    <div class="actions"><button class="btn active" onclick="calcBIN()">Calcular Árvore</button></div>
+    <div class="kpi" id="bin_out"></div>
+    <div class="out"><pre id="bin_dbg"></pre></div>
+  </section>
+
+  <!-- Monte Carlo -->
+  <section id="mc" class="card calc">
+    <h2>Monte Carlo (GBM sob medida neutra ao risco)</h2>
+    <details open>
+      <summary>Teoria rápida</summary>
+      <p>Simulamos \(S_t\) por passos \(\Delta t\): \(\ln S_{t+\Delta t}=\ln S_t + (r-q-\tfrac12\sigma^2)\Delta t + \sigma\sqrt{\Delta t}\,Z\), \(Z\sim\mathcal N(0,1)\). Preço: \(V_0 = e^{-rT}\,\mathbb E[\,\text{payoff}(S_T)\,]\). Erro-padrão \(= s/\sqrt{M}\), IC 95% \(\approx \bar x \pm 1{,}96\,SE\).</p>
+    </details>
+
+    <div class="row">
+      <div class="f"><label>S₀</label><input id="mc_S" type="number" value="100" step="0.01"></div>
+      <div class="f"><label>K</label><input id="mc_K" type="number" value="100" step="0.01"></div>
+      <div class="f"><label>r (% a.a.)</label><input id="mc_r" type="number" value="10" step="0.01"></div>
+      <div class="f"><label>q (% a.a.)</label><input id="mc_q" type="number" value="0" step="0.01"></div>
+      <div class="f"><label>σ (% a.a.)</label><input id="mc_sig" type="number" value="20" step="0.01"></div>
+      <div class="f"><label>T (anos)</label><input id="mc_T" type="number" value="1" step="0.01"></div>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <div class="f"><label>Simulações M</label><input id="mc_M" type="number" value="20000" step="100" min="1000"></div>
+      <div class="f"><label>Passos/ano</label><input id="mc_steps" type="number" value="252" step="1" min="1"></div>
+      <div class="f"><label>Tipo</label>
+        <select id="mc_tipo"><option value="call">Call</option><option value="put">Put</option></select>
+      </div>
+      <div class="f"><label>Variância reduzida</label>
+        <select id="mc_ant"><option value="antithetic">Antitético ON</option><option value="none">Padrão</option></select>
+      </div>
+    </div>
+    <div class="actions"><button class="btn active" onclick="calcMC()">Calcular Monte Carlo</button></div>
+    <div class="kpi" id="mc_out"></div>
+    <div class="out"><pre id="mc_dbg"></pre></div>
+  </section>
+
+  <!-- HJM -->
+  <section id="hjm" class="card calc">
+    <h2>HJM — Heath–Jarrow–Morton (1 fator, vol exponencial)</h2>
+    <details open>
+      <summary>Teoria rápida</summary>
+      <p>Modela diretamente a <b>curva de <i>forwards</i></b> \(f(t,T)\). Dinâmica geral com 1 fator:
+      \[
+        df(t,T)=\alpha(t,T)\,dt+\sigma(t,T)\,dW_t,\qquad \alpha(t,T)=\sigma(t,T)\int_t^T\!\sigma(t,u)\,du\ \ \text{(sem arbitragem)}.
+      \]
+      Adotamos \(\sigma(t,T)=\eta\,e^{-a(T-t)}\). Assim,
+      \[
+        \alpha(t,T)=\sigma(t,T)\,\frac{\eta}{a}\big(1-e^{-a(T-t)}\big).
+      \]
+      Um título zero \(P(t,T)=\exp(-\!\int_t^T f(t,u)du)\). O preço hoje de uma <b>call sobre título</b> com exercício \(t^*\le T\) e strike \(K\) é
+      \[
+        V_0=\mathbb E\Big[D_{t^*}\,\max\big(P(t^*,T)-K,0\big)\Big],\quad D_{t^*}=\exp\!\Big(-\int_0^{t^*}r_s ds\Big),\; r_t=f(t,t).
+      \]
+      </p>
+    </details>
+
+    <div class="row">
+      <div class="f"><label>Taxa plana inicial r₀ (% a.a.)</label><input id="hjm_r0" type="number" value="10" step="0.01"></div>
+      <div class="f"><label>Vol de nível η (% a.a.)</label><input id="hjm_eta" type="number" value="1.50" step="0.01"></div>
+      <div class="f"><label>Decaimento a (a⁻¹)</label><input id="hjm_a" type="number" value="0.10" step="0.01"></div>
+      <div class="f"><label>Expiração t* (anos)</label><input id="hjm_texp" type="number" value="1.0" step="0.05"></div>
+      <div class="f"><label>Maturidade T (anos)</label><input id="hjm_T" type="number" value="5.0" step="0.1"></div>
+      <div class="f"><label>Strike K (preço do título)</label><input id="hjm_K" type="number" value="0.80" step="0.01"></div>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <div class="f"><label>Simulações M</label><input id="hjm_M" type="number" value="5000" step="500" min="1000"></div>
+      <div class="f"><label>Passos/ano</label><input id="hjm_steps" type="number" value="120" step="1" min="12"></div>
+      <div class="f"><label>Cálculo</label>
+        <select id="hjm_mode">
+          <option value="bond">Preço de Título P(0,T)</option>
+          <option value="call">Opção de Compra de Título (t*,T,K)</option>
+        </select>
+      </div>
+    </div>
+    <div class="actions"><button class="btn active" onclick="calcHJM()">Calcular HJM</button></div>
+    <div class="kpi" id="hjm_out"></div>
+    <div class="out"><pre id="hjm_dbg"></pre></div>
+  </section>
+
+  <!-- Vol Implícita -->
+  <section id="iv" class="card calc">
+    <h2>Volatilidade Implícita — Black–Scholes (Brent/Bisseção)</h2>
+    <details open>
+      <summary>Teoria rápida</summary>
+      <p>Dado um preço observado \(V^\text{mkt}\) para uma opção europeia, a vol implícita \(\hat\sigma\) resolve
+      \[
+        \text{BS}(S_0,K,r,q,\hat\sigma,T;\text{tipo}) = V^\text{mkt}.
+      \]
+      Como não há forma fechada para \(\hat\sigma\), resolvemos numericamente por método híbrido (Brent com fallback em bisseção), usando <i>vega</i> para diagnóstico.</p>
+    </details>
+
+    <div class="row">
+      <div class="f"><label>S₀</label><input id="iv_S" type="number" value="100" step="0.01"></div>
+      <div class="f"><label>K</label><input id="iv_K" type="number" value="100" step="0.01"></div>
+      <div class="f"><label>r (% a.a.)</label><input id="iv_r" type="number" value="10" step="0.01"></div>
+      <div class="f"><label>q (% a.a.)</label><input id="iv_q" type="number" value="0" step="0.01"></div>
+      <div class="f"><label>T (anos)</label><input id="iv_T" type="number" value="1" step="0.01"></div>
+      <div class="f"><label>Preço observado</label><input id="iv_P" type="number" value="12" step="0.0001"></div>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <div class="f"><label>Tipo</label>
+        <select id="iv_tipo"><option value="call">Call</option><option value="put">Put</option></select>
+      </div>
+      <div class="f"><label>Precisão (bps de vol)</label><input id="iv_tol" type="number" value="0.5" step="0.1" min="0.01"></div>
+      <div class="f"><label>Máx. iterações</label><input id="iv_maxit" type="number" value="100" step="1" min="10"></div>
+    </div>
+    <div class="actions"><button class="btn active" onclick="calcIV()">Calcular Vol Implícita</button></div>
+    <div class="kpi" id="iv_out"></div>
+    <div class="out"><pre id="iv_dbg"></pre></div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">Estas calculadoras são para fins educacionais. Verifique unidades (% a.a., anos) e a adequação do modelo ao ativo. © <span class="mono">Luiz Tiago Wilcke</span>.</div>
+</footer>
+
+<script>
+// ===== Utilidades =====
+const exp=Math.exp, log=Math.log, sqrt=Math.sqrt, max=Math.max;
+function erf(x){const s=Math.sign(x);x=Math.abs(x);const a1=0.254829592,a2=-0.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=0.3275911;const t=1/(1+p*x);const y=1-((((a5*t+a4)*t+a3)*t+a2)*t+a1)*t*Math.exp(-x*x);return s*y;}
+function nd(x){return Math.exp(-0.5*x*x)/Math.sqrt(2*Math.PI);}
+function Nc(x){return 0.5*(1+erf(x/Math.SQRT2));}
+function fmt(x,d=6){if(!Number.isFinite(x))return'—';const s=x>=0?'':'−';x=Math.abs(x);return s+(Math.round(x*10**d)/10**d).toFixed(d);}
+function pct(x,d=4){return fmt(100*x,d)+'%';}
+
+// ===== Black–Scholes =====
+function blackScholes(S,K,r,q,sig,T){
+  const v=sig*sqrt(T); const d1=(log(S/K)+(r-q+0.5*sig*sig)*T)/v; const d2=d1-v;
+  const discR=exp(-r*T), discQ=exp(-q*T);
+  const call=S*discQ*Nc(d1)-K*discR*Nc(d2);
+  const put =K*discR*Nc(-d2)-S*discQ*Nc(-d1);
+  const deltaC=discQ*Nc(d1), deltaP=deltaC-discQ;
+  const gamma=discQ*nd(d1)/(S*sig*sqrt(T));
+  const vega =S*discQ*sqrt(T)*nd(d1);
+  const thetaC=-(S*discQ*nd(d1)*sig)/(2*sqrt(T))+q*S*discQ*Nc(d1)-r*K*discR*Nc(d2);
+  const thetaP=-(S*discQ*nd(d1)*sig)/(2*sqrt(T))-q*S*discQ*Nc(-d1)+r*K*discR*Nc(-d2);
+  const rhoC=K*T*discR*Nc(d2), rhoP=-K*T*discR*Nc(-d2);
+  return {call,put,d1,d2,deltaC,deltaP,gamma,vega,thetaC,thetaP,rhoC,rhoP};
+}
+function calcBS(){
+  const S=+bs_S.value, K=+bs_K.value, r=+bs_r.value/100, q=+bs_q.value/100, sig=+bs_sig.value/100, T=+bs_T.value;
+  if(T<=0||S<=0||K<=0||sig<=0){ bs_dbg.textContent='Verifique S, K, σ, T > 0.'; return; }
+  const res=blackScholes(S,K,r,q,sig,T);
+  bs_out.innerHTML=`
+    <div class="tile"><div>Call</div><b>${fmt(res.call,4)}</b></div>
+    <div class="tile"><div>Put</div><b>${fmt(res.put,4)}</b></div>
+    <div class="tile"><div>Paridade</div><b>${fmt(S*Math.exp(-q*T)-K*Math.exp(-r*T)-(res.call-res.put),6)}</b></div>
+    <div class="tile"><div>|d₁|, |d₂|</div><b>${fmt(res.d1,4)} · ${fmt(res.d2,4)}</b></div>`;
+  bs_dbg.textContent=`Δc=${fmt(res.deltaC,6)}, Δp=${fmt(res.deltaP,6)}
+Γ=${fmt(res.gamma,6)}, Vega=${fmt(res.vega,6)}
+Θc=${fmt(res.thetaC,6)}, Θp=${fmt(res.thetaP,6)}
+ρc=${fmt(res.rhoC,6)}, ρp=${fmt(res.rhoP,6)}`;
+}
+
+// ===== Binomial (CRR) =====
+function binomialCRR(S,K,r,q,sig,T,N,type='call',american=false){
+  const dt=T/N,u=Math.exp(sig*Math.sqrt(dt)),d=1/u,disc=Math.exp(-r*dt);
+  const p=(Math.exp((r-q)*dt)-d)/(u-d);
+  const vals=new Array(N+1);
+  for(let i=0;i<=N;i++){const ST=S*Math.pow(u,i)*Math.pow(d,N-i);vals[i]=type==='call'?Math.max(0,ST-K):Math.max(0,K-ST);}
+  for(let step=N-1;step>=0;step--){
+    for(let i=0;i<=step;i++){
+      const cont=disc*(p*vals[i+1]+(1-p)*vals[i]);
+      if(american){const S_=S*Math.pow(u,i)*Math.pow(d,step-i);const ex=type==='call'?Math.max(0,S_-K):Math.max(0,K-S_);vals[i]=Math.max(cont,ex);}
+      else vals[i]=cont;
+    }
+  }
+  return vals[0];
+}
+function calcBIN(){
+  const S=+bin_S.value,K=+bin_K.value,r=+bin_r.value/100,q=+bin_q.value/100,sig=+bin_sig.value/100,T=+bin_T.value,N=+bin_N.value;
+  const type=bin_tipo.value,american=(bin_estilo.value==='amer');
+  if(N<1||T<=0){bin_dbg.textContent='Use N≥1 e T>0.';return;}
+  const v=binomialCRR(S,K,r,q,sig,T,N,type,american);
+  bin_out.innerHTML=`<div class="tile"><div>Preço (${american?'Americana':'Europeia'})</div><b>${fmt(v,6)}</b></div>`;
+  const dt=T/N,u=Math.exp(sig*Math.sqrt(dt)),d=Math.exp(-sig*Math.sqrt(dt)),p=(Math.exp((r-q)*dt)-d)/(u-d);
+  bin_dbg.textContent=`u=${fmt(u,6)}, d=${fmt(d,6)}, p=${fmt(p,6)}, dt=${fmt(dt,6)}`;
+}
+
+// ===== Monte Carlo (GBM) =====
+function randn(){let u=0,v=0;while(u===0)u=Math.random();while(v===0)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+function priceMC_GBM(S0,K,r,q,sig,T,M,steps,type='call',antithetic=true){
+  const dt=T/steps,nudt=(r-q-0.5*sig*sig)*dt,sdt=sig*Math.sqrt(dt),disc=Math.exp(-r*T);
+  let sum=0,sum2=0;const half=antithetic?Math.floor(M/2):M;
+  function payoff(ST){return type==='call'?Math.max(0,ST-K):Math.max(0,K-ST);}
+  for(let m=0;m<half;m++){
+    let S=S0,Sa=S0;
+    for(let k=0;k<steps;k++){const z=randn();S*=Math.exp(nudt+sdt*z);if(antithetic){Sa*=Math.exp(nudt+sdt*(-z));}}
+    const p1=payoff(S),p=antithetic?0.5*(p1+payoff(Sa)):p1;const x=disc*p;sum+=x;sum2+=x*x;
+  }
+  const M_eff=half,mean=sum/M_eff,var_=(sum2/M_eff-mean*mean),se=Math.sqrt(Math.max(0,var_)/M_eff);
+  return {price:mean,se,ci:[mean-1.96*se,mean+1.96*se],M_eff};
+}
+function calcMC(){
+  const S=+mc_S.value,K=+mc_K.value,r=+mc_r.value/100,q=+mc_q.value/100,sig=+mc_sig.value/100,T=+mc_T.value;
+  const M=+mc_M.value,steps=+mc_steps.value,type=mc_tipo.value,ant=(mc_ant.value==='antithetic');
+  if(M<100||steps<1){mc_dbg.textContent='Use M≥100 e passos≥1.';return;}
+  const res=priceMC_GBM(S,K,r,q,sig,T,M,steps,type,ant);
+  mc_out.innerHTML=`
+    <div class="tile"><div>Preço MC</div><b>${fmt(res.price,6)}</b></div>
+    <div class="tile"><div>Erro-padrão</div><b>${fmt(res.se,6)}</b></div>
+    <div class="tile"><div>IC 95%</div><b>${fmt(res.ci[0],6)} · ${fmt(res.ci[1],6)}</b></div>
+    <div class="tile"><div>Amostras efetivas</div><b>${res.M_eff}</b></div>`;
+  mc_dbg.textContent=`Antitético: ${ant?'ON':'OFF'} | dt=${fmt(T/steps,6)} | drift=${fmt(r,6)}−${fmt(q,6)} | σ=${fmt(sig,6)}`;
+}
+
+// ===== HJM (1 fator) =====
+function hjmSimBondPrice(r0,eta,a,T,M,stepsPerYear){
+  const steps=Math.max(1,Math.floor(T*stepsPerYear)),dt=T/steps,sqrt_dt=Math.sqrt(dt);
+  let sum=0,sum2=0;
+  for(let m=0;m<M;m++){
+    const U=steps+1,f=new Array(U).fill(r0);let disc=1.0;
+    for(let k=0;k<steps;k++){
+      const t=k*dt,z=randn();
+      for(let j=k;j<U;j++){
+        const tau=j*dt-t;if(tau<0)continue;
+        const sigT=(a===0?eta:eta*Math.exp(-a*tau));
+        const integral=(a===0?eta*tau:eta*(1-Math.exp(-a*tau))/a);
+        const alpha=sigT*integral;
+        f[j]=f[j]+alpha*dt+sigT*sqrt_dt*z;
+      }
+      const r=f[k];disc*=Math.exp(-r*dt);
+    }
+    sum+=disc;sum2+=disc*disc;
+  }
+  const mean=sum/M,var_=(sum2/M-mean*mean),se=Math.sqrt(Math.max(0,var_)/M);
+  return {price:mean,se,ci:[mean-1.96*se,mean+1.96*se]};
+}
+function hjmSimBondCall(r0,eta,a,tExp,T,K,M,stepsPerYear){
+  if(T<=tExp)throw new Error('Requer T > t*');
+  const stepsExp=Math.max(1,Math.floor(tExp*stepsPerYear));
+  const stepsTot=Math.max(stepsExp+1,Math.floor(T*stepsPerYear));
+  const dt=(T)/stepsTot,sqrt_dt=Math.sqrt(dt);
+  let sum=0,sum2=0;
+  for(let m=0;m<M;m++){
+    const U=stepsTot+1,f=new Array(U).fill(r0);let disc=1.0;
+    for(let k=0;k<stepsTot;k++){
+      const t=k*dt,z=randn();
+      for(let j=k;j<U;j++){
+        const tau=j*dt-t;if(tau<0)continue;
+        const sigT=(a===0?eta:eta*Math.exp(-a*tau));
+        const integral=(a===0?eta*tau:eta*(1-Math.exp(-a*tau))/a);
+        const alpha=sigT*integral;
+        f[j]=f[j]+alpha*dt+sigT*sqrt_dt*z;
+      }
+      const r=f[k]; if(k<stepsExp) disc*=Math.exp(-r*dt);
+    }
+    let integ=0; for(let j=stepsExp;j<stepsTot;j++) integ+=f[j]*dt;
+    const P_tT=Math.exp(-integ); const payoff=Math.max(0,P_tT-K); const x=disc*payoff; sum+=x; sum2+=x*x;
+  }
+  const mean=sum/M,var_=(sum2/M-mean*mean),se=Math.sqrt(Math.max(0,var_)/M);
+  return {price:mean,se,ci:[mean-1.96*se,mean+1.96*se]};
+}
+function calcHJM(){
+  const r0=+hjm_r0.value/100,eta=+hjm_eta.value/100,a=+hjm_a.value,tExp=+hjm_texp.value,T=+hjm_T.value,K=+hjm_K.value;
+  const M=+hjm_M.value,steps=+hjm_steps.value,mode=hjm_mode.value;
+  if(T<=0){hjm_dbg.textContent='Use T>0.';return;}
+  if(mode==='bond'){
+    const res=hjmSimBondPrice(r0,eta,a,T,M,steps);
+    hjm_out.innerHTML=`<div class="tile"><div>P(0,T)</div><b>${fmt(res.price,6)}</b></div>
+      <div class="tile"><div>Erro-padrão</div><b>${fmt(res.se,6)}</b></div>
+      <div class="tile"><div>IC 95%</div><b>${fmt(res.ci[0],6)} · ${fmt(res.ci[1],6)}</b></div>
+      <div class="tile"><div>Referência plana</div><b>${fmt(Math.exp(-r0*T),6)}</b></div>`;
+    hjm_dbg.textContent=`HJM(η=${pct(eta)}, a=${fmt(a,4)}), r₀=${pct(r0)} | dt≈${fmt(1/steps,6)} ano`;
+  }else{
+    if(!(T>tExp)){hjm_dbg.textContent='Requer T > t* para opção.';return;}
+    const res=hjmSimBondCall(r0,eta,a,tExp,T,K,M,steps);
+    hjm_out.innerHTML=`<div class="tile"><div>Preço da Call</div><b>${fmt(res.price,6)}</b></div>
+      <div class="tile"><div>Erro-padrão</div><b>${fmt(res.se,6)}</b></div>
+      <div class="tile"><div>IC 95%</div><b>${fmt(res.ci[0],6)} · ${fmt(res.ci[1],6)}</b></div>
+      <div class="tile"><div>Parâmetros</div><b>t*=${fmt(tExp,3)}, T=${fmt(T,3)}, K=${fmt(K,4)}</b></div>`;
+    hjm_dbg.textContent=`HJM(η=${pct(eta)}, a=${fmt(a,4)}), r₀=${pct(r0)} | passos/ano=${steps} | Monte Carlo M=${M}`;
+  }
+}
+
+// ===== Vol Implícita (BSM) =====
+function priceBS_scalar(S,K,r,q,sig,T,type='call'){const r_=blackScholes(S,K,r,q,sig,T);return type==='call'?r_.call:r_.put;}
+function impliedVol(S,K,r,q,T,price,type='call',tol=0.005,maxit=100){
+  const f=(s)=>priceBS_scalar(S,K,r,q,s,T,type)-price;
+  let a=1e-4,b=5.0,fa=f(a),fb=f(b);
+  if(isNaN(fa)||isNaN(fb))return{ok:false,msg:'Entrada inválida'};
+  if(fa*fb>0){a=1e-4;fa=f(a);b=Math.min(5.0,Math.max(0.5,Math.abs(Math.log(price/Math.max(1e-9,S*Math.exp(-q*T)-K*Math.exp(-r*T))))*2));fb=f(b);if(fa*fb>0)return{ok:false,msg:'Não foi possível bracketing.'};}
+  let c=a,fc=fa,d=b-a,e=d;const eps=Math.max(1e-12,tol/100);
+  for(let it=0;it<maxit;it++){
+    if(Math.abs(fc)<Math.abs(fb)){a=b;b=c;c=a;fa=fb;fb=fc;fc=fa;}
+    const tol1=2*Number.EPSILON*Math.abs(b)+0.5*eps,xm=0.5*(c-b);
+    if(Math.abs(xm)<=tol1||fb===0)return{ok:true,vol:Math.max(0,b),it:it+1};
+    if(Math.abs(e)>=tol1&&Math.abs(fa)>Math.abs(fb)){
+      let s=fb/fa,p,q_;
+      if(a===c){p=2*xm*s;q_=1-s;}
+      else{const q=fa/fc,r_=fb/fc;p=s*(2*xm*q*(q-r_)-(b-a)*(r_-1));q_=(q-1)*(r_-1)*(s-1);}
+      if(p>0)q_=-q_;p=Math.abs(p);
+      const min1=3*xm*q_-Math.abs(tol1*q_),min2=Math.abs(e*q_);
+      if(2*p<Math.min(min1,min2)){e=d;d=p/q_} else {d=xm;e=d;}
+    }else{d=xm;e=d;}
+    a=b;fa=fb;b+=Math.abs(d)>tol1?d:(xm>=0?tol1:-tol1);fb=f(b);c=a;fc=fa;
+  }
+  return{ok:false,msg:'Iterações esgotadas'};
+}
+function calcIV(){
+  const S=+iv_S.value,K=+iv_K.value,r=+iv_r.value/100,q=+iv_q.value/100,T=+iv_T.value,P=+iv_P.value,type=iv_tipo.value;
+  const tol=+iv_tol.value/100,maxit=+iv_maxit.value;
+  if(!(S>0&&K>0&&T>0&&P>=0)){iv_dbg.textContent='Verifique S, K, T > 0 e preço ≥ 0.';return;}
+  const res=impliedVol(S,K,r,q,T,P,type,tol,maxit);
+  if(!res.ok){iv_out.innerHTML='';iv_dbg.textContent='Falha: '+res.msg;return;}
+  const sig=res.vol,g=blackScholes(S,K,r,q,sig,T),vega=g.vega,modelPrice=(type==='call'?g.call:g.put);
+  iv_out.innerHTML=`
+    <div class="tile"><div>Vol Implícita</div><b>${pct(sig,4)}</b></div>
+    <div class="tile"><div>Preço (BSM)</div><b>${fmt(modelPrice,6)}</b></div>
+    <div class="tile"><div>Vega</div><b>${fmt(vega,6)}</b></div>
+    <div class="tile"><div>Iterações</div><b>${res.it}</b></div>`;
+  iv_dbg.textContent=`Resíduo (BS−mkt)=${fmt(modelPrice-P,8)} | d1=${fmt(g.d1,6)}, d2=${fmt(g.d2,6)}`;
+}
+
+// ===== Tabs + typeset =====
+const btns=document.querySelectorAll('nav .btn');
+btns.forEach(b=>b.addEventListener('click',async()=>{
+  btns.forEach(x=>x.classList.remove('active')); b.classList.add('active');
+  document.querySelectorAll('main section').forEach(s=>s.classList.remove('active'));
+  const t=b.getAttribute('data-target'); document.querySelector(t).classList.add('active');
+  if(window.MathJax?.typesetPromise){try{await MathJax.typesetPromise([document.querySelector(t)]);}catch(e){}}
+}));
+document.addEventListener('DOMContentLoaded',()=>{try{calcBS();}catch(e){} if(window.MathJax?.typesetPromise){MathJax.typesetPromise().catch(()=>{});}});
+</script>
+</body>
+</html>

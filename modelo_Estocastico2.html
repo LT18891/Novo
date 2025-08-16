@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Poisson Composto (Sinistros) & Credibilidade — Autor: Luiz Tiago Wilcke</title>
+<!-- MathJax para renderizar equações -->
+<script>
+  window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, svg: { fontCache: 'global' } };
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<style>
+  :root{
+    --bg:#0b0f16; --card:#111827; --muted:#9fb0c5; --text:#eaf0ff; --accent:#60a5fa; --accent2:#34d399; --warn:#f59e0b; --error:#ef4444;
+    --border:#1f2937; --shadow:0 14px 30px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial}
+  a{color:var(--accent)}
+  header{padding:28px 20px 10px; text-align:center}
+  header h1{margin:0;font-size:clamp(22px,4vw,36px); letter-spacing:.2px}
+  header p{margin:6px 0 0;color:var(--muted)}
+  .wrap{max-width:1200px;margin:0 auto;padding:20px}
+  .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px}
+  .card{grid-column:span 12;background:var(--card);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);padding:18px}
+  @media(min-width:980px){.span6{grid-column:span 6}} 
+  h2{margin:4px 0 10px;font-size:22px}
+  h3{margin:8px 0 10px;font-size:18px;color:var(--muted)}
+  .pill{display:inline-block;border:1px solid var(--border);background:#0e1522;color:var(--muted);padding:6px 10px;border-radius:999px;font-size:12px}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .row3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  label{display:block;font-size:13px;color:var(--muted);margin:8px 0 6px}
+  input,select,textarea{width:100%;background:#0e1522;color:var(--text);border:1px solid var(--border);border-radius:12px;padding:10px 12px;outline:none}
+  textarea{min-height:92px;resize:vertical}
+  .btn{display:inline-flex;align-items:center;gap:8px;border:none;border-radius:12px;padding:10px 14px;background:var(--accent);color:#06121f;font-weight:700;cursor:pointer}
+  .btn.secondary{background:transparent;color:var(--text);border:1px solid var(--border)}
+  .btn:active{transform:translateY(1px)}
+  .out{background:#0e1421;border:1px dashed var(--border);border-radius:14px;padding:12px}
+  .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  .kpi .box{background:#0c1322;border:1px solid var(--border);border-radius:14px;padding:10px}
+  .box h4{margin:2px 0 6px;font-size:13px;color:var(--muted)}
+  .box .v{font-size:18px;font-weight:800}
+  .note{font-size:13px;color:var(--muted)}
+  .ok{color:var(--accent2)}.warn{color:var(--warn)}.err{color:var(--error)}
+  code{background:#0e1522;border:1px solid var(--border);padding:2px 6px;border-radius:8px}
+  footer{padding:20px;text-align:center;color:var(--muted)}
+</style>
+</head>
+<body>
+  <header>
+    <h1>Processo de Risco de Poisson Composto & Credibilidade</h1>
+    <p>Autor: <strong>Luiz Tiago Wilcke</strong> • Calculadora interativa com explicações e equações (MathJax)</p>
+  </header>
+  <div class="wrap">
+
+    <div class="grid">
+      <!-- EXPLICAÇÃO TEÓRICA -->
+      <section class="card">
+        <span class="pill">Fundamentos do modelo</span>
+        <h2>Modelo de Sinistros — Poisson Composto</h2>
+        <p>
+          Consideramos o processo de agregação de sinistros \(S(t)\) definido por
+          $$ S(t) = \sum_{i=1}^{N(t)} X_i, \qquad N(t) \sim \text{Poisson}(\lambda t), $$
+          onde \(X_i\) são tamanhos de sinistro i.i.d., independentes de \(N(t)\). O capital de risco (Cramér–Lundberg) é
+          $$ U(t) = u + c\,t - S(t), $$
+          com reserva inicial \(u>0\) e taxa de prêmio \(c\). A condição de lucro líquido é \(c > \lambda\,\mathbb{E}[X]\).
+        </p>
+        <div class="row">
+          <div>
+            <h3>Momentos do agregado</h3>
+            $$ \mathbb{E}[S(t)] = \lambda t\,\mu_X, \qquad \mathrm{Var}[S(t)] = \lambda t\,\mathbb{E}[X^2] = \lambda t(\sigma_X^2 + \mu_X^2). $$
+          </div>
+          <div>
+            <h3>Caráter de ruína (Lundberg)</h3>
+            $$ \psi(u) \le e^{-R u}, \quad\text{com } R>0 \text{ tal que } cR = \lambda\,(M_X(R)-1), $$
+            onde \(M_X\) é o MGF de \(X\). Para severidade exponencial \(X\sim \mathrm{Exp}(\beta)\), a ruína exata é
+            $$ \psi(u) = \tfrac{1}{1+\theta}\, e^{-Ru}, \quad R = \tfrac{\beta\,\theta}{1+\theta}, \quad c=(1+\theta)\lambda\,\mathbb{E}[X]. $$
+          </div>
+        </div>
+      </section>
+
+      <!-- CALCULADORA POISSON COMPOSTO -->
+      <section class="card span6">
+        <span class="pill">Calculadora • Agregado de Sinistros & Ruína</span>
+        <h2>Parâmetros do processo</h2>
+        <div class="row">
+          <div>
+            <label>Intensidade de chegadas \(\lambda\) (por unidade de tempo)</label>
+            <input id="lambda" type="number" step="0.0001" value="2">
+          </div>
+          <div>
+            <label>Horizonte \(t\)</label>
+            <input id="t" type="number" step="0.01" value="1">
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label>Carregamento de segurança \(\theta\) (ex.: 0.3 = 30%)</label>
+            <input id="theta" type="number" step="0.0001" value="0.3">
+          </div>
+          <div>
+            <label>Reserva inicial \(u\)</label>
+            <input id="u" type="number" step="0.01" value="100">
+          </div>
+        </div>
+        <label>Distribuição do tamanho do sinistro \(X\)</label>
+        <select id="dist">
+          <option value="exp">Exponencial (parâmetro de taxa \(\beta\))</option>
+          <option value="gamma">Gamma (forma \(k\), taxa \(\beta\))</option>
+        </select>
+        <div id="params-exp" class="row">
+          <div>
+            <label>\(\beta\) (taxa)</label>
+            <input id="betaExp" type="number" step="0.0001" value="0.05">
+          </div>
+          <div>
+            <label class="note">Média \(\mathbb{E}[X]=1/\beta\)</label>
+            <input id="meanExp" type="text" disabled value="20.0000">
+          </div>
+        </div>
+        <div id="params-gamma" class="row" style="display:none">
+          <div>
+            <label>\(k\) (forma)</label>
+            <input id="kGamma" type="number" step="0.01" value="2">
+          </div>
+          <div>
+            <label>\(\beta\) (taxa)</label>
+            <input id="betaGamma" type="number" step="0.0001" value="0.1">
+          </div>
+        </div>
+
+        <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap">
+          <button class="btn" id="btnCalc">Calcular</button>
+          <button class="btn secondary" id="btnSample">Exemplo rápido</button>
+        </div>
+
+        <div style="margin-top:14px" class="out" id="outPois">
+          <div class="kpi">
+            <div class="box"><h4>\(\mathbb{E}[X]\)</h4><div class="v" id="ex"></div></div>
+            <div class="box"><h4>\(\mathrm{Var}(X)\)</h4><div class="v" id="vx"></div></div>
+            <div class="box"><h4>\(\mathbb{E}[S(t)]\)</h4><div class="v" id="es"></div></div>
+            <div class="box"><h4>\nVar\([S(t)]\)</h4><div class="v" id="vs"></div></div>
+          </div>
+          <div class="kpi" style="margin-top:10px">
+            <div class="box"><h4>Prêmio puro \(\lambda\,\mathbb{E}[X]\)</h4><div class="v" id="pure"></div></div>
+            <div class="box"><h4>Taxa de prêmio \(c=(1+\theta)\lambda\,\mathbb{E}[X]\)</h4><div class="v" id="cRate"></div></div>
+            <div class="box"><h4>Coef. ajuste \(R\)</h4><div class="v" id="Rcoef"></div></div>
+            <div class="box"><h4>Ruína (Lundberg)</h4><div class="v" id="ruin"></div></div>
+          </div>
+          <div style="margin-top:10px">
+            <h3>Aproximação Normal (CLT) para ruína até $t$</h3>
+            <p class="note">Usa $\psi_t \approx \mathbb{P}\{S(t) \ge u + c t\} = 1-\Phi\!\big(\frac{u+ct-\mathbb{E}[S]}{\sqrt{\mathrm{Var}[S]}}\big)$. Confiável apenas para $t$ moderado/grande.</p>
+            <div class="box"><h4>\(\psi_t\) (CLT)</h4><div class="v" id="ruinCLT"></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CREDIBILIDADE -->
+      <section class="card span6">
+        <span class="pill">Calculadora • Prêmio por Credibilidade (Bühlmann / Bühlmann–Straub)</span>
+        <h2>Parâmetros de credibilidade</h2>
+        <p class="note">Definições: $v=\mathbb{E}[\mathrm{Var}(X\mid\Theta)]$ (variância processual/aleatória) e $a=\mathrm{Var}(\mathbb{E}[X\mid\Theta])$ (variância estrutural entre riscos). <br>
+          Fator de credibilidade clássico: $Z=\tfrac{n}{n+K}$ com $K=\tfrac{v}{a}$.
+        </p>
+        <div class="row3">
+          <div>
+            <label>Média global do portfólio $m$</label>
+            <input id="mGlobal" type="number" step="0.0001" value="1.8">
+          </div>
+          <div>
+            <label>Variância processual $v$</label>
+            <input id="vProc" type="number" step="0.0001" value="3">
+          </div>
+          <div>
+            <label>Variância estrutural $a$</label>
+            <input id="aEstr" type="number" step="0.0001" value="1.2">
+          </div>
+        </div>
+        <h3 style="margin-top:10px">Bühlmann (amostras não ponderadas)</h3>
+        <div class="row3">
+          <div>
+            <label>Tamanho da amostra $n$</label>
+            <input id="nB" type="number" step="1" value="5">
+          </div>
+          <div>
+            <label>Média amostral $\bar X$ do risco</label>
+            <input id="xbB" type="number" step="0.0001" value="2.1">
+          </div>
+          <div style="display:flex;align-items:end">
+            <button class="btn" id="btnB">Calcular Bühlmann</button>
+          </div>
+        </div>
+        <div class="out" id="outB">
+          <div class="kpi">
+            <div class="box"><h4>$K=v/a$</h4><div class="v" id="KB"></div></div>
+            <div class="box"><h4>$Z=\tfrac{n}{n+K}$</h4><div class="v" id="ZB"></div></div>
+            <div class="box"><h4>Prêmio de credibilidade</h4><div class="v" id="premB"></div></div>
+            <div class="box"><h4>Observação</h4><div class="v" id="obsB"></div></div>
+          </div>
+        </div>
+
+        <h3 style="margin-top:14px">Bühlmann–Straub (exposições ponderadas)</h3>
+        <p class="note">Forneça pares <code>w_i, x_i</code> (uma linha por observação). Ex.: <code>1.5, 2.0</code></p>
+        <textarea id="wsData" placeholder="1, 1.8\n0.8, 2.4\n1.2, 1.9"></textarea>
+        <div style="margin-top:8px; display:flex; gap:10px">
+          <button class="btn" id="btnBS">Calcular Bühlmann–Straub</button>
+          <button class="btn secondary" id="btnClearBS">Limpar</button>
+        </div>
+        <div class="out" id="outBS" style="margin-top:10px">
+          <div class="kpi">
+            <div class="box"><h4>$K=v/a$</h4><div class="v" id="KBS"></div></div>
+            <div class="box"><h4>$W=\sum w_i$</h4><div class="v" id="WBS"></div></div>
+            <div class="box"><h4>$Z=\tfrac{W}{W+K}$</h4><div class="v" id="ZBS"></div></div>
+            <div class="box"><h4>Prêmio de credibilidade</h4><div class="v" id="premBS"></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- NOTAS TEÓRICAS ADICIONAIS -->
+      <section class="card">
+        <span class="pill">Notas & Dicas</span>
+        <h2>Comentários práticos</h2>
+        <ul>
+          <li>Para severidade <em>Gamma</em> $X\sim\Gamma(k,\beta)$ (parametrização por taxa), $\mathbb{E}[X]=k/\beta$, $\mathrm{Var}(X)=k/\beta^2$ e $M_X(r)=(1-r/\beta)^{-k}$ para $r<\beta$.</li>
+          <li>O coeficiente de ajuste $R$ é resolvido numericamente via bissecção em $f(r)=\lambda(M_X(r)-1)-c r$.</li>
+          <li>\(c=(1+\theta)\lambda\,\mathbb{E}[X]\) garante a condição de lucro líquido (\(\rho=\lambda\mu_X/c=1/(1+\theta)<1\)).</li>
+          <li>A aproximação normal para $\psi_t$ tende a ser otimista em caudas pesadas e $t$ pequeno; use com cautela.</li>
+          <li>Na credibilidade, $v$ e $a$ podem ser estimados por ANOVA bayesiana/entre-dentro ou por modelos hierárquicos; aqui assumimos que já foram obtidos.</li>
+        </ul>
+      </section>
+    </div>
+  </div>
+
+  <footer>
+    © <span id="year"></span> — Autor: Luiz Tiago Wilcke • Esta página é client-side (HTML+JS) e não envia dados.
+  </footer>
+
+<script>
+(function(){
+  const $ = (id)=>document.getElementById(id);
+  const fmt = (x, d=4)=> (isFinite(x)? Number(x).toLocaleString('pt-BR',{maximumFractionDigits:d, minimumFractionDigits:Math.min(d,2)}): '—');
+  const Phi = (z)=>{ // CDF Normal padrão (aprox. de Abramowitz-Stegun)
+    const t = 1/(1+0.2316419*Math.abs(z));
+    const d = Math.exp(-z*z/2)/Math.sqrt(2*Math.PI);
+    const p = 1 - d*(0.319381530*t - 0.356563782*t**2 + 1.781477937*t**3 - 1.821255978*t**4 + 1.330274429*t**5);
+    return z>=0? p : 1-p;
+  };
+
+  // UI toggles para distribuições
+  const distSel = $('dist');
+  const expBox = $('params-exp');
+  const gamBox = $('params-gamma');
+  distSel.addEventListener('change',()=>{
+    const v = distSel.value;
+    expBox.style.display = (v==='exp')? '' : 'none';
+    gamBox.style.display = (v==='gamma')? '' : 'none';
+  });
+
+  // Atualiza média instantânea para exponencial
+  $('betaExp').addEventListener('input',()=>{
+    const be = parseFloat($('betaExp').value);
+    $('meanExp').value = (be>0? (1/be).toFixed(4): '—');
+  });
+
+  function severidade_momentos(dist){
+    if(dist==='exp'){
+      const beta = parseFloat($('betaExp').value);
+      if(!(beta>0)) throw new Error('β (exponencial) deve ser > 0');
+      const EX = 1/beta;
+      const VX = 1/(beta*beta);
+      const EX2 = VX + EX*EX; // redundante, mas deixamos explícito
+      const MGF = (r)=>{ if(r>=beta) return Infinity; return beta/(beta-r); };
+      return {EX,VX,EX2,MGF,boundR:beta*0.999999, extra:{beta}};
+    } else { // gamma(k, beta)
+      const k = parseFloat($('kGamma').value);
+      const beta = parseFloat($('betaGamma').value);
+      if(!(k>0 && beta>0)) throw new Error('k e β (gamma) devem ser > 0');
+      const EX = k/beta;
+      const VX = k/(beta*beta);
+      const EX2 = VX + EX*EX;
+      const MGF = (r)=>{ if(r>=beta) return Infinity; return Math.pow(1 - r/beta, -k); };
+      return {EX,VX,EX2,MGF,boundR:beta*0.999999, extra:{k,beta}};
+    }
+  }
+
+  function ajustamento_R(lambda, c, MGF, upper){
+    // resolve f(r) = λ(M_X(r)-1) - c r = 0, r>0, por bissecção robusta
+    const f = (r)=> lambda*(MGF(r)-1) - c*r;
+    // primeiro tenta achar intervalo [a,b] com mudança de sinal
+    let a=0, b=Math.min(upper, 1);
+    if(!isFinite(f(0))) return NaN;
+    let fa=f(a), fb=f(b);
+    // aumenta b até achar sinal ou encostar no upper
+    let it=0;
+    while(fa*fb>0 && b<upper && it<80){ b=Math.min(upper, b*2); fb=f(b); it++; }
+    if(!(fa*fb<=0)) return NaN; // não conseguiu bracketing
+    // bissecção
+    for(let i=0;i<120;i++){
+      const m=(a+b)/2, fm=f(m);
+      if(!isFinite(fm)) { b=m; continue; }
+      if(Math.abs(fm) < 1e-10) return m;
+      if(fa*fm<=0){ b=m; fb=fm; } else { a=m; fa=fm; }
+    }
+    return (a+b)/2;
+  }
+
+  function calcPoisson(){
+    try{
+      const lambda = parseFloat($('lambda').value);
+      const t = parseFloat($('t').value);
+      const theta = parseFloat($('theta').value);
+      const u = parseFloat($('u').value);
+      if(!(lambda>0 && t>0)) throw new Error('λ e t devem ser > 0');
+      if(!(theta>=0)) throw new Error('θ deve ser ≥ 0');
+      if(!(u>=0)) throw new Error('u deve ser ≥ 0');
+
+      const dist = distSel.value;
+      const sev = severidade_momentos(dist);
+      const EX = sev.EX, VX = sev.VX, EX2 = sev.EX2, MGF = sev.MGF;
+      const ES = lambda*t*EX;
+      const VS = lambda*t*EX2; // lembre: Var(S) = λ t E[X^2]
+      const pure = lambda*EX; // prêmio puro por unidade de tempo
+      const c = (1+theta)*pure;
+
+      // Coeficiente de ajuste R e ruína
+      let R = ajustamento_R(lambda, c, MGF, sev.boundR);
+      if(!isFinite(R)) R = NaN;
+
+      // Ruína de Lundberg (limite superior)
+      let ruinBound = (isFinite(R)? Math.exp(-R*u) : NaN);
+
+      // Caso exponencial: ruína exata
+      let ruinExact = null;
+      if(dist==='exp' && isFinite(R)){
+        ruinExact = (1/(1+theta))*Math.exp(-R*u);
+      }
+
+      // Aproximação normal para ruína até t (CLT)
+      const z = (u + c*t - ES)/Math.sqrt(VS);
+      const ruinCLT = 1 - Phi(z);
+
+      // Exibir resultados
+      $('ex').textContent = fmt(EX);
+      $('vx').textContent = fmt(VX);
+      $('es').textContent = fmt(ES);
+      $('vs').textContent = fmt(VS);
+      $('pure').textContent = fmt(pure);
+      $('cRate').textContent = fmt(c);
+      $('Rcoef').textContent = isFinite(R)? fmt(R): '—';
+
+      if(ruinExact!==null){
+        $('ruin').innerHTML = `${fmt(ruinExact,6)} <span class="ok">(exata, Exp)</span>`;
+      } else {
+        $('ruin').innerHTML = isFinite(ruinBound)? `${fmt(ruinBound,6)} <span class="note">(Lundberg — limite sup.)</span>` : '<span class="err">indisponível</span>';
+      }
+      $('ruinCLT').textContent = (isFinite(ruinCLT)? fmt(ruinCLT,6): '—');
+
+    }catch(e){
+      alert('Erro: '+e.message);
+    }
+  }
+
+  // Credibilidade — Bühlmann
+  function calcB(){
+    try{
+      const m = parseFloat($('mGlobal').value);
+      const v = parseFloat($('vProc').value);
+      const a = parseFloat($('aEstr').value);
+      const n = parseFloat($('nB').value);
+      const xb = parseFloat($('xbB').value);
+      if(!(v>0 && a>0)) throw new Error('v e a devem ser > 0');
+      if(!(n>0)) throw new Error('n deve ser > 0');
+      const K = v/a; const Z = n/(n+K);
+      const prem = Z*xb + (1-Z)*m;
+      $('KB').textContent = fmt(K);
+      $('ZB').textContent = fmt(Z,4);
+      $('premB').textContent = fmt(prem);
+      $('obsB').textContent = (Z>=0.7? 'Alta credibilidade' : (Z>=0.3? 'Média' : 'Baixa'));
+    }catch(e){ alert('Erro (Bühlmann): '+e.message); }
+  }
+
+  // Credibilidade — Bühlmann–Straub
+  function calcBS(){
+    try{
+      const m = parseFloat($('mGlobal').value);
+      const v = parseFloat($('vProc').value);
+      const a = parseFloat($('aEstr').value);
+      if(!(v>0 && a>0)) throw new Error('v e a devem ser > 0');
+      const K = v/a;
+      const lines = $('wsData').value.split(/\n+/).map(s=>s.trim()).filter(Boolean);
+      let W=0, WX=0;
+      for(const ln of lines){
+        const parts = ln.split(/[,;\s]+/).map(Number).filter(x=>!isNaN(x));
+        if(parts.length<2) continue;
+        const w = parts[0], x = parts[1];
+        if(!(w>0)) throw new Error('exposição w deve ser > 0');
+        W += w; WX += w*x;
+      }
+      if(!(W>0)) throw new Error('nenhuma linha válida (use "w_i, x_i")');
+      const xbarW = WX/W;
+      const Z = W/(W+K);
+      const prem = Z*xbarW + (1-Z)*m;
+      $('KBS').textContent = fmt(K);
+      $('WBS').textContent = fmt(W);
+      $('ZBS').textContent = fmt(Z,4);
+      $('premBS').textContent = fmt(prem);
+    }catch(e){ alert('Erro (Bühlmann–Straub): '+e.message); }
+  }
+
+  $('btnCalc').addEventListener('click', calcPoisson);
+  $('btnB').addEventListener('click', calcB);
+  $('btnBS').addEventListener('click', calcBS);
+  $('btnClearBS').addEventListener('click', ()=>{ $('wsData').value=''; $('outBS').querySelectorAll('.v').forEach(el=>el.textContent=''); });
+  $('btnSample').addEventListener('click', ()=>{
+    $('lambda').value = 1.8; $('t').value = 1; $('theta').value = 0.25; $('u').value = 80;
+    $('dist').value = 'gamma'; expBox.style.display='none'; gamBox.style.display='';
+    $('kGamma').value = 1.5; $('betaGamma').value = 0.08;
+    calcPoisson();
+  });
+
+  $('year').textContent = new Date().getFullYear();
+  // inicializa
+  calcPoisson();
+  calcB();
+})();
+</script>
+</body>
+</html>

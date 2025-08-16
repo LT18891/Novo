@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Calculadora Interativa do IDH — Autor: Luiz Tiago Wilcke</title>
+<!-- MathJax para renderizar fórmulas -->
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root{
+    --bg:#0c0f13; --panel:#151b23; --ink:#e7eef7; --muted:#aab6c8;
+    --accent:#5ac8fa; --accent2:#ffd166; --ok:#2ecc71; --warn:#ff6b6b;
+    --table:#0f141b; --chip:#1c2430; --shadow:0 12px 30px rgba(0,0,0,.45);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial}
+  header{padding:24px 16px 8px;max-width:1200px;margin:auto}
+  h1{margin:0 0 6px 0;font-size:clamp(22px,3vw,34px);letter-spacing:.2px}
+  .by{color:var(--muted);font-size:.95rem}
+  main{max-width:1200px;margin:12px auto;padding:0 16px 40px}
+  .grid{display:grid;grid-template-columns:1.2fr .8fr;gap:18px}
+  .card{background:var(--panel);border:1px solid #172130;border-radius:18px;box-shadow:var(--shadow)}
+  .card h2{margin:0;padding:16px 18px;border-bottom:1px solid #1a2636;font-size:1.15rem}
+  .card .body{padding:14px 18px}
+  .expl{color:var(--muted);font-size:.98rem}
+  code.k{background:var(--chip);padding:2px 8px;border-radius:999px}
+  .row{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+  .row3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  label{display:block;font-size:.9rem;color:#c9d6ea;margin:10px 0 4px}
+  input[type="number"], input[type="text"], select{width:100%;padding:10px 12px;border-radius:10px;border:1px solid #1a2636;background:#0c121a;color:var(--ink)}
+  .hint{font-size:.82rem;color:var(--muted)}
+  .out{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px}
+  .pill{background:var(--chip);border:1px solid #1b2738;border-radius:12px;padding:10px}
+  .pill b{display:block;font-size:.9rem;margin-bottom:4px}
+  .big{font-size:1.6rem;font-weight:700}
+  .btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+  button{cursor:pointer;border-radius:12px;border:1px solid #213149;background:#14202f;color:var(--ink);padding:10px 14px}
+  button.primary{background:linear-gradient(180deg,#1e3a5f,#162942);border-color:#234a7a}
+  button.ghost{background:#0c121a;border-color:#1a2636}
+  .goal{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+  .goal input{padding:8px 10px}
+  .tbl-wrap{overflow:auto;border-top:1px solid #1a2636}
+  table{width:100%;border-collapse:collapse;font-size:.95rem}
+  thead th{position:sticky;top:0;background:#0f141b;border-bottom:1px solid #1a2636;padding:10px;text-align:left}
+  tbody td{border-bottom:1px solid #14202b;padding:10px}
+  tbody tr:hover{background:#0f1620}
+  .note{margin-top:8px;color:var(--muted);font-size:.85rem}
+  .caps{letter-spacing:.4px;text-transform:uppercase;color:#b6c3d9;font-size:.78rem}
+  .tag{display:inline-block;background:#14202b;border:1px solid #1b2738;border-radius:999px;padding:2px 8px;margin:2px 6px 2px 0;font-size:.8rem;color:#cfe1ff}
+  .search{display:flex;gap:10px;align-items:center}
+  .search input{flex:1}
+  .foot{color:#99a8c2;font-size:.82rem;margin-top:12px}
+  @media (max-width: 980px){.grid{grid-template-columns:1fr}.out{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width: 640px){.out{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Calculadora Interativa do IDH</h1>
+  <div class="by">Autor: <b>Luiz Tiago Wilcke</b> • Fórmulas conforme metodologia PNUD (UNDP)</div>
+</header>
+<main>
+  <div class="grid">
+    <section class="card" id="calc">
+      <h2>🧮 Calculadora — passo a passo</h2>
+      <div class="body">
+        <div class="expl">
+          <p>O Índice de Desenvolvimento Humano (IDH) é a média geométrica de três dimensões normalizadas: <i>saúde</i>, <i>educação</i> e <i>renda</i>.</p>
+          <p class="caps">Fórmulas:</p>
+          <div id="eqs" class="expl">
+            $$\text{IDH} = (I_{\text{sa\'ude}}\cdot I_{\text{educa\c c\~ao}}\cdot I_{\text{renda}})^{1/3}$$
+            $$I_{\text{sa\'ude}} = \dfrac{LE - L_{\min}}{L_{\max} - L_{\min}}\quad (L_{\min}=20,\ L_{\max}=85)$$
+            $$I_{\text{educa\c c\~ao}} = \dfrac{I_{EYS} + I_{MYS}}{2},\quad I_{EYS}=\dfrac{\min(EYS,18)}{18},\quad I_{MYS}=\dfrac{\min(MYS,15)}{15}$$
+            $$I_{\text{renda}} = \dfrac{\ln(\min(\max(GNIpc,100),75000)) - \ln(100)}{\ln(75000) - \ln(100)}$$
+          </div>
+        </div>
+
+        <div class="row3" style="margin-top:12px">
+          <div>
+            <label>Expectativa de vida (LE) — anos</label>
+            <input type="number" id="le" step="0.1" min="0" placeholder="ex.: 75.8">
+          </div>
+          <div>
+            <label>Anos esperados de estudo (EYS)</label>
+            <input type="number" id="eys" step="0.1" min="0" placeholder="ex.: 15.8">
+          </div>
+          <div>
+            <label>Média de anos de estudo (MYS)</label>
+            <input type="number" id="mys" step="0.1" min="0" placeholder="ex.: 8.4">
+          </div>
+        </div>
+        <div class="row" style="margin-top:10px">
+          <div>
+            <label>GNI per capita (PPP 2021 US$)</label>
+            <input type="number" id="gnipc" step="1" min="0" placeholder="ex.: 18011">
+            <div class="hint">A metodologia usa <code class="k">log natural</code> e goalposts 100–75.000 (PPP 2021 US$).</div>
+          </div>
+          <div>
+            <label>Arredondamento</label>
+            <select id="round">
+              <option value="3">3 casas (padrão)</option>
+              <option value="4">4 casas</option>
+              <option value="5">5 casas</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="btns">
+          <button class="primary" onclick="calc()">Calcular</button>
+          <button class="ghost" onclick="limpar()">Limpar</button>
+        </div>
+
+        <div id="saida" class="out" style="margin-top:14px"></div>
+        <div id="avisos" class="note"></div>
+
+        <details style="margin-top:12px">
+          <summary class="caps">Modo avançado — goalposts (opcional)</summary>
+          <div class="goal" style="margin-top:8px">
+            <div>
+              <label>LE min</label>
+              <input type="number" id="LEMIN" value="20" step="0.1">
+            </div>
+            <div>
+              <label>LE max</label>
+              <input type="number" id="LEMAX" value="85" step="0.1">
+            </div>
+            <div>
+              <label>EYS max</label>
+              <input type="number" id="EYSMAX" value="18" step="0.1">
+            </div>
+            <div>
+              <label>MYS max</label>
+              <input type="number" id="MYSMAX" value="15" step="0.1">
+            </div>
+            <div>
+              <label>GNIpc min / max</label>
+              <div class="row" style="grid-template-columns:1fr 1fr;gap:8px">
+                <input type="number" id="GNIMIN" value="100" step="1">
+                <input type="number" id="GNIMAX" value="75000" step="100">
+              </div>
+            </div>
+          </div>
+          <div class="note">Valores padrão conforme Notas Técnicas HDR 2025 (PNUD). Você pode ajustar para teste/sensibilidade.</div>
+        </details>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>📘 Como ler os resultados</h2>
+      <div class="body expl">
+        <ul>
+          <li><b>Saúde</b>: normaliza a expectativa de vida entre <code class="k">20</code> e <code class="k">85</code> anos.</li>
+          <li><b>Educação</b>: média de dois subíndices: <i>EYS</i> (capado em 18) e <i>MYS</i> (capado em 15).</li>
+          <li><b>Renda</b>: usa <i>logaritmo natural</i> do GNIpc (PPP 2021 US$) com goalposts 100–75.000 (cap dos extremos).</li>
+          <li><b>IDH</b>: média geométrica dos três índices. Varia de 0 a 1.</li>
+        </ul>
+        <div class="tag">Muito alto: ≥ 0,800</div>
+        <div class="tag">Alto: 0,700–0,799</div>
+        <div class="tag">Médio: 0,550–0,699</div>
+        <div class="tag">Baixo: &lt; 0,550</div>
+        <p class="note">Dica: clique em um país da tabela para preencher o formulário automaticamente.</p>
+      </div>
+    </section>
+  </div>
+
+  <section class="card" style="margin-top:18px">
+    <h2>🌍 IDH calculado para vários países (2023 — componentes oficiais)</h2>
+    <div class="body">
+      <div class="search">
+        <input id="q" placeholder="Filtrar por país..." oninput="renderTabela()"/>
+        <button class="ghost" onclick="baixarCSV()">Baixar CSV</button>
+      </div>
+      <div class="tbl-wrap" style="margin-top:10px">
+        <table id="tbl">
+          <thead>
+            <tr>
+              <th onclick="ord('pais')">País ▾</th>
+              <th onclick="ord('le')">LE</th>
+              <th onclick="ord('eys')">EYS</th>
+              <th onclick="ord('mys')">MYS</th>
+              <th onclick="ord('gnipc')">GNIpc (PPP 2021 US$)</th>
+              <th onclick="ord('idh')">IDH calculado</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="foot">Notas: EYS é capado em 18 e MYS em 15; GNIpc entra por log natural e é capado em 100–75.000. Valores de componentes são os reportados pelo PNUD para 2023 (PPP 2021).</div>
+    </div>
+  </section>
+</main>
+
+<script>
+// =================== Utilidades ===================
+function clamp(x, a, b){ return Math.min(Math.max(x, a), b); }
+function r(x, k){ const f = Math.pow(10, k); return Math.round(x*f)/f; }
+
+function computeIndices({le, eys, mys, gnipc}, G){
+  const LEMIN=G.LEMIN, LEMAX=G.LEMAX, EYSMAX=G.EYSMAX, MYSMAX=G.MYSMAX, GNIMIN=G.GNIMIN, GNIMAX=G.GNIMAX;
+  const LEI = (le - LEMIN) / (LEMAX - LEMIN);
+  const EYSI = clamp(eys, 0, EYSMAX) / EYSMAX;
+  const MYSI = clamp(mys, 0, MYSMAX) / MYSMAX;
+  const EDU = (EYSI + MYSI)/2;
+  const g = clamp(gnipc, GNIMIN, GNIMAX);
+  const INCOME = (Math.log(g) - Math.log(GNIMIN)) / (Math.log(GNIMAX) - Math.log(GNIMIN));
+  const HDI = Math.cbrt(Math.max(0, LEI) * Math.max(0, EDU) * Math.max(0, INCOME));
+  return {LEI, EYSI, MYSI, EDU, INCOME, HDI};
+}
+
+function getGoals(){
+  return {
+    LEMIN: parseFloat(document.getElementById('LEMIN').value||20),
+    LEMAX: parseFloat(document.getElementById('LEMAX').value||85),
+    EYSMAX: parseFloat(document.getElementById('EYSMAX').value||18),
+    MYSMAX: parseFloat(document.getElementById('MYSMAX').value||15),
+    GNIMIN: parseFloat(document.getElementById('GNIMIN').value||100),
+    GNIMAX: parseFloat(document.getElementById('GNIMAX').value||75000),
+  }
+}
+
+function saidaCard(titulo, valor){
+  return `<div class="pill"><b>${titulo}</b><div class="big">${valor}</div></div>`;
+}
+
+function calc(){
+  const le = parseFloat(document.getElementById('le').value);
+  const eys = parseFloat(document.getElementById('eys').value);
+  const mys = parseFloat(document.getElementById('mys').value);
+  const gnipc = parseFloat(document.getElementById('gnipc').value);
+  const casas = parseInt(document.getElementById('round').value);
+  const avisos=[];
+  if(!isFinite(le)||!isFinite(eys)||!isFinite(mys)||!isFinite(gnipc)){
+    document.getElementById('saida').innerHTML = '<div class="note">Informe todos os campos numéricos.</div>';
+    return;
+  }
+  const G = getGoals();
+  if(eys>G.EYSMAX) avisos.push(`EYS foi capado de ${eys} para ${G.EYSMAX}`);
+  if(mys>G.MYSMAX) avisos.push(`MYS foi capado de ${mys} para ${G.MYSMAX}`);
+  if(gnipc<G.GNIMIN||gnipc>G.GNIMAX) avisos.push(`GNIpc foi limitado a [${G.GNIMIN}; ${G.GNIMAX}] para o cálculo`);
+  const {LEI,EYSI,MYSI,EDU,INCOME,HDI} = computeIndices({le,eys,mys,gnipc}, G);
+  const out = [
+    saidaCard('I_saúde (LEI)', r(LEI,casas)),
+    saidaCard('I_educação (EYSI, MYSI, média)', `${r(EYSI,casas)}, ${r(MYSI,casas)} → <b>${r(EDU,casas)}</b>`),
+    saidaCard('I_renda (log GNIpc)', r(INCOME,casas)),
+    saidaCard('IDH', r(HDI,casas))
+  ];
+  document.getElementById('saida').innerHTML = out.join('');
+  document.getElementById('avisos').textContent = avisos.join(' · ');
+}
+
+function limpar(){
+  for(const id of ['le','eys','mys','gnipc']) document.getElementById(id).value='';
+  document.getElementById('saida').innerHTML='';
+  document.getElementById('avisos').textContent='';
+}
+
+// =================== Tabela de países (amostra HDR 2025 – ano 2023) ===================
+const paisesBase = [
+  {pais:'Islândia', le:82.7, eys:18.9, mys:13.9, gnipc:69117},
+  {pais:'Noruega', le:83.3, eys:18.8, mys:13.1, gnipc:112710},
+  {pais:'Suíça', le:84.0, eys:16.7, mys:13.9, gnipc:81949},
+  {pais:'Alemanha', le:81.4, eys:17.3, mys:14.3, gnipc:64053},
+  {pais:'Austrália', le:83.9, eys:20.7, mys:12.9, gnipc:58277},
+  {pais:'Hong Kong (RAE da China)', le:85.5, eys:16.9, mys:12.4, gnipc:69436},
+  {pais:'Estados Unidos', le:79.3, eys:15.9, mys:13.9, gnipc:73650},
+  {pais:'Japão', le:84.7, eys:15.5, mys:12.7, gnipc:47775},
+  {pais:'Portugal', le:82.4, eys:17.5, mys:9.7, gnipc:41064},
+  {pais:'Catar', le:82.4, eys:13.1, mys:10.8, gnipc:105353},
+  {pais:'Luxemburgo', le:82.2, eys:14.4, mys:12.6, gnipc:85461},
+  {pais:'Brasil', le:75.8, eys:15.8, mys:8.4, gnipc:18011},
+  {pais:'China', le:78.0, eys:15.5, mys:8.0, gnipc:22029},
+  {pais:'Índia', le:72.0, eys:13.0, mys:6.9, gnipc:9047},
+  {pais:'Níger', le:61.2, eys:8.3, mys:1.4, gnipc:1590}
+];
+
+let ordem = {col:'idh', asc:false};
+
+function renderTabela(){
+  const G = getGoals();
+  const casas = parseInt(document.getElementById('round').value)||3;
+  const q = (document.getElementById('q').value||'').toLowerCase();
+  let rows = paisesBase
+    .map(p => {
+      const m = computeIndices(p, G);
+      return {...p, idh:m.HDI, _m:m};
+    })
+    .filter(p => p.pais.toLowerCase().includes(q));
+
+  rows.sort((a,b)=>{
+    let k = ordem.asc?1:-1;
+    return (a[ordem.col] > b[ordem.col] ? 1 : a[ordem.col] < b[ordem.col] ? -1 : 0)*k;
+  });
+
+  const tbody = document.querySelector('#tbl tbody');
+  tbody.innerHTML = rows.map(p=>{
+    return `<tr onclick="preencher('${p.pais.replace(/'/g, "\'")}')">
+      <td>${p.pais}</td>
+      <td>${p.le.toFixed(1)}</td>
+      <td>${p.eys.toFixed(1)}</td>
+      <td>${p.mys.toFixed(1)}</td>
+      <td>${p.gnipc.toLocaleString('pt-BR')}</td>
+      <td><b>${r(p.idh, casas).toFixed(casas)}</b></td>
+    </tr>`;
+  }).join('');
+}
+
+function ord(col){
+  if(ordem.col===col){ ordem.asc=!ordem.asc; } else { ordem={col, asc:true}; }
+  renderTabela();
+}
+
+function preencher(nome){
+  const p = paisesBase.find(x=>x.pais===nome);
+  if(!p) return;
+  document.getElementById('le').value = p.le;
+  document.getElementById('eys').value = p.eys;
+  document.getElementById('mys').value = p.mys;
+  document.getElementById('gnipc').value = p.gnipc;
+  calc();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function baixarCSV(){
+  const G = getGoals();
+  const casas = parseInt(document.getElementById('round').value)||3;
+  let csv = 'pais,le,eys,mys,gnipc,LEI,EYSI,MYSI,EDU,INCOME,IDH\n';
+  paisesBase.forEach(p=>{
+    const m = computeIndices(p, G);
+    csv += [p.pais, p.le, p.eys, p.mys, p.gnipc, r(m.LEI,casas), r(m.EYSI,casas), r(m.MYSI,casas), r(m.EDU,casas), r(m.INCOME,casas), r(m.HDI,casas)].join(',') + '\n';
+  });
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'idh_calculado.csv';
+  document.body.appendChild(a); a.click(); a.remove();
+}
+
+// inicializa
+renderTabela();
+</script>
+</body>
+</html>

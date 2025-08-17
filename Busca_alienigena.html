@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Método Estatístico LT–NSD (Nascimento–Sobrevivência–Detecção) — Autor: Luiz Tiago Wilcke</title>
+<!-- MathJax -->
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root{
+    --bg:#0b0f14; --panel:#101726; --ink:#e9eef7; --muted:#a8b3c7;
+    --pri:#7bc4ff; --sec:#ffd166; --ok:#00d084; --warn:#ff6b6b; --border:#0f1a2a;
+    --card:#0f1726; --shadow:0 16px 48px rgba(0,0,0,.45);
+  }
+  *{box-sizing:border-box}
+  body{margin:0; background:var(--bg); color:var(--ink); font:16px/1.55 "Inter",system-ui,Segoe UI,Roboto,Arial}
+  header{padding:24px 16px; background:linear-gradient(180deg,#0f1a2a,transparent)}
+  h1{font-size:28px; margin:0 0 6px}
+  h2{font-size:22px; margin:24px 0 12px}
+  h3{font-size:18px; margin:18px 0 8px}
+  p,li{color:var(--muted)}
+  .wrap{max-width:1100px; margin:0 auto; padding:16px}
+  .grid{display:grid; gap:16px}
+  .two{grid-template-columns:1.2fr .8fr}
+  .card{background:var(--card); border:1px solid var(--border); border-radius:16px; box-shadow:var(--shadow); padding:16px}
+  .kpis{display:grid; grid-template-columns:repeat(4,1fr); gap:12px}
+  .kpi{background:#0f1a2a; border:1px solid #0e1624; border-radius:14px; padding:12px}
+  .kpi .v{font-size:22px; color:#fff; font-weight:700}
+  .kpi .l{font-size:12px; color:var(--muted)}
+  label{display:block; font-size:12px; color:var(--muted); margin-top:8px}
+  input[type=number], input[type=text]{width:100%; background:#0c1320; color:#fff; border:1px solid #0e1624; border-radius:10px; padding:8px}
+  input[type=range]{width:100%}
+  .row{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+  .btn{display:inline-block; background:var(--pri); color:#001018; border:none; border-radius:12px; padding:10px 14px; font-weight:700; cursor:pointer}
+  .btn:disabled{opacity:.6; cursor:not-allowed}
+  .muted{color:var(--muted)}
+  code{background:#0c1320; padding:2px 6px; border-radius:6px}
+  .footer{margin:24px 0 12px; color:#8091a7; font-size:13px}
+  .math{background:#0d1524; border:1px solid #0e1624; border-radius:12px; padding:12px; overflow:auto}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>Método Estatístico <span style="color:var(--pri)">LT–NSD</span> — Nascimento–Sobrevivência–Detecção</h1>
+    <p>Autor: <strong>Luiz Tiago Wilcke</strong> • Modelo novo para estimar a probabilidade e a quantidade de civilizações alienígenas coexistindo agora e a chance de detectá-las.</p>
+  </div>
+</header>
+
+<div class="wrap grid two">
+  <section class="card">
+    <h2>1) Ideia do Método</h2>
+    <p>O <em>LT–NSD</em> modela três camadas estocásticas:</p>
+    <ul>
+      <li><strong>Nascimento</strong>: civilizações surgem segundo um <em>Processo de Poisson Não-Homogêneo</em> (PPNH) no tempo cósmico com intensidade \(\lambda(t)\).</li>
+      <li><strong>Sobrevivência</strong>: cada civilização tem vida útil aleatória \(L\) (Weibull), com função de sobrevivência \(S(u)=\Pr(L>u)\).</li>
+      <li><strong>Detecção</strong>: mesmo existindo, uma civilização é detectável com probabilidade \(p_{\text{det}}(d)\) que decai com a distância \(d\) e cresce com tempo de emissão tecnológica.</li>
+    </ul>
+
+    <div class="math">
+      \[
+      \textbf{Nascimentos:}\qquad N_B\sim\text{Poisson}(\Lambda),\quad \Lambda=\int_0^{t_0}\!\lambda(t)\,dt.
+      \]
+      \[
+      \textbf{Sobreviventes hoje:}\qquad \mu=\int_0^{t_0}\!\lambda(s)\,S(t_0-s)\,ds,\quad N_c\mid \mu\sim\text{Poisson}(\mu).
+      \]
+      \[
+      \textbf{Weibull:}\qquad S(u)=\exp\!\left[-\left(\tfrac{u}{\theta}\right)^k\right],\; k>0,\;\theta>0.
+      \]
+      \[
+      \textbf{Detecção média:}\qquad \bar p_{\text{det}}=\mathbb E_{d}[\,1-e^{-\alpha\,T_{\!\text{emit}}/d^{\,\beta}}\,],\quad \Rightarrow\; \Pr(\text{\ge 1 detecção})=1-e^{-\mu\,\bar p_{\text{det}}}.
+      \]
+      \[
+      \textbf{Correção antrópica (condicionando em N\ge1):}\quad \mathbb E[N_c\mid N_c\!\ge1]=\frac{\mu}{1-e^{-\mu}},\; \Pr(N_c\!\ge2\mid N_c\!\ge1)=\frac{1-e^{-\mu}(1+\mu)}{1-e^{-\mu}}.
+      \]
+    </div>
+
+    <p>Para a Via Láctea, usamos \(\lambda(t)=\lambda_0\, \varphi_{\text{LN}}(t; m,\sigma)\), uma lognormal no tempo (pico ajustável); para o Universo observável, multiplicamos em primeira ordem por \(N_{\text{gal}}\) (nº de galáxias equivalentes).</p>
+  </section>
+
+  <aside class="card">
+    <h2>Saídas (modo rápido)</h2>
+    <div class="kpis">
+      <div class="kpi"><div class="v" id="k_mu">—</div><div class="l">\(\mu\) (VL) — média de civs agora</div></div>
+      <div class="kpi"><div class="v" id="k_pge1">—</div><div class="l">\(\Pr(N\!\ge1)\) na Via Láctea</div></div>
+      <div class="kpi"><div class="v" id="k_pother">—</div><div class="l">\(\Pr(\text{\ge1 outra}\mid\text{existimos})\)</div></div>
+      <div class="kpi"><div class="v" id="k_pdet">—</div><div class="l">\(\Pr(\text{\ge1 detecção})\) (VL)</div></div>
+    </div>
+  </aside>
+</div>
+
+<div class="wrap grid two">
+  <section class="card">
+    <h2>2) Parâmetros — Via Láctea</h2>
+    <div class="row">
+      <div>
+        <label>Idade efetiva habitável \(t_0\) (Gyr)
+          <input type="number" id="t0" value="13.8" step="0.1" min="1" max="20"></label>
+        <label>Intensidade pico \(\lambda_0\) (nascimentos / Gyr)
+          <input type="number" id="lambda0" value="0.6" step="0.05" min="0.01" max="20"></label>
+        <label>Lognormal — mediana (Gyr) de pico <small>\(m=\exp(\mu_t)\)</small>
+          <input type="number" id="ln_med" value="5.0" step="0.1" min="0.5" max="15"></label>
+        <label>Lognormal — desvio logarítmico \(\sigma\)
+          <input type="number" id="ln_sig" value="0.7" step="0.05" min="0.1" max="2.0"></label>
+      </div>
+      <div>
+        <label>Vida (Weibull) — forma \(k\)
+          <input type="number" id="kshape" value="1.3" step="0.05" min="0.3" max="5"></label>
+        <label>Vida (Weibull) — escala \(\theta\) (Gyr)
+          <input type="number" id="theta" value="0.8" step="0.05" min="0.05" max="10"></label>
+        <label>Tempo de emissão tecnológica \(T_{\!\text{emit}}\) (Myr)
+          <input type="number" id="Temit" value="10" step="1" min="0.1" max="10000"></label>
+        <label>Sensibilidade \(\alpha\) (escala de detecção)
+          <input type="number" id="alpha" value="0.015" step="0.005" min="0.0001" max="1"></label>
+        <label>Atenuação \(\beta\)
+          <input type="number" id="beta" value="2" step="0.1" min="1" max="4"></label>
+      </div>
+    </div>
+  </section>
+
+  <aside class="card">
+    <h2>Geometria & Universo</h2>
+    <label>Raio da Via Láctea (kly)
+      <input type="number" id="Rgal" value="50" step="1" min="10" max="100"></label>
+    <label>Posição do Sol (kly)
+      <input type="number" id="r0" value="27" step="1" min="0" max="50"></label>
+    <label>Nº de galáxias equivalentes \(N_{\text{gal}}\)
+      <input type="number" id="Ngal" value="2e11" step="1e9" min="1e9" max="1e12"></label>
+    <label>Amostras geométricas para \(\bar p_{\text{det}}\)
+      <input type="number" id="Nsamp" value="4000" step="500" min="500" max="20000"></label>
+  </aside>
+</div>
+
+<div class="wrap grid two">
+  <section class="card">
+    <h2>3) Modo Bayes (incerteza nos parâmetros)</h2>
+    <p>Modelamos incertezas multiplicativas (log-normais) em \(\lambda_0, m, \sigma, k, \theta, \alpha\). Informe o <em>fator de incerteza</em> (por exemplo 2.0 \(\Rightarrow\) desvio geométrico \(g=2\)).</p>
+    <div class="row">
+      <div>
+        <label>Incerteza \(\lambda_0\) (fator g)
+          <input type="number" id="g_l0" value="1.5" step="0.1" min="1" max="10"></label>
+        <label>Incerteza mediana lognormal (g)
+          <input type="number" id="g_med" value="1.3" step="0.1" min="1" max="10"></label>
+        <label>Incerteza \(\sigma\) (g)
+          <input type="number" id="g_sig" value="1.2" step="0.1" min="1" max="5"></label>
+      </div>
+      <div>
+        <label>Incerteza \(k\) (g)
+          <input type="number" id="g_k" value="1.3" step="0.1" min="1" max="5"></label>
+        <label>Incerteza \(\theta\) (g)
+          <input type="number" id="g_th" value="1.4" step="0.1" min="1" max="10"></label>
+        <label>Incerteza \(\alpha\) (g)
+          <input type="number" id="g_al" value="1.8" step="0.1" min="1" max="10"></label>
+      </div>
+    </div>
+    <div class="row">
+      <label>Nº de amostras Monte Carlo
+        <input type="number" id="Nmc" value="5000" step="500" min="500" max="50000"></label>
+      <div style="display:flex; align-items:end; gap:8px">
+        <button class="btn" id="runDet">Calcular (Determinístico)</button>
+        <button class="btn" id="runMC">Rodar Simulação Bayes</button>
+      </div>
+    </div>
+  </section>
+
+  <aside class="card">
+    <h2>Resultados</h2>
+    <div id="outDet" class="muted">—
+    </div>
+    <hr style="border-color:#0e1624">
+    <div id="outMC" class="muted">—</div>
+  </aside>
+</div>
+
+<div class="wrap card">
+  <h2>4) Especificação Matemática Completa</h2>
+  <div class="math">
+    \[
+    \text{Via Láctea: }\; \lambda(t)=\lambda_0\, \varphi_{\text{LN}}(t; m,\sigma)\,,\qquad \varphi_{\text{LN}}(t; m,\sigma)=\frac{1}{t\,\sigma\sqrt{2\pi}}\exp\!\left(-\frac{(\ln t-\ln m)^2}{2\sigma^2}\right)\,\Big/\,C_{[0,t_0]},
+    \]
+    \[C_{[0,t_0]}=\int_0^{t_0}\!\frac{1}{u\,\sigma\sqrt{2\pi}}\exp\!\left(-\frac{(\ln u-\ln m)^2}{2\sigma^2}\right)du\;\; \text{(normalização truncada)}.\]
+    \[
+    S(u)=\exp\!\left[-\left(\frac{u}{\theta}\right)^k\right],\qquad \mu=\int_{0}^{t_0}\!\lambda(s)\,S(t_0-s)\,ds.
+    \]
+    \[
+    N_c\sim \text{Poisson}(\mu),\qquad \Pr(N_c\!\ge1)=1-e^{-\mu},\quad \Pr(N_c\!\ge2\mid N_c\!\ge1)=\frac{1-e^{-\mu}(1+\mu)}{1-e^{-\mu}}.
+    \]
+    \[
+    p_{\text{det}}(d)=1-\exp\!\left(-\frac{\alpha\,T_{\!\text{emit}}}{d^{\beta}}\right),\quad \bar p_{\text{det}}=\int p_{\text{det}}(d)\,f_D(d)\,dd\,\approx\,\frac{1}{M}\sum_{i=1}^M p_{\text{det}}(d_i).
+    \]
+    \[
+    \Pr(\text{\ge1 detecção na VL})=1-\exp(-\mu\,\bar p_{\text{det}}),\qquad \mathbb E[\#\text{detectáveis}]=\mu\,\bar p_{\text{det}}.
+    \]
+    \[
+    \text{Universo observável: }\; \mu_{\text{UO}}\approx N_{\text{gal}}\,\mu,\quad \Pr(\text{\ge1 detecção na UO})=1-\exp(-\mu_{\text{UO}}\,\bar p_{\text{det}}^{\,*}).
+    \]
+  </div>
+  <p class="muted">Observação: a correção antrópica usada aqui condiciona o processo a \(N_c\!\ge1\) (nós). Outras hipóteses (SIA/SSA) podem ser exploradas estendendo o código.</p>
+</div>
+
+<div class="wrap footer">© <span id="year"></span> • Autor: Luiz Tiago Wilcke • Método LT–NSD por LT. Código aberto para uso acadêmico.</div>
+
+<script>
+// ========= utilidades matemáticas =========
+const EPS = 1e-12;
+function lognormal_pdf_trunc(t, m, sigma, t0){
+  if(t<=0) return 0;
+  const normC = lognormal_trunc_norm(m, sigma, t0);
+  const z = (Math.log(t) - Math.log(m)) / sigma;
+  const pdf = Math.exp(-0.5*z*z) / (t * sigma * Math.sqrt(2*Math.PI));
+  return pdf / normC;
+}
+function lognormal_trunc_norm(m, sigma, t0){
+  // CDF lognormal at t0 (since lower bound ~0)
+  const z = (Math.log(t0) - Math.log(m)) / sigma;
+  const Phi = 0.5*(1+erf(z/Math.SQRT2));
+  return Phi; // integral from 0..t0
+}
+function erf(x){
+  // Abramowitz-Stegun approximation
+  const sign = x<0 ? -1:1; x = Math.abs(x);
+  const a1=0.254829592, a2=-0.284496736, a3=1.421413741, a4=-1.453152027, a5=1.061405429, p=0.3275911;
+  const t = 1/(1+p*x);
+  const y = 1 - (((((a5*t+a4)*t)+a3)*t+a2)*t+a1)*t*Math.exp(-x*x);
+  return sign*y;
+}
+function S_weibull(u,k,theta){
+  if(u<0) return 1; // before birth
+  return Math.exp(-Math.pow(Math.max(u,0)/theta, Math.max(k,EPS)));
+}
+function integrate_simpson(f, a, b, n){
+  if(n%2===1) n++; // Simpson requer par de subintervalos
+  const h = (b-a)/n; let s = f(a) + f(b);
+  for(let i=1;i<n;i++){
+    const x = a + i*h; s += (i%2===0 ? 2:4)*f(x);
+  }
+  return s * h/3;
+}
+function poissonProbGE1(mu){ return 1 - Math.exp(-mu); }
+function pOtherGivenExist(mu){
+  const num = 1 - Math.exp(-mu)*(1+mu);
+  const den = Math.max(1 - Math.exp(-mu), EPS);
+  return Math.max(0, Math.min(1, num/den));
+}
+
+// ========= geometria da galáxia =========
+function sampleDistancesInDisk(R, r0, M){
+  // R, r0 em kly; devolve array de distâncias (kly) para um ponto fixo a r0
+  const ds = new Float64Array(M);
+  for(let i=0;i<M;i++){
+    const u = Math.random();
+    const r = R*Math.sqrt(u); // uniforme em área
+    const phi = 2*Math.PI*Math.random();
+    const x = r*Math.cos(phi), y = r*Math.sin(phi);
+    const xe = r0, ye = 0; // Terra no eixo x a r0
+    const dx = x - xe, dy = y - ye;
+    ds[i] = Math.sqrt(dx*dx + dy*dy); // kly
+  }
+  return ds;
+}
+
+function avgDetectionProb(ds, alpha, beta, T_emit){
+  // d em kly; T_emit em Myr; alpha em escala arbitrária
+  let s=0; const M=ds.length; const tiny=1e-12;
+  for(let i=0;i<M;i++){
+    const d = Math.max(ds[i], tiny);
+    const p = 1 - Math.exp(- alpha * (T_emit) / Math.pow(d, beta));
+    s += p;
+  }
+  return s / M;
+}
+
+// ========= núcleo do modelo =========
+function computeMuDeterministic(params){
+  const {t0, lambda0, mMed, lnSig, k, theta} = params;
+  const f = (s)=>{
+    const lam = lambda0 * lognormal_pdf_trunc(s, mMed, lnSig, t0);
+    const surv = S_weibull(t0 - s, k, theta);
+    return lam * surv;
+  };
+  const mu = integrate_simpson(f, 0, t0, 800);
+  return mu;
+}
+
+function drawLogNormalAround(xmed, g){
+  // lognormal com mediana xmed e desvio geométrico g
+  const sigma = Math.log(Math.max(g,1));
+  // amostra normal(0, sigma)
+  const z = boxMuller()*sigma;
+  return xmed * Math.exp(z);
+}
+function drawAround(x, g){ return drawLogNormalAround(x, g); }
+function boxMuller(){
+  let u=0, v=0; while(u===0) u=Math.random(); while(v===0) v=Math.random();
+  return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);
+}
+
+function updateKPIs(mu, pdet){
+  document.getElementById('k_mu').textContent = mu.toFixed(3);
+  document.getElementById('k_pge1').textContent = (poissonProbGE1(mu)*100).toFixed(1)+"%";
+  document.getElementById('k_pother').textContent = (pOtherGivenExist(mu)*100).toFixed(1)+"%";
+  document.getElementById('k_pdet').textContent = ((1-Math.exp(-mu*pdet))*100).toFixed(2)+"%";
+}
+
+// ========= UI hooks =========
+function readParams(){
+  return {
+    t0: parseFloat(document.getElementById('t0').value),
+    lambda0: parseFloat(document.getElementById('lambda0').value),
+    mMed: parseFloat(document.getElementById('ln_med').value),
+    lnSig: parseFloat(document.getElementById('ln_sig').value),
+    k: parseFloat(document.getElementById('kshape').value),
+    theta: parseFloat(document.getElementById('theta').value),
+    T_emit: parseFloat(document.getElementById('Temit').value),
+    alpha: parseFloat(document.getElementById('alpha').value),
+    beta: parseFloat(document.getElementById('beta').value),
+    R: parseFloat(document.getElementById('Rgal').value),
+    r0: parseFloat(document.getElementById('r0').value),
+    Ngal: parseFloat(document.getElementById('Ngal').value),
+    Nsamp: parseInt(document.getElementById('Nsamp').value)
+  };
+}
+
+function readUnc(){
+  return {
+    g_l0: parseFloat(document.getElementById('g_l0').value),
+    g_med: parseFloat(document.getElementById('g_med').value),
+    g_sig: parseFloat(document.getElementById('g_sig').value),
+    g_k: parseFloat(document.getElementById('g_k').value),
+    g_th: parseFloat(document.getElementById('g_th').value),
+    g_al: parseFloat(document.getElementById('g_al').value),
+    Nmc: parseInt(document.getElementById('Nmc').value)
+  };
+}
+
+function deterministic(){
+  const P = readParams();
+  const ds = sampleDistancesInDisk(P.R, P.r0, P.Nsamp);
+  const pbar = avgDetectionProb(ds, P.alpha, P.beta, P.T_emit);
+  const mu = computeMuDeterministic({t0:P.t0, lambda0:P.lambda0, mMed:P.mMed, lnSig:P.lnSig, k:P.k, theta:P.theta});
+  updateKPIs(mu, pbar);
+  const muU = P.Ngal * mu;
+  const pdetVL = 1 - Math.exp(-mu * pbar);
+  const pdetUO = 1 - Math.exp(-muU * pbar);
+  const html = `
+    <p><strong>Determinístico (ponto):</strong></p>
+    <ul>
+      <li>\n(\mu) (VL) = <b>${mu.toFixed(4)}</b></li>
+      <li>Pr(N≥1 na VL) = <b>${(poissonProbGE1(mu)*100).toFixed(2)}%</b></li>
+      <li>Pr(≥1 outra | existimos) = <b>${(pOtherGivenExist(mu)*100).toFixed(2)}%</b></li>
+      <li>p̄_det (VL) = <b>${pbar.toFixed(4)}</b></li>
+      <li>Pr(≥1 detecção na VL) = <b>${(pdetVL*100).toFixed(2)}%</b></li>
+      <li>\n(\mu) Universo Observável ≈ <b>${muU.toExponential(3)}</b></li>
+      <li>Pr(≥1 detecção no Universo Observável) ≈ <b>${(pdetUO*100).toFixed(2)}%</b></li>
+    </ul>`;
+  document.getElementById('outDet').innerHTML = html;
+}
+
+function bayesMC(){
+  const P = readParams();
+  const U = readUnc();
+  const ds = sampleDistancesInDisk(P.R, P.r0, P.Nsamp);
+  const N = U.Nmc;
+  const arr_mu = new Float64Array(N), arr_pdet = new Float64Array(N);
+  let sum_mu=0, sum_pge1=0, sum_pother=0, sum_pdet=0;
+  for(let i=0;i<N;i++){
+    const l0 = drawAround(P.lambda0, U.g_l0);
+    const mMed = drawAround(P.mMed, U.g_med);
+    const lnSig = Math.max(0.05, drawAround(P.lnSig, U.g_sig));
+    const k = Math.max(0.1, drawAround(P.k, U.g_k));
+    const th = Math.max(0.01, drawAround(P.theta, U.g_th));
+    const al = Math.max(1e-5, drawAround(P.alpha, U.g_al));
+
+    const mu = computeMuDeterministic({t0:P.t0, lambda0:l0, mMed, lnSig, k, theta:th});
+    const pbar = avgDetectionProb(ds, al, P.beta, P.T_emit);
+
+    arr_mu[i]=mu; arr_pdet[i]=pbar;
+    sum_mu += mu;
+    sum_pge1 += poissonProbGE1(mu);
+    sum_pother += pOtherGivenExist(mu);
+    sum_pdet += (1 - Math.exp(-mu*pbar));
+  }
+  function quantile(arr, q){
+    const a = Array.from(arr).sort((x,y)=>x-y);
+    const idx = (a.length-1)*q; const lo=Math.floor(idx), hi=Math.ceil(idx);
+    if(lo===hi) return a[lo];
+    return a[lo]*(hi-idx) + a[hi]*(idx-lo);
+  }
+  const mu_mean = sum_mu/N, mu_p05=quantile(arr_mu, 0.05), mu_p95=quantile(arr_mu,0.95);
+  const pge1_mean = sum_pge1/N, pge1_p05=quantile(arr_mu.map(poissonProbGE1),0.05), pge1_p95=quantile(arr_mu.map(poissonProbGE1),0.95);
+  const pother_mean = sum_pother/N;
+  const pdet_mean = sum_pdet/N;
+
+  updateKPIs(mu_mean, quantile(arr_pdet,0.5));
+
+  const muU_mean = P.Ngal * mu_mean;
+  const pdetUO_mean = 1 - Math.exp(- muU_mean * (arr_pdet.reduce((a,b)=>a+b,0)/N));
+
+  const html = `
+    <p><strong>Bayes (Monte Carlo ${N}):</strong></p>
+    <ul>
+      <li>\n(\mu) (VL) — média: <b>${mu_mean.toFixed(4)}</b> \; [5%,95%] ≈ <b>[${mu_p05.toFixed(4)}, ${mu_p95.toFixed(4)}]</b></li>
+      <li>Pr(N≥1 VL) — média: <b>${(pge1_mean*100).toFixed(2)}%</b> \; [5%,95%] ≈ <b>[${(pge1_p05*100).toFixed(1)}%, ${(pge1_p95*100).toFixed(1)}%]</b></li>
+      <li>Pr(≥1 outra | existimos) — média: <b>${(pother_mean*100).toFixed(2)}%</b></li>
+      <li>Pr(≥1 detecção VL) — média: <b>${(pdet_mean*100).toFixed(2)}%</b></li>
+      <li>\n(\mu) Universo Observável — média: <b>${muU_mean.toExponential(3)}</b></li>
+      <li>Pr(≥1 detecção no Universo Observável) — média: <b>${(pdetUO_mean*100).toFixed(2)}%</b></li>
+    </ul>`;
+  document.getElementById('outMC').innerHTML = html;
+}
+
+// inicialização e eventos
+function init(){
+  document.getElementById('year').textContent = new Date().getFullYear();
+  document.getElementById('runDet').addEventListener('click', deterministic);
+  document.getElementById('runMC').addEventListener('click', bayesMC);
+  deterministic();
+}
+window.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
